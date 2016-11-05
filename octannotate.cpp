@@ -61,9 +61,6 @@ OCTAnnotate::OCTAnnotate(QWidget *parent) : QMainWindow(parent),
     ui->actionSaveOCTExam->setEnabled(false);
 
     currentDir = QDir::current();
-//    examDir = currentDir.path().append("/examData");
-//    if (!examDir.exists())
-//        currentDir.mkdir("examData");
 
     currentImageNumber = 0;
     currentNormalImageNumber = 0;

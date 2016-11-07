@@ -11,7 +11,7 @@ const QString SettingsDialog::pathManualSegmDef = QDir::currentPath().append("/e
 const QString SettingsDialog::pathAutoSegmDef = QDir::currentPath().append("/examData");
 const QString SettingsDialog::openBskanDef = "m";
 const QString SettingsDialog::dataSaveStructureDef = "txt";
-const QString SettingsDialog::databasePathDef = "../SQLite/CAVRIpatients.db";
+const QString SettingsDialog::databasePathDef = "/database/CAVRIpatients.db";
 const bool SettingsDialog::showETDRSGridDef = true;
 const bool SettingsDialog::showCenterOnBscanDef = true;
 const bool SettingsDialog::showBscanOnErrorPlotDef = true;
@@ -135,7 +135,7 @@ void SettingsDialog::readSettingsFromFile(){
                     pathOctExam = data.at(1);
             }
             if (data.at(0) == "pathDatabase"){
-                if (QDir(data.at(1)).exists())
+                if (QFile(data.at(1)).exists())
                     databasePath = data.at(1);
             }
             if (data.at(0) == "showETDRSGrid"){

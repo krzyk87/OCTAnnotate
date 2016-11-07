@@ -5363,9 +5363,13 @@ void OCTAnnotate::on_deletePatientDBButton_clicked()
     }
 }
 
-void OCTAnnotate::on_addScanFolderButton_clicked()
+void OCTAnnotate::on_addScanFolderButton_clicked(QString folderPath)
 {
-    QString pathOctExam = QFileDialog::getExistingDirectory(this, tr("Open Directory"), examDir.absolutePath(), QFileDialog::ShowDirsOnly);
+    QString pathOctExam;
+    if (folderPath.isEmpty())
+        pathOctExam = QFileDialog::getExistingDirectory(this, tr("Open Directory"), examDir.absolutePath(), QFileDialog::ShowDirsOnly);
+    else
+        pathOctExam = folderPath;
     if (!pathOctExam.isEmpty()){
         QDir newExamDir = QDir(pathOctExam);
 
@@ -5751,4 +5755,19 @@ void OCTAnnotate::on_actionImageFlattening_toggled(bool state)
 {
     flattenImage = state;
     displayImageLayersPlot(currentImageLayersNumber,ILM);
+}
+
+void OCTAnnotate::on_searchForScansButton_clicked()
+{
+    // TODO:
+    // 1. zaladuj liste katalogow ze wskazanego katalogu
+    QString folderSearchPath = QFileDialog::getExistingDirectory(this, tr("Open Directory"), examDir.absolutePath(), QFileDialog::ShowDirsOnly);
+    QDir folderSearchDir = QDir(folderSearchPath);
+    QStringList folderList = folderSearchDir.entryList(QDir::Dirs | QDir::NoDotAndDotDot);
+
+    // 2. dla kazdego katalogu dodaj skan do bazy
+    foreach(QString folderName, folderList){
+        qDebug() << folderName;
+//        on_addScanFolderButton_clicked(folderName);
+    }
 }

@@ -1,0 +1,10 @@
+bscanNr=m
+pathOctExam=C:/DANE/Egnyte/Private/agis/BADANIA/OCT exams
+pathManual=C:/PROJEKTY/OCTAnnotate/examData
+pathAuto=C:/PROJEKTY/OCTAnnotate/examData
+pathDatabase=C:/DANE/Egnyte/Private/agis/BADANIA/OCT exams/CAVRIpatients.db
+showETDRSGrid=1
+blockPCV=1
+showCenterOnBscan=1
+showBscanOnErrorPlot=1
+dataSaveStructure=txt

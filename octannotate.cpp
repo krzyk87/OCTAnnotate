@@ -51,7 +51,7 @@ OCTAnnotate::OCTAnnotate(QWidget *parent) : QMainWindow(parent),
         qDebug() << "Database opened.";
         initializeModelPatients();
         initializeModelScans();
-        ui->scanListGroupCBox->setCurrentIndex(2);
+        ui->scanListGroupCBox->setCurrentIndex(1);
         ui->fundusDBLabel->setScaledContents(true);
         ui->bscanHLabel->setScaledContents(true);
         ui->bscanVLabel->setScaledContents(true);
@@ -311,6 +311,7 @@ void OCTAnnotate::initializeModelScans(){
     modelScans->setHeaderData(11, Qt::Horizontal, QObject::tr("Folder path"));
     modelScans->setHeaderData(12, Qt::Horizontal, QObject::tr("Notes"));
     modelScans->setHeaderData(13, Qt::Horizontal, QObject::tr("Default"));
+    modelScans->setHeaderData(14, Qt::Horizontal, QObject::tr("AutoExplorer"));
 
     modelScans->select();
 
@@ -5466,20 +5467,33 @@ void OCTAnnotate::on_createProjectionsButton_clicked()
         QSqlRecord record = modelScans->record(r);
 
         // 1. calculate age, if less than existing -> update
-//        int patientID = record.value("patient_id").toInt();
-//        QDateTime examDate = record.value("date").toDateTime();
+        int patientID = record.value("patient_id").toInt();
+        QDateTime examDate = record.value("date").toDateTime();
 
-//        int patientAge = patientsDB->getPatientAge(patientID);
-//        if (patientAge == 0){
-//            patientsDB->calculatePatientAge(patientID, examDate);
-//        }
+        int patientAge = patientsDB->getPatientAge(patientID);
+        if (patientAge == 0){
+            patientsDB->calculatePatientAge(patientID, examDate);
+        }
 
         // 2. find 1 of 2 fundus images, save and display
 
         // 3. import cross-sections, calculate cross, save and display
+
+        // 4. check if OCTExplorer annotations are present in the folder
+        QString folderName = record.value("scan_folder_path").toString();
+        QString subfolder = record.value("device").toString() + " " + record.value("series").toString();
+        QString temp = "/" + subfolder + "/" + folderName + "/" + folderName + "_Proj_Iowa.tif";
+        QString fundusPath = examDir.absolutePath().append(temp);
+        bool hasAutoExplorer = record.value("has_autoExplorer").toBool();
+        if (QFile(fundusPath).exists() && !hasAutoExplorer){
+            patientsDB->editScanHasAutoExplorer(patientsDB->getScanID(folderName),true);
+        } else {
+            qDebug() << "No OCTExplorer analysis for scan: " + temp;
+        }
     }
 
     modelPatients->select();
+    modelScans->select();
 }
 
 void OCTAnnotate::on_patientsListTableView_doubleClicked(const QModelIndex &currentIndex)
@@ -5490,7 +5504,7 @@ void OCTAnnotate::on_patientsListTableView_doubleClicked(const QModelIndex &curr
         QSqlRecord selectedRecord = modelPatients->record(currentRow);
         QString filter = "patient_id = " + selectedRecord.value("id").toString();
         if (ui->showOnlyDefaultScanRButton->isChecked())
-            filter += " AND default_flag = 1";
+            filter += " AND is_default = 1";
         modelScans->setFilter(filter);
     }
 }
@@ -5515,7 +5529,7 @@ void OCTAnnotate::on_scanListGroupCBox_currentIndexChanged(int index)
         selectedRecord = modelPatients->record(currentRow);
         filter1 = "patient_id = " + selectedRecord.value("id").toString();
         if (ui->showOnlyDefaultScanRButton->isChecked())
-            filter1 += " AND default_flag = 1";
+            filter1 += " AND is_default = 1";
         modelScans->setFilter(filter1);
         break;
     case 1:
@@ -5575,15 +5589,15 @@ void OCTAnnotate::on_scanListGroupCBox_currentIndexChanged(int index)
             filter1 += "(patient_id = " + recordPatient.value("id").toString();
             filter1 += filter2;
             if (ui->showOnlyDefaultScanRButton->isChecked())
-                filter1 += " AND default_flag = 1";
+                filter1 += " AND is_default = 1";
             filter1 += ")";
-            qDebug() << "scan search filter: " + filter1;
+//            qDebug() << "scan search filter: " + filter1;
         }
         modelScans->setFilter(filter1);
         break;
     case 2:
         if (ui->showOnlyDefaultScanRButton->isChecked())
-            filter1 = "default_flag = 1";
+            filter1 = "is_default = 1";
         else
             filter1 = "";
         modelScans->setFilter(filter1);
@@ -5767,7 +5781,7 @@ void OCTAnnotate::on_searchForScansButton_clicked()
 
     // 2. dla kazdego katalogu dodaj skan do bazy
     foreach(QString folderName, folderList){
-        qDebug() << folderName;
-//        on_addScanFolderButton_clicked(folderName);
+        qDebug() << folderSearchPath + "/" + folderName;
+        on_addScanFolderButton_clicked(folderSearchPath + "/" + folderName);
     }
 }

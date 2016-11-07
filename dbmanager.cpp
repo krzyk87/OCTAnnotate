@@ -136,7 +136,7 @@ int DbManager::getPatientAge(int patientID){
     if (query.exec()){
         if (query.next()){
             patientAge = query.value("age").toInt();
-            qDebug() << "patient age fetched...";
+//            qDebug() << "patient age fetched...";
         } else {
             qDebug() << "no age for patient...";
         }
@@ -179,7 +179,7 @@ void DbManager::calculatePatientAge(int patientID, QDateTime examDate){
     if (query.exec()){
         if (query.next()){
             patientBirthDate = query.value("date_of_birth").toDate();
-            qDebug() << "patient birth date fetched...";
+//            qDebug() << "patient birth date fetched...";
             int patientBirthYear = patientBirthDate.toString("yyyy").toInt();
             int scanYear = examDate.toString("yyyy").toInt();
             patientAge = scanYear - patientBirthYear;
@@ -187,15 +187,15 @@ void DbManager::calculatePatientAge(int patientID, QDateTime examDate){
             query.bindValue(":age", patientAge);
             query.bindValue(":patient_id", patientID);
             if (query.exec()){
-                qDebug() << "Age calculated.";
+                qDebug() << QString::number(patientID) + ": Age calculated.";
             } else {
-                qDebug() << "Error while updating patient age!";
+                qDebug() << QString::number(patientID) + ": Error while updating patient age!";
             }
         } else {
-            qDebug() << "no birth date for patient...";
+            qDebug() << QString::number(patientID) + ": no birth date for patient...";
         }
     } else {
-        qDebug() << "Error while geting patient age!";
+        qDebug() << QString::number(patientID) + ": Error while geting patient age!";
     }
 }
 
@@ -208,7 +208,7 @@ bool DbManager::addNewScan(int patientID, QString eye, QDateTime scan_date, QStr
     query.bindValue(":eye", eye);
     query.bindValue(":scan_date", scan_date.toString("yyyy-MM-dd hh:mm:ss.000"));
     query.bindValue(":device", device);
-    query.bindValue(":series", "Seria 4");
+    query.bindValue(":series", "Seria 6");
     query.bindValue(":scan_type", scan_type);
     query.bindValue(":scan_direction", scan_direction);
     query.bindValue(":scan_dimensions", scan_dimensions);
@@ -245,4 +245,22 @@ int DbManager::getScanID(QString examDirName){
     }
 
     return scanID;
+}
+
+bool DbManager::editScanHasAutoExplorer(int scanID, bool hasAutoExplorer){
+    bool success = false;
+
+    QSqlQuery query;
+    query.prepare("UPDATE scans SET has_autoExplorer=:hasAutoExplorer WHERE id=:scanID");
+    query.bindValue(":hasAutoExplorer",hasAutoExplorer);
+    query.bindValue(":scanID",scanID);
+
+    if (query.exec()){
+        success = true;
+        qDebug() << "editScan query: " << query.lastQuery();
+    } else {
+        qDebug() << "editScan error: " << query.lastError();
+    }
+
+    return success;
 }

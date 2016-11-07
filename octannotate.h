@@ -147,7 +147,7 @@ private slots:
     void on_editPatientDBButton_clicked();
     void on_deletePatientDBButton_clicked();
 
-    void on_addScanFolderButton_clicked(QString folderPath);
+    void on_addScanFolderButton_clicked(QString folderPath = "");
 
     void on_searchPatientDBButton_clicked();
     void on_showAllScansRButton_toggled();

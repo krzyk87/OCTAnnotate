@@ -494,6 +494,34 @@
    </widget>
   </widget>
  </widget>
+ <tabstops>
+  <tabstop>lastNameLEdit</tabstop>
+  <tabstop>firstNameLEdit</tabstop>
+  <tabstop>birthDateEdit</tabstop>
+  <tabstop>genderCBox</tabstop>
+  <tabstop>fileNoLEdit</tabstop>
+  <tabstop>notesTEdit</tabstop>
+  <tabstop>saveButton</tabstop>
+  <tabstop>odp_undef_RButton</tabstop>
+  <tabstop>odp_none_RButton</tabstop>
+  <tabstop>odp_cavri_RButton</tabstop>
+  <tabstop>odp_vma_CBox</tabstop>
+  <tabstop>odp_vmt_CBox</tabstop>
+  <tabstop>odp_erm_CBox</tabstop>
+  <tabstop>odp_mh_CBox</tabstop>
+  <tabstop>odp_cnv_CBox</tabstop>
+  <tabstop>odp_other_RButton</tabstop>
+  <tabstop>osp_undef_RButton</tabstop>
+  <tabstop>osp_none_RButton</tabstop>
+  <tabstop>osp_cavri_RButton</tabstop>
+  <tabstop>osp_vma_CBox</tabstop>
+  <tabstop>osp_vmt_CBox</tabstop>
+  <tabstop>osp_erm_CBox</tabstop>
+  <tabstop>osp_mh_CBox</tabstop>
+  <tabstop>osp_cnv_CBox</tabstop>
+  <tabstop>osp_other_RButton</tabstop>
+  <tabstop>cancelButton</tabstop>
+ </tabstops>
  <resources/>
  <connections/>
 </ui>

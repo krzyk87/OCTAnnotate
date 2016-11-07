@@ -187,6 +187,31 @@ public:
         osp_vma_CBox = new QCheckBox(OSPathologyGroupBox);
         osp_vma_CBox->setObjectName(QStringLiteral("osp_vma_CBox"));
         osp_vma_CBox->setGeometry(QRect(30, 80, 70, 17));
+        QWidget::setTabOrder(lastNameLEdit, firstNameLEdit);
+        QWidget::setTabOrder(firstNameLEdit, birthDateEdit);
+        QWidget::setTabOrder(birthDateEdit, genderCBox);
+        QWidget::setTabOrder(genderCBox, fileNoLEdit);
+        QWidget::setTabOrder(fileNoLEdit, notesTEdit);
+        QWidget::setTabOrder(notesTEdit, saveButton);
+        QWidget::setTabOrder(saveButton, odp_undef_RButton);
+        QWidget::setTabOrder(odp_undef_RButton, odp_none_RButton);
+        QWidget::setTabOrder(odp_none_RButton, odp_cavri_RButton);
+        QWidget::setTabOrder(odp_cavri_RButton, odp_vma_CBox);
+        QWidget::setTabOrder(odp_vma_CBox, odp_vmt_CBox);
+        QWidget::setTabOrder(odp_vmt_CBox, odp_erm_CBox);
+        QWidget::setTabOrder(odp_erm_CBox, odp_mh_CBox);
+        QWidget::setTabOrder(odp_mh_CBox, odp_cnv_CBox);
+        QWidget::setTabOrder(odp_cnv_CBox, odp_other_RButton);
+        QWidget::setTabOrder(odp_other_RButton, osp_undef_RButton);
+        QWidget::setTabOrder(osp_undef_RButton, osp_none_RButton);
+        QWidget::setTabOrder(osp_none_RButton, osp_cavri_RButton);
+        QWidget::setTabOrder(osp_cavri_RButton, osp_vma_CBox);
+        QWidget::setTabOrder(osp_vma_CBox, osp_vmt_CBox);
+        QWidget::setTabOrder(osp_vmt_CBox, osp_erm_CBox);
+        QWidget::setTabOrder(osp_erm_CBox, osp_mh_CBox);
+        QWidget::setTabOrder(osp_mh_CBox, osp_cnv_CBox);
+        QWidget::setTabOrder(osp_cnv_CBox, osp_other_RButton);
+        QWidget::setTabOrder(osp_other_RButton, cancelButton);
 
         retranslateUi(NewPatientDialog);
 

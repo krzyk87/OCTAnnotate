@@ -1993,30 +1993,6 @@ void PatientData::setOCTdata(QImage bscan, int bscanNumber){
 
 
 // General Exam Data ----------------------------------------------------------
-QString PatientData::getOtherDisorders(){
-    return this->otherDisorders;
-}
-
-void PatientData::setOtherDisorders(QString newOther){
-    this->otherDisorders = newOther;
-}
-
-QString PatientData::getPosterior(){
-    return this->posterior;
-}
-
-void PatientData::setPosterior(QString newPosterior){
-    this->posterior = newPosterior;
-}
-
-QString PatientData::getAnterior(){
-    return this->anterior;
-}
-
-void PatientData::setAnterior(QString newAnterior){
-    this->anterior = newAnterior;
-}
-
 QString PatientData::getSnOL(){
     return this->snOL;
 }

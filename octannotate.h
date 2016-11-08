@@ -47,7 +47,6 @@ private slots:
     //void on_actionAddPatientNew_triggered();
     //void on_actionLoadPatientGeneral_triggered();
     void on_actionLoadPatientOCT_triggered(QString scanFolderPath = "");
-    void on_octExamsListWidget_doubleClicked(const QModelIndex &index);
     void on_actionReadManualAnnotations_triggered();
 
 // General exam
@@ -55,9 +54,6 @@ private slots:
     void on_visOLLEdit_textEdited();
     void on_snOPLEdit_textEdited();
     void on_snOLLEdit_textEdited();
-    void on_anteriorTEdit_textChanged();
-    void on_posteriorTEdit_textChanged();
-    void on_otherPathologiesTEdit_textChanged();
     void on_amslerRCommentTEdit_textChanged();
     void on_amslerLCommentTEdit_textChanged();
 
@@ -65,10 +61,6 @@ private slots:
     void on_mcHOPLEdit_textChanged();
     void on_mcVOLLEdit_textChanged();
     void on_mcHOLLEdit_textChanged();
-
-    void on_birthDateEdit_userDateChanged(const QDate &date);
-    void on_pathOPCBox_currentIndexChanged(int index);
-    void on_pathOLCBox_currentIndexChanged(int index);
 
 // OCT exam
     void on_allLayersCBox_stateChanged(int state);
@@ -101,6 +93,7 @@ private slots:
 
     void on_zoomInButton_clicked();
     void on_zoomOutButton_clicked();
+    void on_actionImageFlattening_toggled(bool state);
 
     void on_actionChangeLayerColor_triggered();
     void on_actionSetScanCenter_toggled(bool checked);
@@ -147,6 +140,7 @@ private slots:
     void on_editPatientDBButton_clicked();
     void on_deletePatientDBButton_clicked();
 
+    void on_searchForScansButton_clicked();
     void on_addScanFolderButton_clicked(QString folderPath = "");
 
     void on_searchPatientDBButton_clicked();
@@ -154,14 +148,11 @@ private slots:
     void on_scanListGroupCBox_currentIndexChanged(int index);
 
     void on_patientsListTableView_doubleClicked(const QModelIndex &index);
+    void on_patientsListTableView_clicked(const QModelIndex &currentIndex);
     void on_scansListTableView_doubleClicked(const QModelIndex &currentIndex);
     void on_scansListTableView_clicked(const QModelIndex &index);
 
     void on_createProjectionsButton_clicked();
-
-    void on_actionImageFlattening_toggled(bool state);
-
-    void on_searchForScansButton_clicked();
 
 public slots:
     void on_errorOccured(QString);

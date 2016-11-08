@@ -47,11 +47,12 @@ OCTAnnotate::OCTAnnotate(QWidget *parent) : QMainWindow(parent),
 
     if (!patientsDB->isOpen()){
         qDebug() << "Database not opened!";
+        QMessageBox::critical(this,"Database connection error","Could not connect to the patients database. Please set the correct path to the database in the Settings menu and restart the application.");
     } else {
         qDebug() << "Database opened.";
         initializeModelPatients();
         initializeModelScans();
-        ui->scanListGroupCBox->setCurrentIndex(1);
+        ui->scanListGroupCBox->setCurrentIndex(0);
         ui->fundusDBLabel->setScaledContents(true);
         ui->bscanHLabel->setScaledContents(true);
         ui->bscanVLabel->setScaledContents(true);
@@ -240,8 +241,8 @@ OCTAnnotate::OCTAnnotate(QWidget *parent) : QMainWindow(parent),
     }
     ui->contactThresholdCBox->setCurrentIndex(1);
 
+    ui->tabWidget->removeTab(1);
     ui->tabWidget->removeTab(2);
-    ui->tabWidget->removeTab(3);
     appVersion = "v1.6";
     this->setWindowTitle("OCTAnnotate " + appVersion);
     progressBar = new QProgressBar();
@@ -320,7 +321,9 @@ void OCTAnnotate::initializeModelScans(){
     ui->scansListTableView->setColumnHidden(0, true);
     ui->scansListTableView->setColumnHidden(1, true);
     ui->scansListTableView->setColumnHidden(4, true);
+    ui->scansListTableView->setColumnHidden(6, true);
     ui->scansListTableView->setColumnHidden(7, true);
+    ui->scansListTableView->setColumnHidden(8, true);
     ui->scansListTableView->setColumnHidden(9, true);
     ui->scansListTableView->setColumnHidden(10, true);
     ui->scansListTableView->resizeColumnsToContents();
@@ -442,56 +445,58 @@ void OCTAnnotate::on_actionLoadPatientOCT_triggered(QString scanFolderPath)
     }
 }
 
-void OCTAnnotate::on_octExamsListWidget_doubleClicked(const QModelIndex &index)
-{
-    QMessageBox msgBox;
-    QPushButton *saveButton = msgBox.addButton(" Zapisz i wczytaj nowe badanie ", QMessageBox::YesRole);
-    QPushButton *cancelButton = msgBox.addButton(" Anuluj ", QMessageBox::RejectRole);
-    msgBox.addButton(" Wczytaj nowe badanie bez zapisywania ", QMessageBox::NoRole);
-    bool selectNew = true;
+// TODO: te same zabezpieczenia wykorzystać przy liscie skanow...!!! chyba działa?
 
-    if (octDataModified){
-        msgBox.setText("Anotacje badania OCT zostały zmienione. Czy zapisać zmiany przed wczytaniem nowego badania?");
-        msgBox.exec();
-        if (msgBox.clickedButton() == saveButton){
-            on_actionSaveOCTExam_triggered();
-        } else if (msgBox.clickedButton() == cancelButton) {
-            selectNew = false;
-        }
-    }
+//void OCTAnnotate::on_octExamsListWidget_doubleClicked(const QModelIndex &index)
+//{
+//    QMessageBox msgBox;
+//    QPushButton *saveButton = msgBox.addButton(" Zapisz i wczytaj nowe badanie ", QMessageBox::YesRole);
+//    QPushButton *cancelButton = msgBox.addButton(" Anuluj ", QMessageBox::RejectRole);
+//    msgBox.addButton(" Wczytaj nowe badanie bez zapisywania ", QMessageBox::NoRole);
+//    bool selectNew = true;
 
-    if (selectNew){
-        tmpDir = octDir;
-        tmpDir.cdUp();
-        tmpDir.cd("./" + index.data().toString());
+//    if (octDataModified){
+//        msgBox.setText("Anotacje badania OCT zostały zmienione. Czy zapisać zmiany przed wczytaniem nowego badania?");
+//        msgBox.exec();
+//        if (msgBox.clickedButton() == saveButton){
+//            on_actionSaveOCTExam_triggered();
+//        } else if (msgBox.clickedButton() == cancelButton) {
+//            selectNew = false;
+//        }
+//    }
 
-        ui->statusBar->showMessage("Trwa odczyt danych badania OCT...");
-        progressBar->setMaximum(100);
-        progressBar->setVisible(true);
-        progressBar->setValue(0);
+//    if (selectNew){
+//        tmpDir = octDir;
+//        tmpDir.cdUp();
+//        tmpDir.cd("./" + index.data().toString());
 
-        ReadWriteData *rwData = new ReadWriteData();
-        rwData->setDataObject(&patientData);
-        rwData->setDirectoryOct(&tmpDir);
-        rwData->setDirectoryManual(&manualDir);
-        rwData->setDirectoryAuto(&autoDir);
-        rwData->setDataSaveStrucure(dataSaveStructure);
-        rwData->addDirective("readPatientData");
-        rwData->addDirective("readOctExamData");
+//        ui->statusBar->showMessage("Trwa odczyt danych badania OCT...");
+//        progressBar->setMaximum(100);
+//        progressBar->setVisible(true);
+//        progressBar->setValue(0);
 
-        QThread *thread = new QThread;
-        rwData->moveToThread(thread);
-        connect(thread, SIGNAL(started()), rwData, SLOT(process()));
-        connect(rwData, SIGNAL(errorOccured(QString)), this, SLOT(on_errorOccured(QString)));
-        connect(rwData, SIGNAL(processingData(double,QString)), this, SLOT(on_processingData(double,QString)));
-        connect(rwData, SIGNAL(returnNewDirectory(QString)), this, SLOT(on_returnNewDirectory(QString)));
-        connect(rwData, SIGNAL(readingDataFinished(QString)), this, SLOT(on_readingDataFinished(QString)));
-        connect(rwData, SIGNAL(finished()), thread, SLOT(quit()));
-        connect(rwData, SIGNAL(finished()), rwData, SLOT(deleteLater()));
-        connect(thread, SIGNAL(finished()), thread, SLOT(deleteLater()));
-        thread->start();
-    }
-}
+//        ReadWriteData *rwData = new ReadWriteData();
+//        rwData->setDataObject(&patientData);
+//        rwData->setDirectoryOct(&tmpDir);
+//        rwData->setDirectoryManual(&manualDir);
+//        rwData->setDirectoryAuto(&autoDir);
+//        rwData->setDataSaveStrucure(dataSaveStructure);
+//        rwData->addDirective("readPatientData");
+//        rwData->addDirective("readOctExamData");
+
+//        QThread *thread = new QThread;
+//        rwData->moveToThread(thread);
+//        connect(thread, SIGNAL(started()), rwData, SLOT(process()));
+//        connect(rwData, SIGNAL(errorOccured(QString)), this, SLOT(on_errorOccured(QString)));
+//        connect(rwData, SIGNAL(processingData(double,QString)), this, SLOT(on_processingData(double,QString)));
+//        connect(rwData, SIGNAL(returnNewDirectory(QString)), this, SLOT(on_returnNewDirectory(QString)));
+//        connect(rwData, SIGNAL(readingDataFinished(QString)), this, SLOT(on_readingDataFinished(QString)));
+//        connect(rwData, SIGNAL(finished()), thread, SLOT(quit()));
+//        connect(rwData, SIGNAL(finished()), rwData, SLOT(deleteLater()));
+//        connect(thread, SIGNAL(finished()), thread, SLOT(deleteLater()));
+//        thread->start();
+//    }
+//}
 
 void OCTAnnotate::listAmslerDistortions(){
     QStringList list;
@@ -802,9 +807,6 @@ void OCTAnnotate::on_actionSaveGeneralExam_triggered()
     patientData.setVisOL(ui->visOLLEdit->text());
     patientData.setSnOP(ui->snOPLEdit->text());
     patientData.setSnOL(ui->snOLLEdit->text());
-    patientData.setAnterior(ui->anteriorTEdit->toPlainText());
-    patientData.setPosterior(ui->posteriorTEdit->toPlainText());
-    patientData.setOtherDisorders(ui->otherPathologiesTEdit->toPlainText());
     patientData.setAmslerComment(ui->amslerRCommentTEdit->toPlainText(),"R");
     patientData.setAmslerComment(ui->amslerLCommentTEdit->toPlainText(),"L");
 
@@ -3200,21 +3202,6 @@ void OCTAnnotate::on_snOLLEdit_textEdited()
     generalDataModified = true;
 }
 
-void OCTAnnotate::on_anteriorTEdit_textChanged()
-{
-    generalDataModified = true;
-}
-
-void OCTAnnotate::on_posteriorTEdit_textChanged()
-{
-    generalDataModified = true;
-}
-
-void OCTAnnotate::on_otherPathologiesTEdit_textChanged()
-{
-    generalDataModified = true;
-}
-
 void OCTAnnotate::on_amslerRCommentTEdit_textChanged()
 {
     generalDataModified = true;
@@ -3995,16 +3982,17 @@ void OCTAnnotate::displayVolumes(){
         volumeLabelSum->position->setCoords(-2.2,2.6);
         volumeLabelSum->setTextAlignment(Qt::AlignLeft);
 
-        volumeLabelCF->setFont(QFont(font().family(), 16));
-        volumeLabelIMbottom->setFont(QFont(font().family(), 16));
-        volumeLabelIMleft->setFont(QFont(font().family(), 16));
-        volumeLabelIMtop->setFont(QFont(font().family(), 16));
-        volumeLabelIMright->setFont(QFont(font().family(), 16));
-        volumeLabelOMbottom->setFont(QFont(font().family(), 16));
-        volumeLabelOMleft->setFont(QFont(font().family(), 16));
-        volumeLabelOMtop->setFont(QFont(font().family(), 16));
-        volumeLabelOMright->setFont(QFont(font().family(), 16));
-        volumeLabelSum->setFont(QFont(font().family(), 16));
+        int fontSize = 10;
+        volumeLabelCF->setFont(QFont(font().family(), fontSize));
+        volumeLabelIMbottom->setFont(QFont(font().family(), fontSize));
+        volumeLabelIMleft->setFont(QFont(font().family(), fontSize));
+        volumeLabelIMtop->setFont(QFont(font().family(), fontSize));
+        volumeLabelIMright->setFont(QFont(font().family(), fontSize));
+        volumeLabelOMbottom->setFont(QFont(font().family(), fontSize));
+        volumeLabelOMleft->setFont(QFont(font().family(), fontSize));
+        volumeLabelOMtop->setFont(QFont(font().family(), fontSize));
+        volumeLabelOMright->setFont(QFont(font().family(), fontSize));
+        volumeLabelSum->setFont(QFont(font().family(), fontSize));
 
         volumeLabelCF->setText(QString::number(volumes[0],'f',2));
         volumeLabelIMbottom->setText(QString::number(volumes[1],'f',2));
@@ -4765,27 +4753,17 @@ void OCTAnnotate::on_mseErrorCalculated(double value){
 void OCTAnnotate::on_readingDataFinished(QString data){
 
     if ((data != "manualOnly") && (data != "autoOnly")){
-        ui->lastNameLEdit->setText(patientData.getLastName());
-        ui->firstNameLEdit->setText(patientData.getFirstName());
-        ui->genderCBox->setCurrentIndex(patientData.getGender());
-        ui->birthDateEdit->setDate(patientData.getBirthDate());
-
         // display patients data
         ui->visOPLEdit->setText(patientData.getVisOP());
         ui->visOLLEdit->setText(patientData.getVisOL());
         ui->snOPLEdit->setText(patientData.getSnOP());
         ui->snOLLEdit->setText(patientData.getSnOL());
-        ui->anteriorTEdit->setText(patientData.getAnterior());
-        ui->posteriorTEdit->setText(patientData.getPosterior());
-        ui->otherPathologiesTEdit->setText(patientData.getOtherDisorders());
         ui->amslerRCommentTEdit->setText(patientData.getAmslerComment("R"));
         ui->amslerLCommentTEdit->setText(patientData.getAmslerComment("L"));
         ui->mcVOPLEdit->setText(patientData.getMcvOP());
         ui->mcVOLLEdit->setText(patientData.getMcvOL());
         ui->mcHOPLEdit->setText(patientData.getMchOP());
         ui->mcHOLLEdit->setText(patientData.getMchOL());
-        ui->pathOPCBox->setCurrentIndex((int)patientData.getPathologyOP());
-        ui->pathOLCBox->setCurrentIndex((int)patientData.getPathologyOL());
         listAmslerDistortions();
         generalDataModified = false;
 
@@ -4793,17 +4771,6 @@ void OCTAnnotate::on_readingDataFinished(QString data){
         this->setWindowTitle("OCTAnnotate " + appVersion + " - " + octDir.dirName());
         ui->fileNameLabel->setText(octDir.dirName());
         drawGrid = true;
-
-        // list of all patient's OCT exams
-        patientDir = octDir;
-        patientDir.cdUp();
-        QStringList nameFilter;
-        nameFilter.append(patientData.getLastName() + "_" + patientData.getFirstName() + "*");
-        nameFilter.append(patientData.getLastName() + ", " + patientData.getFirstName() + "*");
-        QStringList list = patientDir.entryList(nameFilter, QDir::Dirs, QDir::Name);
-        ui->octExamsListWidget->clear();
-        ui->octExamsListWidget->addItems(list);
-        ui->octExamsListWidget->setCurrentRow(list.indexOf(octDir.dirName()));
     }
 
     ui->statusBar->clearMessage();
@@ -5043,25 +5010,6 @@ void OCTAnnotate::on_actionComputeStatistics_triggered()
     connect(calc, SIGNAL(finished()), calc, SLOT(deleteLater()));
     connect(thread, SIGNAL(finished()), thread, SLOT(deleteLater()));
     thread->start();
-}
-
-void OCTAnnotate::on_birthDateEdit_userDateChanged(const QDate &date)
-{
-    patientData.setBirthDate(date);
-    patientData.setAge(patientData.getExamDate().year() - patientData.getBirthDate().year());
-    generalDataModified = true;
-}
-
-void OCTAnnotate::on_pathOPCBox_currentIndexChanged(int index)
-{
-    patientData.setPathologyOP((Pathologies)index);
-    generalDataModified = true;
-}
-
-void OCTAnnotate::on_pathOLCBox_currentIndexChanged(int index)
-{
-    patientData.setPathologyOL((Pathologies)index);
-    generalDataModified = true;
 }
 
 void OCTAnnotate::on_allLayersCBox_stateChanged(int state)
@@ -5467,13 +5415,13 @@ void OCTAnnotate::on_createProjectionsButton_clicked()
         QSqlRecord record = modelScans->record(r);
 
         // 1. calculate age, if less than existing -> update
-        int patientID = record.value("patient_id").toInt();
-        QDateTime examDate = record.value("date").toDateTime();
+//        int patientID = record.value("patient_id").toInt();
+//        QDateTime examDate = record.value("date").toDateTime();
 
-        int patientAge = patientsDB->getPatientAge(patientID);
-        if (patientAge == 0){
-            patientsDB->calculatePatientAge(patientID, examDate);
-        }
+//        int patientAge = patientsDB->getPatientAge(patientID);
+//        if (patientAge == 0){
+//            patientsDB->calculatePatientAge(patientID, examDate);
+//        }
 
         // 2. find 1 of 2 fundus images, save and display
 
@@ -5485,10 +5433,13 @@ void OCTAnnotate::on_createProjectionsButton_clicked()
         QString temp = "/" + subfolder + "/" + folderName + "/" + folderName + "_Proj_Iowa.tif";
         QString fundusPath = examDir.absolutePath().append(temp);
         bool hasAutoExplorer = record.value("has_autoExplorer").toBool();
-        if (QFile(fundusPath).exists() && !hasAutoExplorer){
-            patientsDB->editScanHasAutoExplorer(patientsDB->getScanID(folderName),true);
-        } else {
-            qDebug() << "No OCTExplorer analysis for scan: " + temp;
+        if (!hasAutoExplorer){
+            if (QFile(fundusPath).exists()){
+                qDebug() << "Found analysis for: " + folderName;
+                patientsDB->editScanHasAutoExplorer(patientsDB->getScanID(folderName),true);
+            } else {
+                qDebug() << "No OCTExplorer analysis for scan: " + temp;
+            }
         }
     }
 
@@ -5497,6 +5448,11 @@ void OCTAnnotate::on_createProjectionsButton_clicked()
 }
 
 void OCTAnnotate::on_patientsListTableView_doubleClicked(const QModelIndex &currentIndex)
+{
+
+}
+
+void OCTAnnotate::on_patientsListTableView_clicked(const QModelIndex &currentIndex)
 {
     int i = ui->scanListGroupCBox->currentIndex();
     if (i == 0){
@@ -5507,6 +5463,7 @@ void OCTAnnotate::on_patientsListTableView_doubleClicked(const QModelIndex &curr
             filter += " AND is_default = 1";
         modelScans->setFilter(filter);
     }
+    // TODO: odczyt danyc z pliku .CAVRI na temat ostrości wzroku...
 }
 
 void OCTAnnotate::on_scanListGroupCBox_currentIndexChanged(int index)
@@ -5768,7 +5725,11 @@ void OCTAnnotate::on_scansListTableView_doubleClicked(const QModelIndex &current
 void OCTAnnotate::on_actionImageFlattening_toggled(bool state)
 {
     flattenImage = state;
-    displayImageLayersPlot(currentImageLayersNumber,ILM);
+    if (!patientData.getImageFileList().isEmpty()){
+        loadImage(currentImageNumber);
+        loadNormalImage(currentNormalImageNumber);
+        displayImageLayersPlot(currentImageLayersNumber,ILM);
+    }
 }
 
 void OCTAnnotate::on_searchForScansButton_clicked()

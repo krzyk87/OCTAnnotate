@@ -189,12 +189,6 @@ public:
     void setSnOP(QString newSnOP);
     QString getSnOL();
     void setSnOL(QString newSnOL);
-    QString getAnterior();
-    void setAnterior(QString newAnterior);
-    QString getPosterior();
-    void setPosterior(QString newPosterior);
-    QString getOtherDisorders();
-    void setOtherDisorders(QString newOther);
     QString getMcvOP();
     void setMcvOP(QString newMcvOP);
     QString getMcvOL();

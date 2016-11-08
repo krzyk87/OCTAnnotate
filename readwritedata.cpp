@@ -307,18 +307,6 @@ void ReadWriteData::readGeneralExamData(){
                 pData->setSnOL(data.at(1));
                 emit processingData((++count)/tasks*100,"");
             }
-            if (data.at(0) == "anterior"){
-                pData->setAnterior(data.at(1));
-                emit processingData((++count)/tasks*100,"");
-            }
-            if (data.at(0) == "posterior"){
-                pData->setPosterior(data.at(1));
-                emit processingData((++count)/tasks*100,"");
-            }
-            if (data.at(0) == "other"){
-                pData->setOtherDisorders(data.at(1));
-                emit processingData((++count)/tasks*100,"");
-            }
             if (data.at(0).startsWith("amsler")){
                 pData->decodeAmslerData(data.at(0),data.at(1));
                 emit processingData((++count)/tasks*100,"");
@@ -811,12 +799,6 @@ void ReadWriteData::saveGeneralExamData(){
     stream << "SN_OP=" + pData->getSnOP() << endl;
     emit processingData((++count)/tasks*100,"");
     stream << "SN_OL=" + pData->getSnOL() << endl;
-    emit processingData((++count)/tasks*100,"");
-    stream << "anterior=" + pData->getAnterior().simplified() << endl;
-    emit processingData((++count)/tasks*100,"");
-    stream << "posterior=" + pData->getPosterior().simplified() << endl;
-    emit processingData((++count)/tasks*100,"");
-    stream << "other=" + pData->getOtherDisorders().simplified() << endl;
     emit processingData((++count)/tasks*100,"");
     QList<AmslerDist> distR = pData->getAmslerDistList("R");
     foreach (AmslerDist dist, distR) {

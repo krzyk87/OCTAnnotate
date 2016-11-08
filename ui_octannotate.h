@@ -1,7 +1,7 @@
 /********************************************************************************
 ** Form generated from reading UI file 'octannotate.ui'
 **
-** Created by: Qt User Interface Compiler version 5.4.1
+** Created by: Qt User Interface Compiler version 5.4.2
 **
 ** WARNING! All changes made in this file will be lost when recompiling UI file!
 ********************************************************************************/
@@ -15,7 +15,6 @@
 #include <QtWidgets/QButtonGroup>
 #include <QtWidgets/QCheckBox>
 #include <QtWidgets/QComboBox>
-#include <QtWidgets/QDateEdit>
 #include <QtWidgets/QFormLayout>
 #include <QtWidgets/QGridLayout>
 #include <QtWidgets/QGroupBox>
@@ -75,13 +74,12 @@ public:
     QWidget *tabDatabase;
     QVBoxLayout *verticalLayout_28;
     QHBoxLayout *horizontalLayout_13;
-    QTableView *patientsListTableView;
     QVBoxLayout *verticalLayout_25;
     QVBoxLayout *verticalLayout_23;
     QPushButton *addPatientDBButton;
     QPushButton *editPatientDBButton;
     QPushButton *deletePatientDBButton;
-    QGroupBox *groupBox_5;
+    QGroupBox *patienSearchGBox;
     QVBoxLayout *verticalLayout_22;
     QLineEdit *searchLastNameLEdit;
     QLineEdit *searchFirstNameLEdit;
@@ -95,6 +93,24 @@ public:
     QRadioButton *showAllScansRButton;
     QRadioButton *showOnlyDefaultScanRButton;
     QPushButton *searchPatientDBButton;
+    QTableView *patientsListTableView;
+    QVBoxLayout *verticalLayout_24;
+    QGroupBox *groupBox_5;
+    QGridLayout *gridLayout_3;
+    QLabel *label_9;
+    QLabel *label_10;
+    QLabel *label_7;
+    QLineEdit *visOPLEdit;
+    QLineEdit *snOPLEdit;
+    QLineEdit *visOLLEdit;
+    QLabel *label_8;
+    QLineEdit *snOLLEdit;
+    QLabel *label_35;
+    QLineEdit *mcHOPLEdit;
+    QLineEdit *mcVOLLEdit;
+    QLabel *label_36;
+    QLineEdit *mcVOPLEdit;
+    QLineEdit *mcHOLLEdit;
     QLabel *fundusDBLabel;
     QHBoxLayout *horizontalLayout_14;
     QVBoxLayout *verticalLayout_27;
@@ -108,59 +124,6 @@ public:
     QVBoxLayout *verticalLayout_26;
     QLabel *bscanHLabel;
     QLabel *bscanVLabel;
-    QWidget *tabPatient;
-    QVBoxLayout *verticalLayout_5;
-    QFormLayout *formLayout_2;
-    QLabel *label;
-    QLabel *fileNameLabel;
-    QFormLayout *formLayout_3;
-    QVBoxLayout *verticalLayout_4;
-    QFormLayout *formLayout;
-    QLabel *label_3;
-    QLineEdit *lastNameLEdit;
-    QLabel *label_4;
-    QLineEdit *firstNameLEdit;
-    QLabel *label_5;
-    QLabel *label_6;
-    QComboBox *genderCBox;
-    QDateEdit *birthDateEdit;
-    QGroupBox *visualAcquityGBox;
-    QGridLayout *gridLayout;
-    QLabel *label_9;
-    QLabel *label_10;
-    QLabel *label_7;
-    QLineEdit *visOPLEdit;
-    QLineEdit *visOLLEdit;
-    QLabel *label_8;
-    QLineEdit *snOPLEdit;
-    QLineEdit *snOLLEdit;
-    QGroupBox *visualAcquityGBox_2;
-    QGridLayout *gridLayout_2;
-    QLabel *label_37;
-    QLabel *label_38;
-    QLabel *label_35;
-    QLineEdit *mcVOPLEdit;
-    QLineEdit *mcVOLLEdit;
-    QLabel *label_36;
-    QLineEdit *mcHOPLEdit;
-    QLineEdit *mcHOLLEdit;
-    QGroupBox *pathologyGBox;
-    QGridLayout *gridLayout_7;
-    QComboBox *pathOPCBox;
-    QComboBox *pathOLCBox;
-    QLabel *label_45;
-    QLabel *label_46;
-    QSpacerItem *verticalSpacer;
-    QVBoxLayout *verticalLayout_3;
-    QLabel *label_13;
-    QTextEdit *anteriorTEdit;
-    QLabel *label_14;
-    QTextEdit *posteriorTEdit;
-    QLabel *label_11;
-    QTextEdit *otherPathologiesTEdit;
-    QVBoxLayout *verticalLayout_2;
-    QLabel *label_15;
-    QListWidget *octExamsListWidget;
     QWidget *tabAmslerCharts;
     QGridLayout *gridLayout_6;
     QVBoxLayout *verticalLayout_19;
@@ -198,6 +161,9 @@ public:
     QWidget *tabOCTExam;
     QHBoxLayout *horizontalLayout_3;
     QVBoxLayout *verticalLayout_7;
+    QFormLayout *formLayout_2;
+    QLabel *label;
+    QLabel *fileNameLabel;
     QHBoxLayout *horizontalLayout_2;
     QFormLayout *formLayout_5;
     QLabel *label_2;
@@ -489,13 +455,6 @@ public:
         horizontalLayout_13 = new QHBoxLayout();
         horizontalLayout_13->setSpacing(6);
         horizontalLayout_13->setObjectName(QStringLiteral("horizontalLayout_13"));
-        patientsListTableView = new QTableView(tabDatabase);
-        patientsListTableView->setObjectName(QStringLiteral("patientsListTableView"));
-        patientsListTableView->setMinimumSize(QSize(631, 361));
-        patientsListTableView->setMaximumSize(QSize(16777215, 400));
-
-        horizontalLayout_13->addWidget(patientsListTableView);
-
         verticalLayout_25 = new QVBoxLayout();
         verticalLayout_25->setSpacing(6);
         verticalLayout_25->setObjectName(QStringLiteral("verticalLayout_25"));
@@ -510,8 +469,8 @@ public:
         sizePolicy1.setVerticalStretch(0);
         sizePolicy1.setHeightForWidth(addPatientDBButton->sizePolicy().hasHeightForWidth());
         addPatientDBButton->setSizePolicy(sizePolicy1);
-        addPatientDBButton->setMinimumSize(QSize(200, 20));
-        addPatientDBButton->setMaximumSize(QSize(208, 21));
+        addPatientDBButton->setMinimumSize(QSize(150, 20));
+        addPatientDBButton->setMaximumSize(QSize(201, 21));
 
         verticalLayout_23->addWidget(addPatientDBButton);
 
@@ -519,8 +478,8 @@ public:
         editPatientDBButton->setObjectName(QStringLiteral("editPatientDBButton"));
         sizePolicy1.setHeightForWidth(editPatientDBButton->sizePolicy().hasHeightForWidth());
         editPatientDBButton->setSizePolicy(sizePolicy1);
-        editPatientDBButton->setMinimumSize(QSize(200, 20));
-        editPatientDBButton->setMaximumSize(QSize(16777215, 21));
+        editPatientDBButton->setMinimumSize(QSize(150, 20));
+        editPatientDBButton->setMaximumSize(QSize(201, 21));
 
         verticalLayout_23->addWidget(editPatientDBButton);
 
@@ -528,53 +487,53 @@ public:
         deletePatientDBButton->setObjectName(QStringLiteral("deletePatientDBButton"));
         sizePolicy1.setHeightForWidth(deletePatientDBButton->sizePolicy().hasHeightForWidth());
         deletePatientDBButton->setSizePolicy(sizePolicy1);
-        deletePatientDBButton->setMinimumSize(QSize(200, 21));
-        deletePatientDBButton->setMaximumSize(QSize(16777215, 21));
+        deletePatientDBButton->setMinimumSize(QSize(150, 21));
+        deletePatientDBButton->setMaximumSize(QSize(201, 21));
 
         verticalLayout_23->addWidget(deletePatientDBButton);
 
 
         verticalLayout_25->addLayout(verticalLayout_23);
 
-        groupBox_5 = new QGroupBox(tabDatabase);
-        groupBox_5->setObjectName(QStringLiteral("groupBox_5"));
+        patienSearchGBox = new QGroupBox(tabDatabase);
+        patienSearchGBox->setObjectName(QStringLiteral("patienSearchGBox"));
         QSizePolicy sizePolicy2(QSizePolicy::Minimum, QSizePolicy::Minimum);
         sizePolicy2.setHorizontalStretch(0);
         sizePolicy2.setVerticalStretch(0);
-        sizePolicy2.setHeightForWidth(groupBox_5->sizePolicy().hasHeightForWidth());
-        groupBox_5->setSizePolicy(sizePolicy2);
-        groupBox_5->setMinimumSize(QSize(201, 271));
-        groupBox_5->setMaximumSize(QSize(201, 271));
-        verticalLayout_22 = new QVBoxLayout(groupBox_5);
+        sizePolicy2.setHeightForWidth(patienSearchGBox->sizePolicy().hasHeightForWidth());
+        patienSearchGBox->setSizePolicy(sizePolicy2);
+        patienSearchGBox->setMinimumSize(QSize(201, 271));
+        patienSearchGBox->setMaximumSize(QSize(201, 271));
+        verticalLayout_22 = new QVBoxLayout(patienSearchGBox);
         verticalLayout_22->setSpacing(6);
         verticalLayout_22->setContentsMargins(11, 11, 11, 11);
         verticalLayout_22->setObjectName(QStringLiteral("verticalLayout_22"));
-        searchLastNameLEdit = new QLineEdit(groupBox_5);
+        searchLastNameLEdit = new QLineEdit(patienSearchGBox);
         searchLastNameLEdit->setObjectName(QStringLiteral("searchLastNameLEdit"));
 
         verticalLayout_22->addWidget(searchLastNameLEdit);
 
-        searchFirstNameLEdit = new QLineEdit(groupBox_5);
+        searchFirstNameLEdit = new QLineEdit(patienSearchGBox);
         searchFirstNameLEdit->setObjectName(QStringLiteral("searchFirstNameLEdit"));
 
         verticalLayout_22->addWidget(searchFirstNameLEdit);
 
-        searchGenderCBox = new QComboBox(groupBox_5);
+        searchGenderCBox = new QComboBox(patienSearchGBox);
         searchGenderCBox->setObjectName(QStringLiteral("searchGenderCBox"));
 
         verticalLayout_22->addWidget(searchGenderCBox);
 
-        searchPathologyCBox = new QComboBox(groupBox_5);
+        searchPathologyCBox = new QComboBox(patienSearchGBox);
         searchPathologyCBox->setObjectName(QStringLiteral("searchPathologyCBox"));
 
         verticalLayout_22->addWidget(searchPathologyCBox);
 
-        searchFileNoLEdit = new QLineEdit(groupBox_5);
+        searchFileNoLEdit = new QLineEdit(patienSearchGBox);
         searchFileNoLEdit->setObjectName(QStringLiteral("searchFileNoLEdit"));
 
         verticalLayout_22->addWidget(searchFileNoLEdit);
 
-        searchNotesLEdit = new QLineEdit(groupBox_5);
+        searchNotesLEdit = new QLineEdit(patienSearchGBox);
         searchNotesLEdit->setObjectName(QStringLiteral("searchNotesLEdit"));
 
         verticalLayout_22->addWidget(searchNotesLEdit);
@@ -582,13 +541,13 @@ public:
         horizontalLayout_15 = new QHBoxLayout();
         horizontalLayout_15->setSpacing(6);
         horizontalLayout_15->setObjectName(QStringLiteral("horizontalLayout_15"));
-        searchAgeFromLEdit = new QLineEdit(groupBox_5);
+        searchAgeFromLEdit = new QLineEdit(patienSearchGBox);
         searchAgeFromLEdit->setObjectName(QStringLiteral("searchAgeFromLEdit"));
         searchAgeFromLEdit->setMaximumSize(QSize(100, 16777215));
 
         horizontalLayout_15->addWidget(searchAgeFromLEdit);
 
-        searchAgeToLEdit = new QLineEdit(groupBox_5);
+        searchAgeToLEdit = new QLineEdit(patienSearchGBox);
         searchAgeToLEdit->setObjectName(QStringLiteral("searchAgeToLEdit"));
         searchAgeToLEdit->setMaximumSize(QSize(100, 16777215));
 
@@ -597,19 +556,19 @@ public:
 
         verticalLayout_22->addLayout(horizontalLayout_15);
 
-        showAllScansRButton = new QRadioButton(groupBox_5);
+        showAllScansRButton = new QRadioButton(patienSearchGBox);
         showAllScansRButton->setObjectName(QStringLiteral("showAllScansRButton"));
         showAllScansRButton->setChecked(true);
 
         verticalLayout_22->addWidget(showAllScansRButton);
 
-        showOnlyDefaultScanRButton = new QRadioButton(groupBox_5);
+        showOnlyDefaultScanRButton = new QRadioButton(patienSearchGBox);
         showOnlyDefaultScanRButton->setObjectName(QStringLiteral("showOnlyDefaultScanRButton"));
         showOnlyDefaultScanRButton->setChecked(false);
 
         verticalLayout_22->addWidget(showOnlyDefaultScanRButton);
 
-        searchPatientDBButton = new QPushButton(groupBox_5);
+        searchPatientDBButton = new QPushButton(patienSearchGBox);
         searchPatientDBButton->setObjectName(QStringLiteral("searchPatientDBButton"));
         searchPatientDBButton->setMinimumSize(QSize(0, 21));
         QFont font;
@@ -620,19 +579,133 @@ public:
         verticalLayout_22->addWidget(searchPatientDBButton);
 
 
-        verticalLayout_25->addWidget(groupBox_5);
+        verticalLayout_25->addWidget(patienSearchGBox);
 
 
         horizontalLayout_13->addLayout(verticalLayout_25);
 
+        patientsListTableView = new QTableView(tabDatabase);
+        patientsListTableView->setObjectName(QStringLiteral("patientsListTableView"));
+        patientsListTableView->setMinimumSize(QSize(750, 361));
+        patientsListTableView->setMaximumSize(QSize(16777215, 400));
+
+        horizontalLayout_13->addWidget(patientsListTableView);
+
+        verticalLayout_24 = new QVBoxLayout();
+        verticalLayout_24->setSpacing(6);
+        verticalLayout_24->setObjectName(QStringLiteral("verticalLayout_24"));
+        groupBox_5 = new QGroupBox(tabDatabase);
+        groupBox_5->setObjectName(QStringLiteral("groupBox_5"));
+        gridLayout_3 = new QGridLayout(groupBox_5);
+        gridLayout_3->setSpacing(6);
+        gridLayout_3->setContentsMargins(11, 11, 11, 11);
+        gridLayout_3->setObjectName(QStringLiteral("gridLayout_3"));
+        label_9 = new QLabel(groupBox_5);
+        label_9->setObjectName(QStringLiteral("label_9"));
+        label_9->setMinimumSize(QSize(0, 20));
+        label_9->setAlignment(Qt::AlignCenter);
+
+        gridLayout_3->addWidget(label_9, 0, 1, 1, 1);
+
+        label_10 = new QLabel(groupBox_5);
+        label_10->setObjectName(QStringLiteral("label_10"));
+        label_10->setMinimumSize(QSize(0, 20));
+        label_10->setAlignment(Qt::AlignCenter);
+
+        gridLayout_3->addWidget(label_10, 0, 2, 1, 1);
+
+        label_7 = new QLabel(groupBox_5);
+        label_7->setObjectName(QStringLiteral("label_7"));
+        label_7->setMinimumSize(QSize(44, 20));
+
+        gridLayout_3->addWidget(label_7, 1, 0, 1, 1);
+
+        visOPLEdit = new QLineEdit(groupBox_5);
+        visOPLEdit->setObjectName(QStringLiteral("visOPLEdit"));
+        visOPLEdit->setMinimumSize(QSize(0, 20));
+        visOPLEdit->setAlignment(Qt::AlignCenter);
+
+        gridLayout_3->addWidget(visOPLEdit, 1, 1, 1, 1);
+
+        snOPLEdit = new QLineEdit(groupBox_5);
+        snOPLEdit->setObjectName(QStringLiteral("snOPLEdit"));
+        snOPLEdit->setMinimumSize(QSize(0, 20));
+        snOPLEdit->setAlignment(Qt::AlignCenter);
+
+        gridLayout_3->addWidget(snOPLEdit, 2, 1, 1, 1);
+
+        visOLLEdit = new QLineEdit(groupBox_5);
+        visOLLEdit->setObjectName(QStringLiteral("visOLLEdit"));
+        visOLLEdit->setMinimumSize(QSize(0, 20));
+        visOLLEdit->setAlignment(Qt::AlignCenter);
+
+        gridLayout_3->addWidget(visOLLEdit, 1, 2, 1, 1);
+
+        label_8 = new QLabel(groupBox_5);
+        label_8->setObjectName(QStringLiteral("label_8"));
+        label_8->setMinimumSize(QSize(44, 20));
+
+        gridLayout_3->addWidget(label_8, 2, 0, 1, 1);
+
+        snOLLEdit = new QLineEdit(groupBox_5);
+        snOLLEdit->setObjectName(QStringLiteral("snOLLEdit"));
+        snOLLEdit->setMinimumSize(QSize(0, 20));
+        snOLLEdit->setAlignment(Qt::AlignCenter);
+
+        gridLayout_3->addWidget(snOLLEdit, 2, 2, 1, 1);
+
+        label_35 = new QLabel(groupBox_5);
+        label_35->setObjectName(QStringLiteral("label_35"));
+
+        gridLayout_3->addWidget(label_35, 3, 0, 1, 1);
+
+        mcHOPLEdit = new QLineEdit(groupBox_5);
+        mcHOPLEdit->setObjectName(QStringLiteral("mcHOPLEdit"));
+        mcHOPLEdit->setMinimumSize(QSize(0, 20));
+        mcHOPLEdit->setAlignment(Qt::AlignCenter);
+
+        gridLayout_3->addWidget(mcHOPLEdit, 4, 1, 1, 1);
+
+        mcVOLLEdit = new QLineEdit(groupBox_5);
+        mcVOLLEdit->setObjectName(QStringLiteral("mcVOLLEdit"));
+        mcVOLLEdit->setMinimumSize(QSize(0, 20));
+        mcVOLLEdit->setAlignment(Qt::AlignCenter);
+
+        gridLayout_3->addWidget(mcVOLLEdit, 3, 2, 1, 1);
+
+        label_36 = new QLabel(groupBox_5);
+        label_36->setObjectName(QStringLiteral("label_36"));
+
+        gridLayout_3->addWidget(label_36, 4, 0, 1, 1);
+
+        mcVOPLEdit = new QLineEdit(groupBox_5);
+        mcVOPLEdit->setObjectName(QStringLiteral("mcVOPLEdit"));
+        mcVOPLEdit->setMinimumSize(QSize(0, 20));
+        mcVOPLEdit->setAlignment(Qt::AlignCenter);
+
+        gridLayout_3->addWidget(mcVOPLEdit, 3, 1, 1, 1);
+
+        mcHOLLEdit = new QLineEdit(groupBox_5);
+        mcHOLLEdit->setObjectName(QStringLiteral("mcHOLLEdit"));
+        mcHOLLEdit->setMinimumSize(QSize(0, 20));
+        mcHOLLEdit->setAlignment(Qt::AlignCenter);
+
+        gridLayout_3->addWidget(mcHOLLEdit, 4, 2, 1, 1);
+
+
+        verticalLayout_24->addWidget(groupBox_5);
+
         fundusDBLabel = new QLabel(tabDatabase);
         fundusDBLabel->setObjectName(QStringLiteral("fundusDBLabel"));
-        fundusDBLabel->setMinimumSize(QSize(361, 361));
-        fundusDBLabel->setMaximumSize(QSize(400, 400));
+        fundusDBLabel->setMinimumSize(QSize(230, 230));
+        fundusDBLabel->setMaximumSize(QSize(250, 250));
         fundusDBLabel->setFrameShape(QFrame::Box);
         fundusDBLabel->setAlignment(Qt::AlignCenter);
 
-        horizontalLayout_13->addWidget(fundusDBLabel);
+        verticalLayout_24->addWidget(fundusDBLabel);
+
+
+        horizontalLayout_13->addLayout(verticalLayout_24);
 
 
         verticalLayout_28->addLayout(horizontalLayout_13);
@@ -715,346 +788,6 @@ public:
         verticalLayout_28->addLayout(horizontalLayout_14);
 
         tabWidget->addTab(tabDatabase, QString());
-        tabPatient = new QWidget();
-        tabPatient->setObjectName(QStringLiteral("tabPatient"));
-        verticalLayout_5 = new QVBoxLayout(tabPatient);
-        verticalLayout_5->setSpacing(6);
-        verticalLayout_5->setContentsMargins(11, 11, 11, 11);
-        verticalLayout_5->setObjectName(QStringLiteral("verticalLayout_5"));
-        formLayout_2 = new QFormLayout();
-        formLayout_2->setSpacing(6);
-        formLayout_2->setObjectName(QStringLiteral("formLayout_2"));
-        label = new QLabel(tabPatient);
-        label->setObjectName(QStringLiteral("label"));
-        QSizePolicy sizePolicy3(QSizePolicy::Fixed, QSizePolicy::Fixed);
-        sizePolicy3.setHorizontalStretch(0);
-        sizePolicy3.setVerticalStretch(0);
-        sizePolicy3.setHeightForWidth(label->sizePolicy().hasHeightForWidth());
-        label->setSizePolicy(sizePolicy3);
-
-        formLayout_2->setWidget(0, QFormLayout::LabelRole, label);
-
-        fileNameLabel = new QLabel(tabPatient);
-        fileNameLabel->setObjectName(QStringLiteral("fileNameLabel"));
-        QSizePolicy sizePolicy4(QSizePolicy::Preferred, QSizePolicy::Fixed);
-        sizePolicy4.setHorizontalStretch(0);
-        sizePolicy4.setVerticalStretch(0);
-        sizePolicy4.setHeightForWidth(fileNameLabel->sizePolicy().hasHeightForWidth());
-        fileNameLabel->setSizePolicy(sizePolicy4);
-        fileNameLabel->setTextFormat(Qt::PlainText);
-
-        formLayout_2->setWidget(0, QFormLayout::FieldRole, fileNameLabel);
-
-
-        verticalLayout_5->addLayout(formLayout_2);
-
-        formLayout_3 = new QFormLayout();
-        formLayout_3->setSpacing(6);
-        formLayout_3->setObjectName(QStringLiteral("formLayout_3"));
-        verticalLayout_4 = new QVBoxLayout();
-        verticalLayout_4->setSpacing(6);
-        verticalLayout_4->setObjectName(QStringLiteral("verticalLayout_4"));
-        verticalLayout_4->setSizeConstraint(QLayout::SetMinAndMaxSize);
-        formLayout = new QFormLayout();
-        formLayout->setSpacing(6);
-        formLayout->setObjectName(QStringLiteral("formLayout"));
-        formLayout->setSizeConstraint(QLayout::SetMinimumSize);
-        formLayout->setFieldGrowthPolicy(QFormLayout::AllNonFixedFieldsGrow);
-        label_3 = new QLabel(tabPatient);
-        label_3->setObjectName(QStringLiteral("label_3"));
-
-        formLayout->setWidget(0, QFormLayout::LabelRole, label_3);
-
-        lastNameLEdit = new QLineEdit(tabPatient);
-        lastNameLEdit->setObjectName(QStringLiteral("lastNameLEdit"));
-        lastNameLEdit->setEnabled(false);
-
-        formLayout->setWidget(0, QFormLayout::FieldRole, lastNameLEdit);
-
-        label_4 = new QLabel(tabPatient);
-        label_4->setObjectName(QStringLiteral("label_4"));
-
-        formLayout->setWidget(1, QFormLayout::LabelRole, label_4);
-
-        firstNameLEdit = new QLineEdit(tabPatient);
-        firstNameLEdit->setObjectName(QStringLiteral("firstNameLEdit"));
-        firstNameLEdit->setEnabled(false);
-
-        formLayout->setWidget(1, QFormLayout::FieldRole, firstNameLEdit);
-
-        label_5 = new QLabel(tabPatient);
-        label_5->setObjectName(QStringLiteral("label_5"));
-
-        formLayout->setWidget(2, QFormLayout::LabelRole, label_5);
-
-        label_6 = new QLabel(tabPatient);
-        label_6->setObjectName(QStringLiteral("label_6"));
-
-        formLayout->setWidget(3, QFormLayout::LabelRole, label_6);
-
-        genderCBox = new QComboBox(tabPatient);
-        genderCBox->setObjectName(QStringLiteral("genderCBox"));
-        genderCBox->setEnabled(false);
-
-        formLayout->setWidget(3, QFormLayout::FieldRole, genderCBox);
-
-        birthDateEdit = new QDateEdit(tabPatient);
-        birthDateEdit->setObjectName(QStringLiteral("birthDateEdit"));
-        birthDateEdit->setEnabled(true);
-
-        formLayout->setWidget(2, QFormLayout::FieldRole, birthDateEdit);
-
-
-        verticalLayout_4->addLayout(formLayout);
-
-        visualAcquityGBox = new QGroupBox(tabPatient);
-        visualAcquityGBox->setObjectName(QStringLiteral("visualAcquityGBox"));
-        QSizePolicy sizePolicy5(QSizePolicy::Maximum, QSizePolicy::Expanding);
-        sizePolicy5.setHorizontalStretch(0);
-        sizePolicy5.setVerticalStretch(0);
-        sizePolicy5.setHeightForWidth(visualAcquityGBox->sizePolicy().hasHeightForWidth());
-        visualAcquityGBox->setSizePolicy(sizePolicy5);
-        visualAcquityGBox->setMinimumSize(QSize(261, 90));
-        visualAcquityGBox->setMaximumSize(QSize(309, 114));
-        gridLayout = new QGridLayout(visualAcquityGBox);
-        gridLayout->setSpacing(6);
-        gridLayout->setContentsMargins(11, 11, 11, 11);
-        gridLayout->setObjectName(QStringLiteral("gridLayout"));
-        gridLayout->setContentsMargins(-1, 0, -1, -1);
-        label_9 = new QLabel(visualAcquityGBox);
-        label_9->setObjectName(QStringLiteral("label_9"));
-        label_9->setMinimumSize(QSize(0, 20));
-        label_9->setAlignment(Qt::AlignCenter);
-
-        gridLayout->addWidget(label_9, 0, 1, 1, 1);
-
-        label_10 = new QLabel(visualAcquityGBox);
-        label_10->setObjectName(QStringLiteral("label_10"));
-        label_10->setMinimumSize(QSize(0, 20));
-        label_10->setAlignment(Qt::AlignCenter);
-
-        gridLayout->addWidget(label_10, 0, 2, 1, 1);
-
-        label_7 = new QLabel(visualAcquityGBox);
-        label_7->setObjectName(QStringLiteral("label_7"));
-        label_7->setMinimumSize(QSize(44, 20));
-
-        gridLayout->addWidget(label_7, 1, 0, 1, 1);
-
-        visOPLEdit = new QLineEdit(visualAcquityGBox);
-        visOPLEdit->setObjectName(QStringLiteral("visOPLEdit"));
-        visOPLEdit->setMinimumSize(QSize(0, 20));
-        visOPLEdit->setAlignment(Qt::AlignCenter);
-
-        gridLayout->addWidget(visOPLEdit, 1, 1, 1, 1);
-
-        visOLLEdit = new QLineEdit(visualAcquityGBox);
-        visOLLEdit->setObjectName(QStringLiteral("visOLLEdit"));
-        visOLLEdit->setMinimumSize(QSize(0, 20));
-        visOLLEdit->setAlignment(Qt::AlignCenter);
-
-        gridLayout->addWidget(visOLLEdit, 1, 2, 1, 1);
-
-        label_8 = new QLabel(visualAcquityGBox);
-        label_8->setObjectName(QStringLiteral("label_8"));
-        label_8->setMinimumSize(QSize(44, 20));
-
-        gridLayout->addWidget(label_8, 2, 0, 1, 1);
-
-        snOPLEdit = new QLineEdit(visualAcquityGBox);
-        snOPLEdit->setObjectName(QStringLiteral("snOPLEdit"));
-        snOPLEdit->setMinimumSize(QSize(0, 20));
-        snOPLEdit->setAlignment(Qt::AlignCenter);
-
-        gridLayout->addWidget(snOPLEdit, 2, 1, 1, 1);
-
-        snOLLEdit = new QLineEdit(visualAcquityGBox);
-        snOLLEdit->setObjectName(QStringLiteral("snOLLEdit"));
-        snOLLEdit->setMinimumSize(QSize(0, 20));
-        snOLLEdit->setAlignment(Qt::AlignCenter);
-
-        gridLayout->addWidget(snOLLEdit, 2, 2, 1, 1);
-
-        gridLayout->setRowMinimumHeight(0, 15);
-        gridLayout->setRowMinimumHeight(1, 20);
-        gridLayout->setRowMinimumHeight(2, 20);
-
-        verticalLayout_4->addWidget(visualAcquityGBox);
-
-        visualAcquityGBox_2 = new QGroupBox(tabPatient);
-        visualAcquityGBox_2->setObjectName(QStringLiteral("visualAcquityGBox_2"));
-        sizePolicy5.setHeightForWidth(visualAcquityGBox_2->sizePolicy().hasHeightForWidth());
-        visualAcquityGBox_2->setSizePolicy(sizePolicy5);
-        visualAcquityGBox_2->setMinimumSize(QSize(261, 90));
-        visualAcquityGBox_2->setMaximumSize(QSize(309, 113));
-        gridLayout_2 = new QGridLayout(visualAcquityGBox_2);
-        gridLayout_2->setSpacing(6);
-        gridLayout_2->setContentsMargins(11, 11, 11, 11);
-        gridLayout_2->setObjectName(QStringLiteral("gridLayout_2"));
-        gridLayout_2->setContentsMargins(-1, 0, -1, -1);
-        label_37 = new QLabel(visualAcquityGBox_2);
-        label_37->setObjectName(QStringLiteral("label_37"));
-        label_37->setMinimumSize(QSize(0, 20));
-        label_37->setMaximumSize(QSize(16777215, 20));
-        label_37->setAlignment(Qt::AlignCenter);
-
-        gridLayout_2->addWidget(label_37, 0, 1, 1, 1);
-
-        label_38 = new QLabel(visualAcquityGBox_2);
-        label_38->setObjectName(QStringLiteral("label_38"));
-        label_38->setMinimumSize(QSize(0, 20));
-        label_38->setMaximumSize(QSize(16777215, 20));
-        label_38->setAlignment(Qt::AlignCenter);
-
-        gridLayout_2->addWidget(label_38, 0, 2, 1, 1);
-
-        label_35 = new QLabel(visualAcquityGBox_2);
-        label_35->setObjectName(QStringLiteral("label_35"));
-
-        gridLayout_2->addWidget(label_35, 1, 0, 1, 1);
-
-        mcVOPLEdit = new QLineEdit(visualAcquityGBox_2);
-        mcVOPLEdit->setObjectName(QStringLiteral("mcVOPLEdit"));
-        mcVOPLEdit->setMinimumSize(QSize(0, 20));
-        mcVOPLEdit->setAlignment(Qt::AlignCenter);
-
-        gridLayout_2->addWidget(mcVOPLEdit, 1, 1, 1, 1);
-
-        mcVOLLEdit = new QLineEdit(visualAcquityGBox_2);
-        mcVOLLEdit->setObjectName(QStringLiteral("mcVOLLEdit"));
-        mcVOLLEdit->setMinimumSize(QSize(0, 20));
-        mcVOLLEdit->setAlignment(Qt::AlignCenter);
-
-        gridLayout_2->addWidget(mcVOLLEdit, 1, 2, 1, 1);
-
-        label_36 = new QLabel(visualAcquityGBox_2);
-        label_36->setObjectName(QStringLiteral("label_36"));
-
-        gridLayout_2->addWidget(label_36, 2, 0, 1, 1);
-
-        mcHOPLEdit = new QLineEdit(visualAcquityGBox_2);
-        mcHOPLEdit->setObjectName(QStringLiteral("mcHOPLEdit"));
-        mcHOPLEdit->setMinimumSize(QSize(0, 20));
-        mcHOPLEdit->setAlignment(Qt::AlignCenter);
-
-        gridLayout_2->addWidget(mcHOPLEdit, 2, 1, 1, 1);
-
-        mcHOLLEdit = new QLineEdit(visualAcquityGBox_2);
-        mcHOLLEdit->setObjectName(QStringLiteral("mcHOLLEdit"));
-        mcHOLLEdit->setMinimumSize(QSize(0, 20));
-        mcHOLLEdit->setAlignment(Qt::AlignCenter);
-
-        gridLayout_2->addWidget(mcHOLLEdit, 2, 2, 1, 1);
-
-        gridLayout_2->setRowMinimumHeight(0, 20);
-        gridLayout_2->setRowMinimumHeight(1, 20);
-        gridLayout_2->setRowMinimumHeight(2, 20);
-
-        verticalLayout_4->addWidget(visualAcquityGBox_2);
-
-        pathologyGBox = new QGroupBox(tabPatient);
-        pathologyGBox->setObjectName(QStringLiteral("pathologyGBox"));
-        pathologyGBox->setMinimumSize(QSize(0, 60));
-        gridLayout_7 = new QGridLayout(pathologyGBox);
-        gridLayout_7->setSpacing(6);
-        gridLayout_7->setContentsMargins(11, 11, 11, 11);
-        gridLayout_7->setObjectName(QStringLiteral("gridLayout_7"));
-        gridLayout_7->setContentsMargins(-1, 0, -1, -1);
-        pathOPCBox = new QComboBox(pathologyGBox);
-        pathOPCBox->setObjectName(QStringLiteral("pathOPCBox"));
-        pathOPCBox->setMinimumSize(QSize(0, 20));
-
-        gridLayout_7->addWidget(pathOPCBox, 1, 0, 1, 1);
-
-        pathOLCBox = new QComboBox(pathologyGBox);
-        pathOLCBox->setObjectName(QStringLiteral("pathOLCBox"));
-        pathOLCBox->setMinimumSize(QSize(0, 20));
-
-        gridLayout_7->addWidget(pathOLCBox, 1, 1, 1, 1);
-
-        label_45 = new QLabel(pathologyGBox);
-        label_45->setObjectName(QStringLiteral("label_45"));
-        label_45->setMinimumSize(QSize(0, 20));
-        label_45->setMaximumSize(QSize(16777215, 20));
-        label_45->setAlignment(Qt::AlignCenter);
-
-        gridLayout_7->addWidget(label_45, 0, 0, 1, 1);
-
-        label_46 = new QLabel(pathologyGBox);
-        label_46->setObjectName(QStringLiteral("label_46"));
-        label_46->setMinimumSize(QSize(0, 20));
-        label_46->setMaximumSize(QSize(16777215, 20));
-        label_46->setAlignment(Qt::AlignCenter);
-
-        gridLayout_7->addWidget(label_46, 0, 1, 1, 1);
-
-
-        verticalLayout_4->addWidget(pathologyGBox);
-
-        verticalSpacer = new QSpacerItem(20, 40, QSizePolicy::Minimum, QSizePolicy::Expanding);
-
-        verticalLayout_4->addItem(verticalSpacer);
-
-
-        formLayout_3->setLayout(0, QFormLayout::LabelRole, verticalLayout_4);
-
-        verticalLayout_3 = new QVBoxLayout();
-        verticalLayout_3->setSpacing(6);
-        verticalLayout_3->setObjectName(QStringLiteral("verticalLayout_3"));
-        label_13 = new QLabel(tabPatient);
-        label_13->setObjectName(QStringLiteral("label_13"));
-
-        verticalLayout_3->addWidget(label_13);
-
-        anteriorTEdit = new QTextEdit(tabPatient);
-        anteriorTEdit->setObjectName(QStringLiteral("anteriorTEdit"));
-
-        verticalLayout_3->addWidget(anteriorTEdit);
-
-        label_14 = new QLabel(tabPatient);
-        label_14->setObjectName(QStringLiteral("label_14"));
-
-        verticalLayout_3->addWidget(label_14);
-
-        posteriorTEdit = new QTextEdit(tabPatient);
-        posteriorTEdit->setObjectName(QStringLiteral("posteriorTEdit"));
-
-        verticalLayout_3->addWidget(posteriorTEdit);
-
-        label_11 = new QLabel(tabPatient);
-        label_11->setObjectName(QStringLiteral("label_11"));
-
-        verticalLayout_3->addWidget(label_11);
-
-        otherPathologiesTEdit = new QTextEdit(tabPatient);
-        otherPathologiesTEdit->setObjectName(QStringLiteral("otherPathologiesTEdit"));
-
-        verticalLayout_3->addWidget(otherPathologiesTEdit);
-
-
-        formLayout_3->setLayout(0, QFormLayout::FieldRole, verticalLayout_3);
-
-
-        verticalLayout_5->addLayout(formLayout_3);
-
-        verticalLayout_2 = new QVBoxLayout();
-        verticalLayout_2->setSpacing(6);
-        verticalLayout_2->setObjectName(QStringLiteral("verticalLayout_2"));
-        label_15 = new QLabel(tabPatient);
-        label_15->setObjectName(QStringLiteral("label_15"));
-
-        verticalLayout_2->addWidget(label_15);
-
-        octExamsListWidget = new QListWidget(tabPatient);
-        octExamsListWidget->setObjectName(QStringLiteral("octExamsListWidget"));
-        octExamsListWidget->setMinimumSize(QSize(800, 150));
-
-        verticalLayout_2->addWidget(octExamsListWidget);
-
-
-        verticalLayout_5->addLayout(verticalLayout_2);
-
-        tabWidget->addTab(tabPatient, QString());
         tabAmslerCharts = new QWidget();
         tabAmslerCharts->setObjectName(QStringLiteral("tabAmslerCharts"));
         gridLayout_6 = new QGridLayout(tabAmslerCharts);
@@ -1255,6 +988,33 @@ public:
         verticalLayout_7 = new QVBoxLayout();
         verticalLayout_7->setSpacing(6);
         verticalLayout_7->setObjectName(QStringLiteral("verticalLayout_7"));
+        formLayout_2 = new QFormLayout();
+        formLayout_2->setSpacing(6);
+        formLayout_2->setObjectName(QStringLiteral("formLayout_2"));
+        label = new QLabel(tabOCTExam);
+        label->setObjectName(QStringLiteral("label"));
+        QSizePolicy sizePolicy3(QSizePolicy::Fixed, QSizePolicy::Fixed);
+        sizePolicy3.setHorizontalStretch(0);
+        sizePolicy3.setVerticalStretch(0);
+        sizePolicy3.setHeightForWidth(label->sizePolicy().hasHeightForWidth());
+        label->setSizePolicy(sizePolicy3);
+
+        formLayout_2->setWidget(0, QFormLayout::LabelRole, label);
+
+        fileNameLabel = new QLabel(tabOCTExam);
+        fileNameLabel->setObjectName(QStringLiteral("fileNameLabel"));
+        QSizePolicy sizePolicy4(QSizePolicy::Preferred, QSizePolicy::Fixed);
+        sizePolicy4.setHorizontalStretch(0);
+        sizePolicy4.setVerticalStretch(0);
+        sizePolicy4.setHeightForWidth(fileNameLabel->sizePolicy().hasHeightForWidth());
+        fileNameLabel->setSizePolicy(sizePolicy4);
+        fileNameLabel->setTextFormat(Qt::PlainText);
+
+        formLayout_2->setWidget(0, QFormLayout::FieldRole, fileNameLabel);
+
+
+        verticalLayout_7->addLayout(formLayout_2);
+
         horizontalLayout_2 = new QHBoxLayout();
         horizontalLayout_2->setSpacing(6);
         horizontalLayout_2->setObjectName(QStringLiteral("horizontalLayout_2"));
@@ -1271,11 +1031,11 @@ public:
 
         imageNumberLabel = new QLabel(tabOCTExam);
         imageNumberLabel->setObjectName(QStringLiteral("imageNumberLabel"));
-        QSizePolicy sizePolicy6(QSizePolicy::Expanding, QSizePolicy::Preferred);
-        sizePolicy6.setHorizontalStretch(0);
-        sizePolicy6.setVerticalStretch(0);
-        sizePolicy6.setHeightForWidth(imageNumberLabel->sizePolicy().hasHeightForWidth());
-        imageNumberLabel->setSizePolicy(sizePolicy6);
+        QSizePolicy sizePolicy5(QSizePolicy::Expanding, QSizePolicy::Preferred);
+        sizePolicy5.setHorizontalStretch(0);
+        sizePolicy5.setVerticalStretch(0);
+        sizePolicy5.setHeightForWidth(imageNumberLabel->sizePolicy().hasHeightForWidth());
+        imageNumberLabel->setSizePolicy(sizePolicy5);
         imageNumberLabel->setMinimumSize(QSize(100, 23));
         imageNumberLabel->setMaximumSize(QSize(16777215, 23));
 
@@ -1313,7 +1073,12 @@ public:
 
         bScanHCPlot = new QCustomPlot(tabOCTExam);
         bScanHCPlot->setObjectName(QStringLiteral("bScanHCPlot"));
-        bScanHCPlot->setMinimumSize(QSize(820, 250));
+        QSizePolicy sizePolicy6(QSizePolicy::Preferred, QSizePolicy::Expanding);
+        sizePolicy6.setHorizontalStretch(0);
+        sizePolicy6.setVerticalStretch(0);
+        sizePolicy6.setHeightForWidth(bScanHCPlot->sizePolicy().hasHeightForWidth());
+        bScanHCPlot->setSizePolicy(sizePolicy6);
+        bScanHCPlot->setMinimumSize(QSize(820, 300));
 
         verticalLayout_7->addWidget(bScanHCPlot);
 
@@ -1355,7 +1120,9 @@ public:
 
         bScanVCPlot = new QCustomPlot(tabOCTExam);
         bScanVCPlot->setObjectName(QStringLiteral("bScanVCPlot"));
-        bScanVCPlot->setMinimumSize(QSize(820, 250));
+        sizePolicy6.setHeightForWidth(bScanVCPlot->sizePolicy().hasHeightForWidth());
+        bScanVCPlot->setSizePolicy(sizePolicy6);
+        bScanVCPlot->setMinimumSize(QSize(820, 300));
 
         verticalLayout_7->addWidget(bScanVCPlot);
 
@@ -1887,7 +1654,7 @@ public:
         virtualMapHistCPlot->setObjectName(QStringLiteral("virtualMapHistCPlot"));
         sizePolicy.setHeightForWidth(virtualMapHistCPlot->sizePolicy().hasHeightForWidth());
         virtualMapHistCPlot->setSizePolicy(sizePolicy);
-        virtualMapHistCPlot->setMinimumSize(QSize(430, 201));
+        virtualMapHistCPlot->setMinimumSize(QSize(450, 201));
         virtualMapHistCPlot->setMaximumSize(QSize(750, 302));
 
         horizontalLayout_10->addWidget(virtualMapHistCPlot);
@@ -1899,7 +1666,7 @@ public:
         sizePolicy7.setVerticalStretch(0);
         sizePolicy7.setHeightForWidth(ETDRSgridCPlot->sizePolicy().hasHeightForWidth());
         ETDRSgridCPlot->setSizePolicy(sizePolicy7);
-        ETDRSgridCPlot->setMinimumSize(QSize(260, 200));
+        ETDRSgridCPlot->setMinimumSize(QSize(300, 250));
         ETDRSgridCPlot->setMaximumSize(QSize(300, 300));
         ETDRSgridCPlot->setSizeIncrement(QSize(10, 10));
 
@@ -2282,7 +2049,7 @@ public:
         addPatientDBButton->setText(QApplication::translate("OCTAnnotate", "Dodaj pacjenta", 0));
         editPatientDBButton->setText(QApplication::translate("OCTAnnotate", "Edytuj pacjenta", 0));
         deletePatientDBButton->setText(QApplication::translate("OCTAnnotate", "Usu\305\204 pacjenta", 0));
-        groupBox_5->setTitle(QApplication::translate("OCTAnnotate", "Wyszukaj", 0));
+        patienSearchGBox->setTitle(QApplication::translate("OCTAnnotate", "Wyszukaj", 0));
         searchLastNameLEdit->setText(QString());
         searchLastNameLEdit->setPlaceholderText(QApplication::translate("OCTAnnotate", "Nazwisko", 0));
         searchFirstNameLEdit->setText(QString());
@@ -2314,6 +2081,13 @@ public:
         showAllScansRButton->setText(QApplication::translate("OCTAnnotate", "poka\305\274 wszystkie skany pacjenta", 0));
         showOnlyDefaultScanRButton->setText(QApplication::translate("OCTAnnotate", "poka\305\274 tylko jeden skan pacjenta", 0));
         searchPatientDBButton->setText(QApplication::translate("OCTAnnotate", "Szukaj", 0));
+        groupBox_5->setTitle(QApplication::translate("OCTAnnotate", "Ostro\305\233\304\207 widzenia i M-Charts", 0));
+        label_9->setText(QApplication::translate("OCTAnnotate", "OP", 0));
+        label_10->setText(QApplication::translate("OCTAnnotate", "OL", 0));
+        label_7->setText(QApplication::translate("OCTAnnotate", "Vis:", 0));
+        label_8->setText(QApplication::translate("OCTAnnotate", "Sn:", 0));
+        label_35->setText(QApplication::translate("OCTAnnotate", "Pionowo:", 0));
+        label_36->setText(QApplication::translate("OCTAnnotate", "Poziomo:", 0));
         fundusDBLabel->setText(QApplication::translate("OCTAnnotate", "Fundus", 0));
         label_47->setText(QApplication::translate("OCTAnnotate", "Wy\305\233wietl list\304\231 skan\303\263w dla:", 0));
         scanListGroupCBox->clear();
@@ -2328,53 +2102,6 @@ public:
         bscanHLabel->setText(QApplication::translate("OCTAnnotate", "Bscan Horizontal", 0));
         bscanVLabel->setText(QApplication::translate("OCTAnnotate", "Bscan Vertical", 0));
         tabWidget->setTabText(tabWidget->indexOf(tabDatabase), QApplication::translate("OCTAnnotate", "Lista pacjent\303\263w", 0));
-        label->setText(QApplication::translate("OCTAnnotate", "Wybrane badanie OCT:", 0));
-        fileNameLabel->setText(QString());
-        label_3->setText(QApplication::translate("OCTAnnotate", "Nazwisko:", 0));
-        label_4->setText(QApplication::translate("OCTAnnotate", "Imi\304\231:", 0));
-        label_5->setText(QApplication::translate("OCTAnnotate", "Data urodzenia:", 0));
-        label_6->setText(QApplication::translate("OCTAnnotate", "P\305\202e\304\207:", 0));
-        genderCBox->clear();
-        genderCBox->insertItems(0, QStringList()
-         << QApplication::translate("OCTAnnotate", "Kobieta", 0)
-         << QApplication::translate("OCTAnnotate", "M\304\231\305\274czyzna", 0)
-        );
-        visualAcquityGBox->setTitle(QApplication::translate("OCTAnnotate", "Ostro\305\233\304\207 widzenia", 0));
-        label_9->setText(QApplication::translate("OCTAnnotate", "OP", 0));
-        label_10->setText(QApplication::translate("OCTAnnotate", "OL", 0));
-        label_7->setText(QApplication::translate("OCTAnnotate", "Vis:", 0));
-        label_8->setText(QApplication::translate("OCTAnnotate", "Sn:", 0));
-        visualAcquityGBox_2->setTitle(QApplication::translate("OCTAnnotate", "Badanie M-charts (stopnie)", 0));
-        label_37->setText(QApplication::translate("OCTAnnotate", "OP", 0));
-        label_38->setText(QApplication::translate("OCTAnnotate", "OL", 0));
-        label_35->setText(QApplication::translate("OCTAnnotate", "Pionowo:", 0));
-        label_36->setText(QApplication::translate("OCTAnnotate", "Poziomo:", 0));
-        pathologyGBox->setTitle(QApplication::translate("OCTAnnotate", "Klasyfikacja patologii", 0));
-        pathOPCBox->clear();
-        pathOPCBox->insertItems(0, QStringList()
-         << QApplication::translate("OCTAnnotate", "Brak", 0)
-         << QApplication::translate("OCTAnnotate", "VMA", 0)
-         << QApplication::translate("OCTAnnotate", "VMT", 0)
-         << QApplication::translate("OCTAnnotate", "ERM", 0)
-         << QApplication::translate("OCTAnnotate", "IMH", 0)
-         << QApplication::translate("OCTAnnotate", "Niezdefniowana", 0)
-        );
-        pathOLCBox->clear();
-        pathOLCBox->insertItems(0, QStringList()
-         << QApplication::translate("OCTAnnotate", "Brak", 0)
-         << QApplication::translate("OCTAnnotate", "VMA", 0)
-         << QApplication::translate("OCTAnnotate", "VMT", 0)
-         << QApplication::translate("OCTAnnotate", "ERM", 0)
-         << QApplication::translate("OCTAnnotate", "IMH", 0)
-         << QApplication::translate("OCTAnnotate", "Niezdefiniowana", 0)
-        );
-        label_45->setText(QApplication::translate("OCTAnnotate", "OP", 0));
-        label_46->setText(QApplication::translate("OCTAnnotate", "OL", 0));
-        label_13->setText(QApplication::translate("OCTAnnotate", "Dno oka:", 0));
-        label_14->setText(QApplication::translate("OCTAnnotate", "Towarzysz\304\205ce schorzenia okulistyczne:", 0));
-        label_11->setText(QApplication::translate("OCTAnnotate", "Odcinek przedni:", 0));
-        label_15->setText(QApplication::translate("OCTAnnotate", "Badania OCT:", 0));
-        tabWidget->setTabText(tabWidget->indexOf(tabPatient), QApplication::translate("OCTAnnotate", "Dane pacjenta", 0));
         label_19->setText(QApplication::translate("OCTAnnotate", "Prawe oko", 0));
         amslerRImageLabel->setText(QString());
         penButton->setText(QApplication::translate("OCTAnnotate", "Pisak", 0));
@@ -2389,6 +2116,8 @@ public:
         label_18->setText(QApplication::translate("OCTAnnotate", "Uwagi do oznacze\305\204 dla prawego oka:", 0));
         label_24->setText(QApplication::translate("OCTAnnotate", "Uwagi do oznacze\305\204 dla lewego oka:", 0));
         tabWidget->setTabText(tabWidget->indexOf(tabAmslerCharts), QApplication::translate("OCTAnnotate", "Badanie Amslera", 0));
+        label->setText(QApplication::translate("OCTAnnotate", "Wybrane badanie OCT:", 0));
+        fileNameLabel->setText(QString());
         label_2->setText(QApplication::translate("OCTAnnotate", "Obraz:", 0));
         imageNumberLabel->setText(QString());
         zoomOutButton->setText(QApplication::translate("OCTAnnotate", "-", 0));

@@ -1,7 +1,7 @@
 /********************************************************************************
 ** Form generated from reading UI file 'octannotate.ui'
 **
-** Created by: Qt User Interface Compiler version 5.4.2
+** Created by: Qt User Interface Compiler version 5.4.1
 **
 ** WARNING! All changes made in this file will be lost when recompiling UI file!
 ********************************************************************************/
@@ -120,7 +120,7 @@ public:
     QComboBox *scanListGroupCBox;
     QPushButton *searchForScansButton;
     QPushButton *addScanFolderButton;
-    QPushButton *createProjectionsButton;
+    QPushButton *batchProcessingButton;
     QVBoxLayout *verticalLayout_26;
     QLabel *bscanHLabel;
     QLabel *bscanVLabel;
@@ -747,10 +747,10 @@ public:
 
         horizontalLayout_8->addWidget(addScanFolderButton);
 
-        createProjectionsButton = new QPushButton(tabDatabase);
-        createProjectionsButton->setObjectName(QStringLiteral("createProjectionsButton"));
+        batchProcessingButton = new QPushButton(tabDatabase);
+        batchProcessingButton->setObjectName(QStringLiteral("batchProcessingButton"));
 
-        horizontalLayout_8->addWidget(createProjectionsButton);
+        horizontalLayout_8->addWidget(batchProcessingButton);
 
 
         verticalLayout_27->addLayout(horizontalLayout_8);
@@ -2098,7 +2098,7 @@ public:
         );
         searchForScansButton->setText(QApplication::translate("OCTAnnotate", "Wyszukaj skany", 0));
         addScanFolderButton->setText(QApplication::translate("OCTAnnotate", "Dodaj katalog", 0));
-        createProjectionsButton->setText(QApplication::translate("OCTAnnotate", "Utw\303\263rz przekroje", 0));
+        batchProcessingButton->setText(QApplication::translate("OCTAnnotate", "Przetwarzanie seryjne", 0));
         bscanHLabel->setText(QApplication::translate("OCTAnnotate", "Bscan Horizontal", 0));
         bscanVLabel->setText(QApplication::translate("OCTAnnotate", "Bscan Vertical", 0));
         tabWidget->setTabText(tabWidget->indexOf(tabDatabase), QApplication::translate("OCTAnnotate", "Lista pacjent\303\263w", 0));

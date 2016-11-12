@@ -4187,11 +4187,13 @@ void OCTAnnotate::on_actionShowCenterOnBscan_toggled(bool checked)
 }
 
 // auto annotations -------------------------------------------------------------------------------
-void OCTAnnotate::on_actionReadAutoSegmentation_triggered()
+void OCTAnnotate::on_actionReadAutoSegmentation_triggered(QString pathAutoSegment)
 {
     if (!patientData.getImageFileList().isEmpty()){
         // read data from file
-        QString autoSegmentFilePath = QFileDialog::getOpenFileName(this, tr("Otwórz plik z automatyczną segmentacją"), autoDir.path(), tr("Plik tekstowy (*.txt);;Plik aplikacji OCTExplorer (*.xml)"));
+        QString autoSegmentFilePath = pathAutoSegment;
+        if (autoSegmentFilePath.isEmpty())
+            autoSegmentFilePath = QFileDialog::getOpenFileName(this, tr("Otwórz plik z automatyczną segmentacją"), autoDir.path(), tr("Plik tekstowy (*.txt);;Plik aplikacji OCTExplorer (*.xml)"));
         if (autoSegmentFilePath.isEmpty()){
             if (patientData.hasAutoAnnotations()){
                 QMessageBox msgBox;
@@ -4870,55 +4872,28 @@ void OCTAnnotate::on_returnNewDirectory(QString newDir){
     octDir = QDir(newDir);
 }
 
-void OCTAnnotate::on_actionCreateManualSegmentationFromOCTExplorer_triggered()
+void OCTAnnotate::on_actionCreateManualSegmentationFromOCTExplorer_triggered(QList<QString> folderList)
 {
-    QList<QString> folderList;
-    // COPERNICUS SERIA 2 VMT
-//    folderList.append("DABROWSKI_ADAM_2014_09_12_09_47_45_L_Centralna_3D_8,00 mm_ 800x100"); // 1
-//    folderList.append("FABISZAK_KAZIMIERZ_2014_09_13_10_23_18_R_Centralna_3D_8,00 mm_ 800x100"); // 2
-//    folderList.append("GREJTOWICZ_MIERNICKA_TERESA_2014_09_19_09_51_09_R 800x100"); // 3
-//    folderList.append("GREJTOWICZ_MIERNICKA_TERESA_2014_09_19_09_54_48_L_Centralna_3D_8,00 mm_ 799x100"); // 4
-//    folderList.append("GROMADZINSKI_MAREK_2014_09_23_10_23_00_R_Centralna_3D_8,00 mm_ 800x100"); // 5
-//    folderList.append("GROMADZINSKI_MAREK_2014_09_23_10_27_43_L_Centralna_3D_8,00 mm_ 799x100"); // 6
-//    folderList.append("GRZESIAK_BARBARA_2014_09_23_10_20_06_L_Centralna_3D_8,00 mm_ 799x100"); // 7
-//    folderList.append("GRZYBOWSKA_GABRIELLA_2014_09_15_10_50_39_L_Centralna_3D_8,00 mm_ 800x100"); // 8
-//    folderList.append("JAKUBOWSKA_EUGENIA_2014_09_18_10_57_17_R_Centralna_3D_8,00 mm_ 800x100"); // 9
-//    folderList.append("JAKUBOWSKA_EUGENIA_2014_09_18_11_01_35_L_Centralna_3D_8,00 mm_ 800x100"); // 10
-//    folderList.append("KAWA_ZOFIA_2014_09_16_11_18_02_R_Centralna_3D_8,00 mm_ 800x100"); // 11
-//    folderList.append("KOKOWSKI_PIOTR_2014_09_19_10_00_38_R_Centralna_3D_8,00 mm_ 800x100"); // 12
-//    folderList.append("KOLT_FRANCISZKA_2014_09_13_11_49_27_R_Centralna_3D_8,00 mm_ 800x100"); // 13
-//    folderList.append("KOZLOWSKA_MARIA_2014_09_12_08_56_31_R_Centralna_3D_8,00 mm_ 800x100"); // 14
-//    folderList.append("MACKOWIAK_PAWEL_2014_09_15_11_20_54_L_Centralna_3D_8,00 mm_ 800x100"); // 15
-//    folderList.append("MACKOWIAK_PAWEL_2014_09_15_11_46_36_R_Centralna_3D_8,00 mm_ 800x100"); // 16
-//    folderList.append("NAMERLA_WOJCIECH_2014_09_18_11_36_48_R_Centralna_3D_8,00 mm_ 800x100"); // 17
-//    folderList.append("PARUSZEWSKI_ANDRZEJ_2014_09_11_12_37_58_L_Centralna_3D_8,00 mm_ 799x100"); // 18
-//    folderList.append("PIETRZAK_PIOTR_2014_09_19_10_14_23_L_Centralna_3D_8,00 mm_ 799x100"); // 19
-//    folderList.append("POZNANSKI_WACLAW_2014_09_16_11_35_16_L_Centralna_3D_8,00 mm_ 800x100"); // 20
-//    folderList.append("SILSKA_GENOWEFA_2014_09_16_14_14_56_R_Centralna_3D_8,00 mm_ 800x100"); // 21
-//    folderList.append("SILSKA_GENOWEFA_2014_09_16_14_18_23_L_Centralna_3D_8,00 mm_ 800x100"); // 22
-//    folderList.append("STELLMACH_HENRYK_2014_09_19_11_05_59_L_Centralna_3D_8,00 mm_ 800x100"); // 23
-
     // MGR BERA
-    folderList.append("NAZWISKO1_IMIE1_2014_07_01_12_32_22_R_Centralna_3D_8,00 mm_ 800x100"); // 1
-    folderList.append("NAZWISKO2_IMIE2_2014_09_19_09_51_09_R_Centralna_3D_8,00 mm_ 800x100"); // 1
-    folderList.append("NAZWISKO3_IMIE3_2014_08_12_13_06_42_R_Centralna_3D_8,00 mm_ 800x100"); // 1
-    folderList.append("NAZWISKO4_IMIE4_2014_09_23_10_20_06_L_Centralna_3D_8,00 mm_ 799x100"); // 1
-    folderList.append("NAZWISKO5_IMIE5_2013_11_21_10_00_12_L_Centralna_3D_8,00 mm_ 800x100"); // 1
-    folderList.append("NAZWISKO6_IMIE6_2013_11_26_12_19_00_R_Centralna_3D_8,00 mm_ 800x100"); // 1
-    folderList.append("NAZWISKO7_IMIE7_2013_12_03_12_28_38_R_Centralna_3D_8,00 mm_ 800x100"); // 1
-    folderList.append("NAZWISKO8_IMIE8_2015_01_16_11_07_02_L_Centralna_3D_8,00 mm_ 800x100"); // 1
-    folderList.append("NAZWISKO9_IMIE9_2014_04_23_10_46_49_L_Centralna_3D_8,00 mm_ 800x100"); // 1
-    folderList.append("NAZWISKO10_IMIE10_2014_09_16_14_14_56_R_Centralna_3D_8,00 mm_ 800x100"); // 1
+//    folderList.append("NAZWISKO1_IMIE1_2014_07_01_12_32_22_R_Centralna_3D_8,00 mm_ 800x100"); // 1
+//    folderList.append("NAZWISKO2_IMIE2_2014_09_19_09_51_09_R_Centralna_3D_8,00 mm_ 800x100"); // 1
+//    folderList.append("NAZWISKO3_IMIE3_2014_08_12_13_06_42_R_Centralna_3D_8,00 mm_ 800x100"); // 1
+//    folderList.append("NAZWISKO4_IMIE4_2014_09_23_10_20_06_L_Centralna_3D_8,00 mm_ 799x100"); // 1
+//    folderList.append("NAZWISKO5_IMIE5_2013_11_21_10_00_12_L_Centralna_3D_8,00 mm_ 800x100"); // 1
+//    folderList.append("NAZWISKO6_IMIE6_2013_11_26_12_19_00_R_Centralna_3D_8,00 mm_ 800x100"); // 1
+//    folderList.append("NAZWISKO7_IMIE7_2013_12_03_12_28_38_R_Centralna_3D_8,00 mm_ 800x100"); // 1
+//    folderList.append("NAZWISKO8_IMIE8_2015_01_16_11_07_02_L_Centralna_3D_8,00 mm_ 800x100"); // 1
+//    folderList.append("NAZWISKO9_IMIE9_2014_04_23_10_46_49_L_Centralna_3D_8,00 mm_ 800x100"); // 1
+//    folderList.append("NAZWISKO10_IMIE10_2014_09_16_14_14_56_R_Centralna_3D_8,00 mm_ 800x100"); // 1
 
     foreach(QString folderName, folderList){
-        qDebug() << "Processing... " + folderName;
+        QDir fn = QDir(folderName);
+        QString scanName = fn.dirName();
+        qDebug() << "Processing... " + scanName;
 
         // read oct scan -----------------------------------------------------------------------------------------------------------
-//        QString dirName = "D:/Egnyte/Private/agis/BADANIA/OCT exams/Copernicus Seria 2 VMT/" + folderName + "/";
-        QString dirName = "D:/Egnyte/Private/agis/BADANIA/MGR Bera/OCT data/VMT/" + folderName + "/";
-        octDir = QDir(dirName);
-        manualDir = QDir("D:/Egnyte/Private/agis/BADANIA/TEMP/");
-        autoDir = QDir("D:/Egnyte/Private/agis/BADANIA/MGR Bera/OCT data/VMT/" + folderName + "/");
+        octDir = QDir(folderName + "/");
+        autoDir = QDir(folderName + "/");
 
         patientData = PatientData();
 
@@ -4927,7 +4902,7 @@ void OCTAnnotate::on_actionCreateManualSegmentationFromOCTExplorer_triggered()
         rwData->setDirectoryOct(&octDir);
         rwData->setDirectoryManual(&manualDir);
         rwData->setDirectoryAuto(&autoDir);
-        rwData->setAutoFilePath(dirName + folderName + "_Sequence_Surfaces_Iowa.xml");
+        rwData->setAutoFilePath(folderName + "/" + scanName + "_Surfaces_Iowa.xml");
         rwData->setDataSaveStrucure(dataSaveStructure);
         rwData->addDirective("readPatientData");
         rwData->addDirective("readOctExamData");
@@ -4944,8 +4919,8 @@ void OCTAnnotate::on_actionCreateManualSegmentationFromOCTExplorer_triggered()
         connect(rwData, SIGNAL(finished()), rwData, SLOT(deleteLater()));
         connect(thread, SIGNAL(finished()), thread, SLOT(deleteLater()));
         thread->start();
-        thread->wait(5*1000);
-        //thread->wait();
+        thread->wait(30*1000);
+//        thread->wait();
     }
 }
 
@@ -5408,8 +5383,10 @@ void OCTAnnotate::on_addScanFolderButton_clicked(QString folderPath)
     }
 }
 
-void OCTAnnotate::on_createProjectionsButton_clicked()
+void OCTAnnotate::on_batchProcessingButton_clicked()
 {
+    QList<QString> folderList;
+
     // foreach scan in the database
     for (int r = 0; r < modelScans->rowCount(); r++){
         QSqlRecord record = modelScans->record(r);
@@ -5439,9 +5416,16 @@ void OCTAnnotate::on_createProjectionsButton_clicked()
                 patientsDB->editScanHasAutoExplorer(patientsDB->getScanID(folderName),true);
             } else {
                 qDebug() << "No OCTExplorer analysis for scan: " + temp;
-            }
+            }   
         }
+
+        folderList.append(examDir.absolutePath() + "/" + subfolder + "/" + folderName);
     }
+
+    // 5. import OCTExplorer auto annotations
+//    on_actionLoadPatientOCT_triggered(examDir.absolutePath() + "/" + subfolder + "/" + folderName);
+//    on_actionReadAutoSegmentation_triggered(examDir.absolutePath() + "/" + subfolder + "/" + folderName + "/" + folderName + "_Surfaces_Iowa.xml");
+    on_actionCreateManualSegmentationFromOCTExplorer_triggered(folderList);
 
     modelPatients->select();
     modelScans->select();

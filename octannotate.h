@@ -120,7 +120,7 @@ private slots:
     void on_actionShowETDRSGrid_toggled(bool checked);
 
 // Auto annotations
-    void on_actionReadAutoSegmentation_triggered();
+    void on_actionReadAutoSegmentation_triggered(QString pathAutoSegment = "");
     void on_actionCloseAutoSegmentation_triggered();
     void on_actionSaveAutoAnnotationsAs_triggered();
     void on_actionConvertAutoAnnotations_triggered();
@@ -129,7 +129,7 @@ private slots:
     void on_actionSetAutoSegmentationAsManual_triggered();
     void on_actionSettings_triggered();
     void on_actionComputeErrorAllScans_triggered();
-    void on_actionCreateManualSegmentationFromOCTExplorer_triggered();
+    void on_actionCreateManualSegmentationFromOCTExplorer_triggered(QList<QString> folderList);
     void on_actionComputeStatistics_triggered();
 
     void on_layerErrorCBox_currentIndexChanged(int index);
@@ -152,7 +152,7 @@ private slots:
     void on_scansListTableView_doubleClicked(const QModelIndex &currentIndex);
     void on_scansListTableView_clicked(const QModelIndex &index);
 
-    void on_createProjectionsButton_clicked();
+    void on_batchProcessingButton_clicked();
 
 public slots:
     void on_errorOccured(QString);

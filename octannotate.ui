@@ -643,9 +643,9 @@
                </widget>
               </item>
               <item>
-               <widget class="QPushButton" name="createProjectionsButton">
+               <widget class="QPushButton" name="batchProcessingButton">
                 <property name="text">
-                 <string>Utwórz przekroje</string>
+                 <string>Przetwarzanie seryjne</string>
                 </property>
                </widget>
               </item>

@@ -4,6 +4,7 @@
 #include "autoasmanualdialog.h"
 #include "settingsdialog.h"
 #include "computeerrorsettingsdialog.h"
+#include "batchprocessingdialog.h"
 #include "qmath.h"
 #include "calculate.h"
 #include "readwritedata.h"
@@ -5407,17 +5408,17 @@ void OCTAnnotate::on_batchProcessingButton_clicked()
         // 4. check if OCTExplorer annotations are present in the folder
         QString folderName = record.value("scan_folder_path").toString();
         QString subfolder = record.value("device").toString() + " " + record.value("series").toString();
-        QString temp = "/" + subfolder + "/" + folderName + "/" + folderName + "_Proj_Iowa.tif";
-        QString fundusPath = examDir.absolutePath().append(temp);
-        bool hasAutoExplorer = record.value("has_autoExplorer").toBool();
-        if (!hasAutoExplorer){
-            if (QFile(fundusPath).exists()){
-                qDebug() << "Found analysis for: " + folderName;
-                patientsDB->editScanHasAutoExplorer(patientsDB->getScanID(folderName),true);
-            } else {
-                qDebug() << "No OCTExplorer analysis for scan: " + temp;
-            }   
-        }
+//        QString temp = "/" + subfolder + "/" + folderName + "/" + folderName + "_Proj_Iowa.tif";
+//        QString fundusPath = examDir.absolutePath().append(temp);
+//        bool hasAutoExplorer = record.value("has_autoExplorer").toBool();
+//        if (!hasAutoExplorer){
+//            if (QFile(fundusPath).exists()){
+//                qDebug() << "Found analysis for: " + folderName;
+//                patientsDB->editScanHasAutoExplorer(patientsDB->getScanID(folderName),true);
+//            } else {
+//                qDebug() << "No OCTExplorer analysis for scan: " + temp;
+//            }
+//        }
 
         folderList.append(examDir.absolutePath() + "/" + subfolder + "/" + folderName);
     }
@@ -5425,10 +5426,14 @@ void OCTAnnotate::on_batchProcessingButton_clicked()
     // 5. import OCTExplorer auto annotations
 //    on_actionLoadPatientOCT_triggered(examDir.absolutePath() + "/" + subfolder + "/" + folderName);
 //    on_actionReadAutoSegmentation_triggered(examDir.absolutePath() + "/" + subfolder + "/" + folderName + "/" + folderName + "_Surfaces_Iowa.xml");
-    on_actionCreateManualSegmentationFromOCTExplorer_triggered(folderList);
+//    on_actionCreateManualSegmentationFromOCTExplorer_triggered(folderList);
 
-    modelPatients->select();
-    modelScans->select();
+//    modelPatients->select();
+//    modelScans->select();
+
+    BatchProcessingDialog *batchDialog = new BatchProcessingDialog(folderList, manualDir);
+    batchDialog->setModal(true);
+    batchDialog->show();
 }
 
 void OCTAnnotate::on_patientsListTableView_doubleClicked(const QModelIndex &currentIndex)

@@ -359,7 +359,7 @@ void ReadWriteData::readGeneralExamData(){
 
 void ReadWriteData::readOctExamData(){
     emit processingData(0, "Trwa pobieranie listy skanów...");
-    double tasks = pData->getBscansNumber()*3;
+    double tasks = pData->getBscansNumber()*2; // gdy contrast enhancement to 3
     double count = 0;
     OCTDevice device = pData->getOCTDevice();
 

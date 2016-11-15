@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>400</width>
-    <height>300</height>
+    <height>321</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -18,9 +18,15 @@
     <rect>
      <x>20</x>
      <y>10</y>
-     <width>81</width>
+     <width>91</width>
      <height>16</height>
     </rect>
+   </property>
+   <property name="font">
+    <font>
+     <weight>75</weight>
+     <bold>true</bold>
+    </font>
    </property>
    <property name="text">
     <string>Liczba skanów:</string>
@@ -29,11 +35,17 @@
   <widget class="QLabel" name="scansNumberLabel">
    <property name="geometry">
     <rect>
-     <x>110</x>
+     <x>120</x>
      <y>10</y>
      <width>47</width>
      <height>16</height>
     </rect>
+   </property>
+   <property name="font">
+    <font>
+     <weight>75</weight>
+     <bold>true</bold>
+    </font>
    </property>
    <property name="text">
     <string>0</string>
@@ -68,9 +80,9 @@
   <widget class="QPushButton" name="cancelButton">
    <property name="geometry">
     <rect>
-     <x>100</x>
-     <y>260</y>
-     <width>75</width>
+     <x>84</x>
+     <y>290</y>
+     <width>91</width>
      <height>23</height>
     </rect>
    </property>
@@ -82,8 +94,8 @@
    <property name="geometry">
     <rect>
      <x>220</x>
-     <y>260</y>
-     <width>75</width>
+     <y>290</y>
+     <width>91</width>
      <height>23</height>
     </rect>
    </property>
@@ -95,7 +107,7 @@
    <property name="geometry">
     <rect>
      <x>20</x>
-     <y>150</y>
+     <y>130</y>
      <width>221</width>
      <height>21</height>
     </rect>
@@ -104,24 +116,11 @@
     <string>Kopiuj auto segmentacje jako ręczne</string>
    </property>
   </widget>
-  <widget class="QPushButton" name="configCopyButton">
-   <property name="geometry">
-    <rect>
-     <x>300</x>
-     <y>150</y>
-     <width>81</width>
-     <height>23</height>
-    </rect>
-   </property>
-   <property name="text">
-    <string>Konfiguruj</string>
-   </property>
-  </widget>
   <widget class="QCheckBox" name="calculateErrorCBox">
    <property name="geometry">
     <rect>
      <x>20</x>
-     <y>170</y>
+     <y>200</y>
      <width>121</width>
      <height>21</height>
     </rect>
@@ -134,7 +133,7 @@
    <property name="geometry">
     <rect>
      <x>40</x>
-     <y>200</y>
+     <y>230</y>
      <width>341</width>
      <height>23</height>
     </rect>
@@ -147,7 +146,7 @@
    <property name="geometry">
     <rect>
      <x>50</x>
-     <y>90</y>
+     <y>80</y>
      <width>331</width>
      <height>48</height>
     </rect>
@@ -180,7 +179,7 @@
     <item row="1" column="1">
      <widget class="QLineEdit" name="autoMatlabSufixLEdit">
       <property name="text">
-       <string>_cutAdapt_trackILMandISOS.txt</string>
+       <string>_graphDenoiseNoneGradNew_cutAdapt_trackILMandISOS_auto.txt</string>
       </property>
      </widget>
     </item>
@@ -190,7 +189,7 @@
    <property name="geometry">
     <rect>
      <x>40</x>
-     <y>230</y>
+     <y>260</y>
      <width>341</width>
      <height>16</height>
     </rect>
@@ -198,6 +197,32 @@
    <property name="text">
     <string/>
    </property>
+  </widget>
+  <widget class="QWidget" name="">
+   <property name="geometry">
+    <rect>
+     <x>50</x>
+     <y>150</y>
+     <width>79</width>
+     <height>42</height>
+    </rect>
+   </property>
+   <layout class="QFormLayout" name="formLayout_2">
+    <item row="0" column="0">
+     <widget class="QRadioButton" name="copyAllRButton">
+      <property name="text">
+       <string>Wszystkie</string>
+      </property>
+     </widget>
+    </item>
+    <item row="1" column="0">
+     <widget class="QRadioButton" name="copyPCVRButton">
+      <property name="text">
+       <string>Tylko PCV</string>
+      </property>
+     </widget>
+    </item>
+   </layout>
   </widget>
  </widget>
  <resources/>

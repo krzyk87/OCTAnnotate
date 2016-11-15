@@ -4908,7 +4908,7 @@ void OCTAnnotate::on_actionCreateManualSegmentationFromOCTExplorer_triggered(QLi
         rwData->addDirective("readPatientData");
         rwData->addDirective("readOctExamData");
         rwData->addDirective("readAutoSegmentationData");
-        rwData->addDirective("copyAutoAsManual");
+        rwData->addDirective("copyAutoAsManualAll");
         rwData->addDirective("saveManualSegmentationData");
 
         QThread *thread = new QThread;

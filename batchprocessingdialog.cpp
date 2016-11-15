@@ -12,6 +12,7 @@ BatchProcessingDialog::BatchProcessingDialog(QList<QString> list, QDir mDir, QWi
     ui(new Ui::BatchProcessingDialog)
 {
     ui->setupUi(this);
+    this->setWindowTitle("Przetwarzanie seryjne");
 
     ui->batchProgressBar->setVisible(false);
 
@@ -69,7 +70,7 @@ void BatchProcessingDialog::on_acceptButton_clicked()
         ui->batchProgressBar->setValue(0);
         ui->batchProgressBar->setVisible(true);
 
-        myTimer->start();
+        myTimer->start(0);
     }
 }
 
@@ -97,13 +98,17 @@ void BatchProcessingDialog::process(){
         rwData->addDirective("readPatientData");
         rwData->addDirective("readOctExamData");
 
-//        if (ui->searchAutoSegmentationsCBox->isChecked()){
-//            rwData->addDirective("readAutoSegmentationData");
-//        }
-//        if (ui->copyAutoAsManualCBox->isChecked()){
-//            rwData->addDirective("copyAutoAsManual");
-//            rwData->addDirective("saveManualSegmentationData");
-//        }
+        if (ui->searchAutoSegmentationsCBox->isChecked()){
+            rwData->addDirective("readAutoSegmentationData");
+        }
+        if (ui->copyAutoAsManualCBox->isChecked()){
+            if (ui->copyAllRButton->isChecked()){
+                rwData->addDirective("copyAutoAsManualAll");
+            } else if (ui->copyPCVRButton->isChecked()){
+                rwData->addDirective("copyAutoAsManualPCV");
+            }
+            rwData->addDirective("saveManualSegmentationData");
+        }
 
         connect(rwData, SIGNAL(errorOccured(QString)), this, SLOT(on_errorOccured(QString)));
         connect(rwData, SIGNAL(processingData(double,QString)), this, SLOT(on_processingData(double,QString)));
@@ -123,6 +128,8 @@ void BatchProcessingDialog::processingFinished(){
     finished = true;
     ui->acceptButton->setText("Zakończ");
     ui->acceptButton->setEnabled(true);
+    ui->infoLabel->setText("Zakończono");
+    ui->batchProgressBar->setVisible(false);
 }
 
 void BatchProcessingDialog::on_errorOccured(QString err){
@@ -132,12 +139,11 @@ void BatchProcessingDialog::on_errorOccured(QString err){
 void BatchProcessingDialog::on_processingData(double count, QString message){
     if(!ui->batchProgressBar->isVisible())
         ui->batchProgressBar->setVisible(true);
-    int procent = currentFolder*(tasksNumber-1) + count*tasksNumber;
+    int procent = (currentFolder-1)*tasksNumber + count*tasksNumber/100;
     ui->batchProgressBar->setValue(procent);
-    if (message != "")
+
+    if (message != ""){
+        message = "Skan " + QString::number(currentFolder) + "/" + QString::number(folderListCount) + ": " + message;
         ui->infoLabel->setText(message);
-    if ((procent) >= ui->batchProgressBar->maximum()){
-        ui->infoLabel->setText("");
-        ui->batchProgressBar->setVisible(false);
     }
 }

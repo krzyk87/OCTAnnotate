@@ -64,12 +64,16 @@ void ReadWriteData::process(){
             this->saveAutoSegmentationData();
             emit savingDataFinished("autoData");
         }
-
-        if (dir == "copyAutoAsManual"){
-            this->copyAutoAsManual();
+        if (dir == "copyAutoAsManualAll"){
+            this->copyAutoAsManual(getAllLayers());
+        }
+        if (dir == "copyAutoAsManualPCV"){
+            QList<Layers> list;
+            list.append(PCV);
+            this->copyAutoAsManual(list);
         }
     }
-    qDebug() << "Finished with " + octDir->dirName();
+    qDebug() << "Finished processing scan: " + octDir->dirName();
     emit finished();
 }
 
@@ -1014,7 +1018,7 @@ void ReadWriteData::saveManualSegmentationData(){
             xmlWriter.writeEndElement();    // end of surfaces
             xmlWriter.writeEndDocument();
 
-            qDebug() << "Finished!";
+            qDebug() << "Finished writng data to file!";
         }
     }
 
@@ -1192,7 +1196,7 @@ void ReadWriteData::saveAutoSegmentationData(){
             xmlWriter.writeEndElement();    // end of surfaces
             xmlWriter.writeEndDocument();
 
-            qDebug() << "Finished!";
+            qDebug() << "Finished writing data to file!";
         }
     }
     if (autoSegmentFile.isOpen())
@@ -1200,13 +1204,12 @@ void ReadWriteData::saveAutoSegmentationData(){
     emit processingData(100, "Zapisano dane automatycznej segmentacji.");
 }
 
-void ReadWriteData::copyAutoAsManual(){
-    emit processingData(0, "Trwa copiowanie danych automatycznej segmentacji jako manualnej...");
-    double tasks = 12*pData->getBscansNumber();
+void ReadWriteData::copyAutoAsManual(QList<Layers> layersList){
+    emit processingData(0, "Trwa kopiowanie danych automatycznej segmentacji jako ręcznej...");
+    double tasks = layersList.count()*pData->getBscansNumber();
     double count = 0;
-    QList<Layers> layers = getAllLayers();
 
-    foreach (Layers layer, layers) {
+    foreach (Layers layer, layersList) {
         for (int i=0; i < pData->getBscansNumber(); i++){
             pData->setLayerPoints(i, pData->getLayerPointsAuto(i, layer), layer);
             emit processingData((++count)/tasks*100,"");

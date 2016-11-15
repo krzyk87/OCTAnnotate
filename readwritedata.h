@@ -51,7 +51,7 @@ private:
     void parseXmlSurfaceLines(QXmlStreamReader& xml, bool isAuto = 0);
     void parseUndefinedRegion(QXmlStreamReader& xml, bool isAuto = 0);
 
-    void copyAutoAsManual();
+    void copyAutoAsManual(QList<Layers> layersList);
 
     QDir *octDir;
     QDir *manualDir;

@@ -284,10 +284,6 @@ void OCTAnnotate::initializeModelPatients(){
     ui->patientsListTableView->setColumnHidden(0, true);
     ui->patientsListTableView->setColumnHidden(8, true);
     ui->patientsListTableView->resizeColumnsToContents();
-//    ui->patientsListTableView->resizeColumnToContents(3);
-//    ui->patientsListTableView->resizeColumnToContents(4);
-//    ui->patientsListTableView->resizeColumnToContents(6);
-//    ui->patientsListTableView->resizeColumnToContents(7);
     ui->patientsListTableView->horizontalHeader()->setStretchLastSection(true);
     ui->patientsListTableView->setItemDelegate(new QSqlRelationalDelegate(ui->patientsListTableView));
     ui->patientsListTableView->sortByColumn(1,Qt::AscendingOrder);
@@ -443,61 +439,12 @@ void OCTAnnotate::on_actionLoadPatientOCT_triggered(QString scanFolderPath)
             connect(thread, SIGNAL(finished()), thread, SLOT(deleteLater()));
             thread->start();
         }
+
+        ui->fundusDBLabel->setPixmap(QPixmap());
+        ui->bscanHLabel->setPixmap(QPixmap());
+        ui->bscanVLabel->setPixmap(QPixmap());
     }
 }
-
-// TODO: te same zabezpieczenia wykorzystać przy liscie skanow...!!! chyba działa?
-
-//void OCTAnnotate::on_octExamsListWidget_doubleClicked(const QModelIndex &index)
-//{
-//    QMessageBox msgBox;
-//    QPushButton *saveButton = msgBox.addButton(" Zapisz i wczytaj nowe badanie ", QMessageBox::YesRole);
-//    QPushButton *cancelButton = msgBox.addButton(" Anuluj ", QMessageBox::RejectRole);
-//    msgBox.addButton(" Wczytaj nowe badanie bez zapisywania ", QMessageBox::NoRole);
-//    bool selectNew = true;
-
-//    if (octDataModified){
-//        msgBox.setText("Anotacje badania OCT zostały zmienione. Czy zapisać zmiany przed wczytaniem nowego badania?");
-//        msgBox.exec();
-//        if (msgBox.clickedButton() == saveButton){
-//            on_actionSaveOCTExam_triggered();
-//        } else if (msgBox.clickedButton() == cancelButton) {
-//            selectNew = false;
-//        }
-//    }
-
-//    if (selectNew){
-//        tmpDir = octDir;
-//        tmpDir.cdUp();
-//        tmpDir.cd("./" + index.data().toString());
-
-//        ui->statusBar->showMessage("Trwa odczyt danych badania OCT...");
-//        progressBar->setMaximum(100);
-//        progressBar->setVisible(true);
-//        progressBar->setValue(0);
-
-//        ReadWriteData *rwData = new ReadWriteData();
-//        rwData->setDataObject(&patientData);
-//        rwData->setDirectoryOct(&tmpDir);
-//        rwData->setDirectoryManual(&manualDir);
-//        rwData->setDirectoryAuto(&autoDir);
-//        rwData->setDataSaveStrucure(dataSaveStructure);
-//        rwData->addDirective("readPatientData");
-//        rwData->addDirective("readOctExamData");
-
-//        QThread *thread = new QThread;
-//        rwData->moveToThread(thread);
-//        connect(thread, SIGNAL(started()), rwData, SLOT(process()));
-//        connect(rwData, SIGNAL(errorOccured(QString)), this, SLOT(on_errorOccured(QString)));
-//        connect(rwData, SIGNAL(processingData(double,QString)), this, SLOT(on_processingData(double,QString)));
-//        connect(rwData, SIGNAL(returnNewDirectory(QString)), this, SLOT(on_returnNewDirectory(QString)));
-//        connect(rwData, SIGNAL(readingDataFinished(QString)), this, SLOT(on_readingDataFinished(QString)));
-//        connect(rwData, SIGNAL(finished()), thread, SLOT(quit()));
-//        connect(rwData, SIGNAL(finished()), rwData, SLOT(deleteLater()));
-//        connect(thread, SIGNAL(finished()), thread, SLOT(deleteLater()));
-//        thread->start();
-//    }
-//}
 
 void OCTAnnotate::listAmslerDistortions(){
     QStringList list;
@@ -4772,7 +4719,6 @@ void OCTAnnotate::on_readingDataFinished(QString data){
 
         // display information
         this->setWindowTitle("OCTAnnotate " + appVersion + " - " + octDir.dirName());
-        ui->fileNameLabel->setText(octDir.dirName());
         drawGrid = true;
     }
 
@@ -5423,35 +5369,31 @@ void OCTAnnotate::on_batchProcessingButton_clicked()
         folderList.append(examDir.absolutePath() + "/" + subfolder + "/" + folderName);
     }
 
-    // 5. import OCTExplorer auto annotations
-//    on_actionLoadPatientOCT_triggered(examDir.absolutePath() + "/" + subfolder + "/" + folderName);
-//    on_actionReadAutoSegmentation_triggered(examDir.absolutePath() + "/" + subfolder + "/" + folderName + "/" + folderName + "_Surfaces_Iowa.xml");
-//    on_actionCreateManualSegmentationFromOCTExplorer_triggered(folderList);
-
-//    modelPatients->select();
-//    modelScans->select();
-
     BatchProcessingDialog *batchDialog = new BatchProcessingDialog(folderList, manualDir);
     batchDialog->setModal(true);
     batchDialog->show();
-}
 
-void OCTAnnotate::on_patientsListTableView_doubleClicked(const QModelIndex &currentIndex)
-{
-
+//    modelPatients->select();
+//    modelScans->select();
 }
 
 void OCTAnnotate::on_patientsListTableView_clicked(const QModelIndex &currentIndex)
 {
-    int i = ui->scanListGroupCBox->currentIndex();
-    if (i == 0){
+    // If user whants to see only scans for selected patient:
+    //int i = ui->scanListGroupCBox->currentIndex();
+    //if (i == 0){
         int currentRow = currentIndex.row();
         QSqlRecord selectedRecord = modelPatients->record(currentRow);
         QString filter = "patient_id = " + selectedRecord.value("id").toString();
         if (ui->showOnlyDefaultScanRButton->isChecked())
             filter += " AND is_default = 1";
         modelScans->setFilter(filter);
-    }
+    //}
+
+    ui->fundusDBLabel->setPixmap(QPixmap());
+    ui->bscanHLabel->setPixmap(QPixmap());
+    ui->bscanVLabel->setPixmap(QPixmap());
+
     // TODO: odczyt danyc z pliku .CAVRI na temat ostrości wzroku...
 }
 
@@ -5636,7 +5578,7 @@ void OCTAnnotate::on_searchPatientDBButton_clicked()
     qDebug() << "search filter: " << filter;
     modelPatients->setFilter(filter);
 
-    on_scanListGroupCBox_currentIndexChanged(ui->scanListGroupCBox->currentIndex());
+    on_scanListGroupCBox_currentIndexChanged(1);
 }
 
 void OCTAnnotate::on_scansListTableView_clicked(const QModelIndex &index)

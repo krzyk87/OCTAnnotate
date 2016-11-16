@@ -1,7 +1,7 @@
 /********************************************************************************
 ** Form generated from reading UI file 'octannotate.ui'
 **
-** Created by: Qt User Interface Compiler version 5.4.1
+** Created by: Qt User Interface Compiler version 5.4.2
 **
 ** WARNING! All changes made in this file will be lost when recompiling UI file!
 ********************************************************************************/
@@ -161,9 +161,6 @@ public:
     QWidget *tabOCTExam;
     QHBoxLayout *horizontalLayout_3;
     QVBoxLayout *verticalLayout_7;
-    QFormLayout *formLayout_2;
-    QLabel *label;
-    QLabel *fileNameLabel;
     QHBoxLayout *horizontalLayout_2;
     QFormLayout *formLayout_5;
     QLabel *label_2;
@@ -988,33 +985,6 @@ public:
         verticalLayout_7 = new QVBoxLayout();
         verticalLayout_7->setSpacing(6);
         verticalLayout_7->setObjectName(QStringLiteral("verticalLayout_7"));
-        formLayout_2 = new QFormLayout();
-        formLayout_2->setSpacing(6);
-        formLayout_2->setObjectName(QStringLiteral("formLayout_2"));
-        label = new QLabel(tabOCTExam);
-        label->setObjectName(QStringLiteral("label"));
-        QSizePolicy sizePolicy3(QSizePolicy::Fixed, QSizePolicy::Fixed);
-        sizePolicy3.setHorizontalStretch(0);
-        sizePolicy3.setVerticalStretch(0);
-        sizePolicy3.setHeightForWidth(label->sizePolicy().hasHeightForWidth());
-        label->setSizePolicy(sizePolicy3);
-
-        formLayout_2->setWidget(0, QFormLayout::LabelRole, label);
-
-        fileNameLabel = new QLabel(tabOCTExam);
-        fileNameLabel->setObjectName(QStringLiteral("fileNameLabel"));
-        QSizePolicy sizePolicy4(QSizePolicy::Preferred, QSizePolicy::Fixed);
-        sizePolicy4.setHorizontalStretch(0);
-        sizePolicy4.setVerticalStretch(0);
-        sizePolicy4.setHeightForWidth(fileNameLabel->sizePolicy().hasHeightForWidth());
-        fileNameLabel->setSizePolicy(sizePolicy4);
-        fileNameLabel->setTextFormat(Qt::PlainText);
-
-        formLayout_2->setWidget(0, QFormLayout::FieldRole, fileNameLabel);
-
-
-        verticalLayout_7->addLayout(formLayout_2);
-
         horizontalLayout_2 = new QHBoxLayout();
         horizontalLayout_2->setSpacing(6);
         horizontalLayout_2->setObjectName(QStringLiteral("horizontalLayout_2"));
@@ -1031,11 +1001,11 @@ public:
 
         imageNumberLabel = new QLabel(tabOCTExam);
         imageNumberLabel->setObjectName(QStringLiteral("imageNumberLabel"));
-        QSizePolicy sizePolicy5(QSizePolicy::Expanding, QSizePolicy::Preferred);
-        sizePolicy5.setHorizontalStretch(0);
-        sizePolicy5.setVerticalStretch(0);
-        sizePolicy5.setHeightForWidth(imageNumberLabel->sizePolicy().hasHeightForWidth());
-        imageNumberLabel->setSizePolicy(sizePolicy5);
+        QSizePolicy sizePolicy3(QSizePolicy::Expanding, QSizePolicy::Preferred);
+        sizePolicy3.setHorizontalStretch(0);
+        sizePolicy3.setVerticalStretch(0);
+        sizePolicy3.setHeightForWidth(imageNumberLabel->sizePolicy().hasHeightForWidth());
+        imageNumberLabel->setSizePolicy(sizePolicy3);
         imageNumberLabel->setMinimumSize(QSize(100, 23));
         imageNumberLabel->setMaximumSize(QSize(16777215, 23));
 
@@ -1073,11 +1043,11 @@ public:
 
         bScanHCPlot = new QCustomPlot(tabOCTExam);
         bScanHCPlot->setObjectName(QStringLiteral("bScanHCPlot"));
-        QSizePolicy sizePolicy6(QSizePolicy::Preferred, QSizePolicy::Expanding);
-        sizePolicy6.setHorizontalStretch(0);
-        sizePolicy6.setVerticalStretch(0);
-        sizePolicy6.setHeightForWidth(bScanHCPlot->sizePolicy().hasHeightForWidth());
-        bScanHCPlot->setSizePolicy(sizePolicy6);
+        QSizePolicy sizePolicy4(QSizePolicy::Preferred, QSizePolicy::Expanding);
+        sizePolicy4.setHorizontalStretch(0);
+        sizePolicy4.setVerticalStretch(0);
+        sizePolicy4.setHeightForWidth(bScanHCPlot->sizePolicy().hasHeightForWidth());
+        bScanHCPlot->setSizePolicy(sizePolicy4);
         bScanHCPlot->setMinimumSize(QSize(820, 300));
 
         verticalLayout_7->addWidget(bScanHCPlot);
@@ -1120,8 +1090,8 @@ public:
 
         bScanVCPlot = new QCustomPlot(tabOCTExam);
         bScanVCPlot->setObjectName(QStringLiteral("bScanVCPlot"));
-        sizePolicy6.setHeightForWidth(bScanVCPlot->sizePolicy().hasHeightForWidth());
-        bScanVCPlot->setSizePolicy(sizePolicy6);
+        sizePolicy4.setHeightForWidth(bScanVCPlot->sizePolicy().hasHeightForWidth());
+        bScanVCPlot->setSizePolicy(sizePolicy4);
         bScanVCPlot->setMinimumSize(QSize(820, 300));
 
         verticalLayout_7->addWidget(bScanVCPlot);
@@ -1381,8 +1351,11 @@ public:
 
         contrastSlider = new QSlider(tabOCTExam);
         contrastSlider->setObjectName(QStringLiteral("contrastSlider"));
-        sizePolicy3.setHeightForWidth(contrastSlider->sizePolicy().hasHeightForWidth());
-        contrastSlider->setSizePolicy(sizePolicy3);
+        QSizePolicy sizePolicy5(QSizePolicy::Fixed, QSizePolicy::Fixed);
+        sizePolicy5.setHorizontalStretch(0);
+        sizePolicy5.setVerticalStretch(0);
+        sizePolicy5.setHeightForWidth(contrastSlider->sizePolicy().hasHeightForWidth());
+        contrastSlider->setSizePolicy(sizePolicy5);
         contrastSlider->setMinimumSize(QSize(140, 19));
         contrastSlider->setMaximumSize(QSize(140, 16777215));
         contrastSlider->setMinimum(1);
@@ -1400,8 +1373,8 @@ public:
 
         brightnessSlider = new QSlider(tabOCTExam);
         brightnessSlider->setObjectName(QStringLiteral("brightnessSlider"));
-        sizePolicy3.setHeightForWidth(brightnessSlider->sizePolicy().hasHeightForWidth());
-        brightnessSlider->setSizePolicy(sizePolicy3);
+        sizePolicy5.setHeightForWidth(brightnessSlider->sizePolicy().hasHeightForWidth());
+        brightnessSlider->setSizePolicy(sizePolicy5);
         brightnessSlider->setMinimumSize(QSize(140, 19));
         brightnessSlider->setMaximumSize(QSize(140, 16777215));
         brightnessSlider->setMinimum(-100);
@@ -1542,16 +1515,16 @@ public:
         computeVirtualMapButton = new QPushButton(tabVirtualMap);
         computeVirtualMapButton->setObjectName(QStringLiteral("computeVirtualMapButton"));
         computeVirtualMapButton->setEnabled(false);
-        sizePolicy3.setHeightForWidth(computeVirtualMapButton->sizePolicy().hasHeightForWidth());
-        computeVirtualMapButton->setSizePolicy(sizePolicy3);
+        sizePolicy5.setHeightForWidth(computeVirtualMapButton->sizePolicy().hasHeightForWidth());
+        computeVirtualMapButton->setSizePolicy(sizePolicy5);
         computeVirtualMapButton->setMinimumSize(QSize(201, 31));
 
         verticalLayout_8->addWidget(computeVirtualMapButton);
 
         groupBox = new QGroupBox(tabVirtualMap);
         groupBox->setObjectName(QStringLiteral("groupBox"));
-        sizePolicy3.setHeightForWidth(groupBox->sizePolicy().hasHeightForWidth());
-        groupBox->setSizePolicy(sizePolicy3);
+        sizePolicy5.setHeightForWidth(groupBox->sizePolicy().hasHeightForWidth());
+        groupBox->setSizePolicy(sizePolicy5);
         groupBox->setMinimumSize(QSize(201, 81));
         label_39 = new QLabel(groupBox);
         label_39->setObjectName(QStringLiteral("label_39"));
@@ -1573,8 +1546,8 @@ public:
 
         groupBox_2 = new QGroupBox(tabVirtualMap);
         groupBox_2->setObjectName(QStringLiteral("groupBox_2"));
-        sizePolicy3.setHeightForWidth(groupBox_2->sizePolicy().hasHeightForWidth());
-        groupBox_2->setSizePolicy(sizePolicy3);
+        sizePolicy5.setHeightForWidth(groupBox_2->sizePolicy().hasHeightForWidth());
+        groupBox_2->setSizePolicy(sizePolicy5);
         groupBox_2->setMinimumSize(QSize(221, 121));
         label_16 = new QLabel(groupBox_2);
         label_16->setObjectName(QStringLiteral("label_16"));
@@ -1661,11 +1634,11 @@ public:
 
         ETDRSgridCPlot = new QCustomPlot(tabVirtualMap);
         ETDRSgridCPlot->setObjectName(QStringLiteral("ETDRSgridCPlot"));
-        QSizePolicy sizePolicy7(QSizePolicy::MinimumExpanding, QSizePolicy::MinimumExpanding);
-        sizePolicy7.setHorizontalStretch(0);
-        sizePolicy7.setVerticalStretch(0);
-        sizePolicy7.setHeightForWidth(ETDRSgridCPlot->sizePolicy().hasHeightForWidth());
-        ETDRSgridCPlot->setSizePolicy(sizePolicy7);
+        QSizePolicy sizePolicy6(QSizePolicy::MinimumExpanding, QSizePolicy::MinimumExpanding);
+        sizePolicy6.setHorizontalStretch(0);
+        sizePolicy6.setVerticalStretch(0);
+        sizePolicy6.setHeightForWidth(ETDRSgridCPlot->sizePolicy().hasHeightForWidth());
+        ETDRSgridCPlot->setSizePolicy(sizePolicy6);
         ETDRSgridCPlot->setMinimumSize(QSize(300, 250));
         ETDRSgridCPlot->setMaximumSize(QSize(300, 300));
         ETDRSgridCPlot->setSizeIncrement(QSize(10, 10));
@@ -1781,8 +1754,8 @@ public:
         verticalLayout_11->setObjectName(QStringLiteral("verticalLayout_11"));
         virtualMapErrorStatsGBox = new QGroupBox(tabErrorAnalysis);
         virtualMapErrorStatsGBox->setObjectName(QStringLiteral("virtualMapErrorStatsGBox"));
-        sizePolicy3.setHeightForWidth(virtualMapErrorStatsGBox->sizePolicy().hasHeightForWidth());
-        virtualMapErrorStatsGBox->setSizePolicy(sizePolicy3);
+        sizePolicy5.setHeightForWidth(virtualMapErrorStatsGBox->sizePolicy().hasHeightForWidth());
+        virtualMapErrorStatsGBox->setSizePolicy(sizePolicy5);
         virtualMapErrorStatsGBox->setMinimumSize(QSize(221, 110));
         QFont font1;
         font1.setBold(false);
@@ -1853,8 +1826,8 @@ public:
 
         currScanLayerErrorStatsGBox = new QGroupBox(tabErrorAnalysis);
         currScanLayerErrorStatsGBox->setObjectName(QStringLiteral("currScanLayerErrorStatsGBox"));
-        sizePolicy3.setHeightForWidth(currScanLayerErrorStatsGBox->sizePolicy().hasHeightForWidth());
-        currScanLayerErrorStatsGBox->setSizePolicy(sizePolicy3);
+        sizePolicy5.setHeightForWidth(currScanLayerErrorStatsGBox->sizePolicy().hasHeightForWidth());
+        currScanLayerErrorStatsGBox->setSizePolicy(sizePolicy5);
         currScanLayerErrorStatsGBox->setMinimumSize(QSize(221, 201));
         pcvLineErrorDevLEdit = new QLineEdit(currScanLayerErrorStatsGBox);
         pcvLineErrorDevLEdit->setObjectName(QStringLiteral("pcvLineErrorDevLEdit"));
@@ -2116,8 +2089,6 @@ public:
         label_18->setText(QApplication::translate("OCTAnnotate", "Uwagi do oznacze\305\204 dla prawego oka:", 0));
         label_24->setText(QApplication::translate("OCTAnnotate", "Uwagi do oznacze\305\204 dla lewego oka:", 0));
         tabWidget->setTabText(tabWidget->indexOf(tabAmslerCharts), QApplication::translate("OCTAnnotate", "Badanie Amslera", 0));
-        label->setText(QApplication::translate("OCTAnnotate", "Wybrane badanie OCT:", 0));
-        fileNameLabel->setText(QString());
         label_2->setText(QApplication::translate("OCTAnnotate", "Obraz:", 0));
         imageNumberLabel->setText(QString());
         zoomOutButton->setText(QApplication::translate("OCTAnnotate", "-", 0));

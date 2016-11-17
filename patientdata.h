@@ -239,6 +239,11 @@ public:
     QTime getExamTime();
     void setOCTdata(QImage bscan, int bscanNumber);
     QImage getNormalImage(int normalImageNumber);
+    void resetFlatDifferences();
+    void setFlatDifferences(int bscanNumber, QList<int> flatDiff);
+    QList<int> getFlatDifferences(int bscanNumber);
+    QList<int> getFlatDifferencesNormal(int bscanNormalNumber);
+    int getFlatDifference(int bscanNumber, int bscanColumn);
 
     // ratios
     void calculateRatios();
@@ -375,6 +380,7 @@ private:
     QDate examDate;
     QTime examTime;
     QList< QList< QList<int> > > octdata;
+    QList< QList<int> > flatDifferences;
 
     // ratios
     double areaUnit;

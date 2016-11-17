@@ -42,7 +42,7 @@ OCTAnnotate::OCTAnnotate(QWidget *parent) : QMainWindow(parent),
     manualDir = QDir(settingsDialog->getPathManualSegm());
     autoDir = QDir(settingsDialog->getPathAutoSegm());
     tmpDir = examDir;
-    ui->actionImageFlattening->setChecked(true);
+//    ui->actionImageFlattening->setChecked(true);
 
     patientsDB = new DbManager(databasePath);
 
@@ -405,7 +405,7 @@ void OCTAnnotate::on_actionLoadPatientOCT_triggered(QString scanFolderPath)
         if (dirName == "")
             dirName = QFileDialog::getExistingDirectory(this, tr("Open Directory"), examDir.path(), QFileDialog::ShowDirsOnly);
 
-        qDebug() << dirName;
+        qDebug() << "Opening scan: " << dirName;
 
         if (!dirName.isEmpty()){
             octDir = QDir(dirName);
@@ -485,18 +485,15 @@ void OCTAnnotate::loadImage(int imageNumber){
         else
             ui->prevImageButton->setEnabled(true);
 
-        QImage imageFlat(image.size(), image.format());
+        // contrast enhancement and flattening
+        Calculate *calc = new Calculate();
         QList<int> flatDiff;
         for (int col=0; col < patientData.getBscanWidth(); col++){
             flatDiff.append(0);
         }
-
-        // contrast enhancement and flattening
-        Calculate *calc = new Calculate();
         if (flattenImage){
-            imageFlat.fill(0);
-            flatDiff = calc->imageFlattening(&image, &imageFlat);
-            image = imageFlat;
+            flatDiff = patientData.getFlatDifferences(currentImageNumber);
+            image = calc->flattenImage(&image,flatDiff);
         }
         calc->imageEnhancement(&image, contrast, brightness);
 
@@ -524,6 +521,8 @@ void OCTAnnotate::loadImage(int imageNumber){
         // display image name
         ui->imageNumberLabel->setText(imageFileInfo.fileName());
         ui->currImageNumberLEdit->setText(QString::number(currentImageNumber));
+    } else {
+        qDebug() << "Image is null!";
     }
 }
 
@@ -534,6 +533,14 @@ void OCTAnnotate::loadNormalImage(int normalImageNumber){
 
     // contrast enhancement
     Calculate *calc = new Calculate();
+    QList<int> flatDiffNormal;
+    for (int col=0; col < patientData.getBscansNumber(); col++){
+        flatDiffNormal.append(0);
+    }
+    if (flattenImage){
+        flatDiffNormal = patientData.getFlatDifferencesNormal(currentNormalImageNumber);
+        normalImage = calc->flattenImage(&normalImage,flatDiffNormal);
+    }
     calc->imageEnhancement(&normalImage, contrast, brightness);
 
     // display image
@@ -541,7 +548,7 @@ void OCTAnnotate::loadNormalImage(int normalImageNumber){
     // scale
 
     // display annotations
-    displayNormalAnnotations();
+    displayNormalAnnotations(flatDiffNormal);
 
     // enable / disable buttons
 }
@@ -1122,6 +1129,16 @@ bool OCTAnnotate::eventFilter(QObject *target, QEvent *event){
                     clipboard->setPixmap(ui->virtualMapImageCPlot->toPixmap());
                     QMessageBox::information(this, "Skopiowano", "Obraz został skopiowany do schowka");
                 }
+            } else if (event->type() == QEvent::MouseMove){
+                QMouseEvent *mouseEvent = static_cast<QMouseEvent*>(event);
+                int bscanNumber = -(ui->virtualMapImageCPlot->yAxis2->pixelToCoord(mouseEvent->pos().y()));
+                int bscanColumn = ui->virtualMapImageCPlot->xAxis2->pixelToCoord(mouseEvent->pos().x());
+                if ((bscanNumber > 0) && (bscanNumber < patientData.getBscansNumber()) && (bscanColumn > 0) && (bscanColumn < patientData.getBscanWidth())){
+                    int value = patientData.getVirtualMapValue(bscanColumn,bscanNumber,"um");
+                    ui->virtualMapValueHoverLabel->setText("(" + QString::number(bscanColumn) + ", " + QString::number(bscanNumber) + ") " + QString::number(value) + " [um]");
+                } else {
+                    ui->virtualMapValueHoverLabel->setText("");
+                }
             }
         } else if (target == ui->virtualMapAutoImageCPlot){
             if (event->type() == QEvent::MouseButtonPress){
@@ -1408,7 +1425,7 @@ void OCTAnnotate::displayAnnotations(QList<int> flatDiff){
     }
 }
 
-void OCTAnnotate::displayNormalAnnotations(){
+void OCTAnnotate::displayNormalAnnotations(QList<int> flatDiffNormal){
     if (!patientData.getImageFileList().isEmpty()){
         QList<Layers> dispLayers = getLayersToDisplay();
         QList<Layers> allLayers = getAllLayers();
@@ -1426,7 +1443,7 @@ void OCTAnnotate::displayNormalAnnotations(){
                 if (yVal == -1){
                     y[i] = std::numeric_limits<double>::quiet_NaN();
                 } else{
-                    y[i] = height - yVal;
+                    y[i] = height - yVal - flatDiffNormal[i];
                 }
             }
             ui->bScanVCPlot->graph(graphID)->setData(x,y);
@@ -3718,14 +3735,12 @@ void OCTAnnotate::displayImageLayersPlot(int bscanNumber, Layers selectedLayer){
 
         if (showBscanOnErrorPlot){
             QImage image(patientData.getImageFileList().at(bscanNumber));
-            QImage imageFlat(image.size(), image.format());
 
             // contrast enhancement
             Calculate *calc = new Calculate();
             if (flattenImage){
-                imageFlat.fill(0);
-                flatDiff = calc->imageFlattening(&image, &imageFlat);
-                image = imageFlat;
+                flatDiff = calc->calculateFlatteningDifferences(&image);
+                image = calc->flattenImage(&image,flatDiff);
             }
             calc->imageEnhancement(&image, contrast, brightness);
 

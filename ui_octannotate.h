@@ -72,8 +72,8 @@ public:
     QHBoxLayout *horizontalLayout_11;
     QTabWidget *tabWidget;
     QWidget *tabDatabase;
-    QVBoxLayout *verticalLayout_28;
-    QHBoxLayout *horizontalLayout_13;
+    QVBoxLayout *verticalLayout_7;
+    QHBoxLayout *horizontalLayout_17;
     QVBoxLayout *verticalLayout_25;
     QVBoxLayout *verticalLayout_23;
     QPushButton *addPatientDBButton;
@@ -94,7 +94,7 @@ public:
     QRadioButton *showOnlyDefaultScanRButton;
     QPushButton *searchPatientDBButton;
     QTableView *patientsListTableView;
-    QVBoxLayout *verticalLayout_24;
+    QVBoxLayout *verticalLayout_5;
     QGroupBox *groupBox_5;
     QGridLayout *gridLayout_3;
     QLabel *label_9;
@@ -111,6 +111,8 @@ public:
     QLabel *label_36;
     QLineEdit *mcVOPLEdit;
     QLineEdit *mcHOLLEdit;
+    QHBoxLayout *horizontalLayout_13;
+    QSpacerItem *horizontalSpacer_11;
     QLabel *fundusDBLabel;
     QHBoxLayout *horizontalLayout_14;
     QVBoxLayout *verticalLayout_27;
@@ -159,8 +161,8 @@ public:
     QLabel *label_24;
     QTextEdit *amslerLCommentTEdit;
     QWidget *tabOCTExam;
-    QHBoxLayout *horizontalLayout_3;
-    QVBoxLayout *verticalLayout_7;
+    QHBoxLayout *horizontalLayout_16;
+    QVBoxLayout *verticalLayout_4;
     QHBoxLayout *horizontalLayout_2;
     QFormLayout *formLayout_5;
     QLabel *label_2;
@@ -168,6 +170,8 @@ public:
     QGridLayout *gridLayout_5;
     QPushButton *zoomOutButton;
     QPushButton *zoomInButton;
+    QHBoxLayout *horizontalLayout_3;
+    QVBoxLayout *verticalLayout_2;
     QCustomPlot *bScanHCPlot;
     QHBoxLayout *horizontalLayout;
     QPushButton *prevImageButton;
@@ -175,6 +179,7 @@ public:
     QLineEdit *currImageNumberLEdit;
     QSpacerItem *horizontalSpacer_2;
     QPushButton *nextImageButton;
+    QVBoxLayout *verticalLayout_3;
     QCustomPlot *bScanVCPlot;
     QHBoxLayout *horizontalLayout_9;
     QPushButton *prevNormalImageButton;
@@ -265,7 +270,7 @@ public:
     QCheckBox *mezLayerCBox_2;
     QPushButton *plotLayersButton;
     QWidget *tabVirtualMap;
-    QHBoxLayout *horizontalLayout_5;
+    QHBoxLayout *horizontalLayout_18;
     QVBoxLayout *verticalLayout_10;
     QHBoxLayout *horizontalLayout_4;
     QVBoxLayout *verticalLayout_8;
@@ -298,6 +303,9 @@ public:
     QVBoxLayout *verticalLayout_9;
     QLabel *label_41;
     QCustomPlot *virtualMapImageCPlot;
+    QHBoxLayout *horizontalLayout_5;
+    QLabel *label;
+    QLabel *virtualMapValueHoverLabel;
     QSpacerItem *verticalSpacer_3;
     QWidget *tabErrorAnalysis;
     QVBoxLayout *verticalLayout_14;
@@ -445,13 +453,13 @@ public:
         tabWidget->setFocusPolicy(Qt::NoFocus);
         tabDatabase = new QWidget();
         tabDatabase->setObjectName(QStringLiteral("tabDatabase"));
-        verticalLayout_28 = new QVBoxLayout(tabDatabase);
-        verticalLayout_28->setSpacing(6);
-        verticalLayout_28->setContentsMargins(11, 11, 11, 11);
-        verticalLayout_28->setObjectName(QStringLiteral("verticalLayout_28"));
-        horizontalLayout_13 = new QHBoxLayout();
-        horizontalLayout_13->setSpacing(6);
-        horizontalLayout_13->setObjectName(QStringLiteral("horizontalLayout_13"));
+        verticalLayout_7 = new QVBoxLayout(tabDatabase);
+        verticalLayout_7->setSpacing(6);
+        verticalLayout_7->setContentsMargins(11, 11, 11, 11);
+        verticalLayout_7->setObjectName(QStringLiteral("verticalLayout_7"));
+        horizontalLayout_17 = new QHBoxLayout();
+        horizontalLayout_17->setSpacing(6);
+        horizontalLayout_17->setObjectName(QStringLiteral("horizontalLayout_17"));
         verticalLayout_25 = new QVBoxLayout();
         verticalLayout_25->setSpacing(6);
         verticalLayout_25->setObjectName(QStringLiteral("verticalLayout_25"));
@@ -579,18 +587,18 @@ public:
         verticalLayout_25->addWidget(patienSearchGBox);
 
 
-        horizontalLayout_13->addLayout(verticalLayout_25);
+        horizontalLayout_17->addLayout(verticalLayout_25);
 
         patientsListTableView = new QTableView(tabDatabase);
         patientsListTableView->setObjectName(QStringLiteral("patientsListTableView"));
         patientsListTableView->setMinimumSize(QSize(750, 361));
         patientsListTableView->setMaximumSize(QSize(16777215, 400));
 
-        horizontalLayout_13->addWidget(patientsListTableView);
+        horizontalLayout_17->addWidget(patientsListTableView);
 
-        verticalLayout_24 = new QVBoxLayout();
-        verticalLayout_24->setSpacing(6);
-        verticalLayout_24->setObjectName(QStringLiteral("verticalLayout_24"));
+        verticalLayout_5 = new QVBoxLayout();
+        verticalLayout_5->setSpacing(6);
+        verticalLayout_5->setObjectName(QStringLiteral("verticalLayout_5"));
         groupBox_5 = new QGroupBox(tabDatabase);
         groupBox_5->setObjectName(QStringLiteral("groupBox_5"));
         gridLayout_3 = new QGridLayout(groupBox_5);
@@ -614,26 +622,30 @@ public:
         label_7 = new QLabel(groupBox_5);
         label_7->setObjectName(QStringLiteral("label_7"));
         label_7->setMinimumSize(QSize(44, 20));
+        label_7->setMaximumSize(QSize(50, 16777215));
 
         gridLayout_3->addWidget(label_7, 1, 0, 1, 1);
 
         visOPLEdit = new QLineEdit(groupBox_5);
         visOPLEdit->setObjectName(QStringLiteral("visOPLEdit"));
-        visOPLEdit->setMinimumSize(QSize(0, 20));
+        visOPLEdit->setMinimumSize(QSize(80, 20));
+        visOPLEdit->setMaximumSize(QSize(100, 20));
         visOPLEdit->setAlignment(Qt::AlignCenter);
 
         gridLayout_3->addWidget(visOPLEdit, 1, 1, 1, 1);
 
         snOPLEdit = new QLineEdit(groupBox_5);
         snOPLEdit->setObjectName(QStringLiteral("snOPLEdit"));
-        snOPLEdit->setMinimumSize(QSize(0, 20));
+        snOPLEdit->setMinimumSize(QSize(80, 20));
+        snOPLEdit->setMaximumSize(QSize(100, 20));
         snOPLEdit->setAlignment(Qt::AlignCenter);
 
         gridLayout_3->addWidget(snOPLEdit, 2, 1, 1, 1);
 
         visOLLEdit = new QLineEdit(groupBox_5);
         visOLLEdit->setObjectName(QStringLiteral("visOLLEdit"));
-        visOLLEdit->setMinimumSize(QSize(0, 20));
+        visOLLEdit->setMinimumSize(QSize(80, 20));
+        visOLLEdit->setMaximumSize(QSize(100, 20));
         visOLLEdit->setAlignment(Qt::AlignCenter);
 
         gridLayout_3->addWidget(visOLLEdit, 1, 2, 1, 1);
@@ -641,56 +653,72 @@ public:
         label_8 = new QLabel(groupBox_5);
         label_8->setObjectName(QStringLiteral("label_8"));
         label_8->setMinimumSize(QSize(44, 20));
+        label_8->setMaximumSize(QSize(50, 16777215));
 
         gridLayout_3->addWidget(label_8, 2, 0, 1, 1);
 
         snOLLEdit = new QLineEdit(groupBox_5);
         snOLLEdit->setObjectName(QStringLiteral("snOLLEdit"));
-        snOLLEdit->setMinimumSize(QSize(0, 20));
+        snOLLEdit->setMinimumSize(QSize(80, 20));
+        snOLLEdit->setMaximumSize(QSize(100, 20));
         snOLLEdit->setAlignment(Qt::AlignCenter);
 
         gridLayout_3->addWidget(snOLLEdit, 2, 2, 1, 1);
 
         label_35 = new QLabel(groupBox_5);
         label_35->setObjectName(QStringLiteral("label_35"));
+        label_35->setMaximumSize(QSize(50, 16777215));
 
         gridLayout_3->addWidget(label_35, 3, 0, 1, 1);
 
         mcHOPLEdit = new QLineEdit(groupBox_5);
         mcHOPLEdit->setObjectName(QStringLiteral("mcHOPLEdit"));
-        mcHOPLEdit->setMinimumSize(QSize(0, 20));
+        mcHOPLEdit->setMinimumSize(QSize(80, 20));
+        mcHOPLEdit->setMaximumSize(QSize(100, 20));
         mcHOPLEdit->setAlignment(Qt::AlignCenter);
 
         gridLayout_3->addWidget(mcHOPLEdit, 4, 1, 1, 1);
 
         mcVOLLEdit = new QLineEdit(groupBox_5);
         mcVOLLEdit->setObjectName(QStringLiteral("mcVOLLEdit"));
-        mcVOLLEdit->setMinimumSize(QSize(0, 20));
+        mcVOLLEdit->setMinimumSize(QSize(80, 20));
+        mcVOLLEdit->setMaximumSize(QSize(100, 20));
         mcVOLLEdit->setAlignment(Qt::AlignCenter);
 
         gridLayout_3->addWidget(mcVOLLEdit, 3, 2, 1, 1);
 
         label_36 = new QLabel(groupBox_5);
         label_36->setObjectName(QStringLiteral("label_36"));
+        label_36->setMinimumSize(QSize(44, 0));
+        label_36->setMaximumSize(QSize(50, 16777215));
 
         gridLayout_3->addWidget(label_36, 4, 0, 1, 1);
 
         mcVOPLEdit = new QLineEdit(groupBox_5);
         mcVOPLEdit->setObjectName(QStringLiteral("mcVOPLEdit"));
-        mcVOPLEdit->setMinimumSize(QSize(0, 20));
+        mcVOPLEdit->setMinimumSize(QSize(80, 20));
+        mcVOPLEdit->setMaximumSize(QSize(100, 20));
         mcVOPLEdit->setAlignment(Qt::AlignCenter);
 
         gridLayout_3->addWidget(mcVOPLEdit, 3, 1, 1, 1);
 
         mcHOLLEdit = new QLineEdit(groupBox_5);
         mcHOLLEdit->setObjectName(QStringLiteral("mcHOLLEdit"));
-        mcHOLLEdit->setMinimumSize(QSize(0, 20));
+        mcHOLLEdit->setMinimumSize(QSize(80, 20));
+        mcHOLLEdit->setMaximumSize(QSize(100, 20));
         mcHOLLEdit->setAlignment(Qt::AlignCenter);
 
         gridLayout_3->addWidget(mcHOLLEdit, 4, 2, 1, 1);
 
 
-        verticalLayout_24->addWidget(groupBox_5);
+        verticalLayout_5->addWidget(groupBox_5);
+
+        horizontalLayout_13 = new QHBoxLayout();
+        horizontalLayout_13->setSpacing(6);
+        horizontalLayout_13->setObjectName(QStringLiteral("horizontalLayout_13"));
+        horizontalSpacer_11 = new QSpacerItem(10, 20, QSizePolicy::Expanding, QSizePolicy::Minimum);
+
+        horizontalLayout_13->addItem(horizontalSpacer_11);
 
         fundusDBLabel = new QLabel(tabDatabase);
         fundusDBLabel->setObjectName(QStringLiteral("fundusDBLabel"));
@@ -699,13 +727,16 @@ public:
         fundusDBLabel->setFrameShape(QFrame::Box);
         fundusDBLabel->setAlignment(Qt::AlignCenter);
 
-        verticalLayout_24->addWidget(fundusDBLabel);
+        horizontalLayout_13->addWidget(fundusDBLabel);
 
 
-        horizontalLayout_13->addLayout(verticalLayout_24);
+        verticalLayout_5->addLayout(horizontalLayout_13);
 
 
-        verticalLayout_28->addLayout(horizontalLayout_13);
+        horizontalLayout_17->addLayout(verticalLayout_5);
+
+
+        verticalLayout_7->addLayout(horizontalLayout_17);
 
         horizontalLayout_14 = new QHBoxLayout();
         horizontalLayout_14->setSpacing(6);
@@ -782,7 +813,7 @@ public:
         horizontalLayout_14->addLayout(verticalLayout_26);
 
 
-        verticalLayout_28->addLayout(horizontalLayout_14);
+        verticalLayout_7->addLayout(horizontalLayout_14);
 
         tabWidget->addTab(tabDatabase, QString());
         tabAmslerCharts = new QWidget();
@@ -978,13 +1009,13 @@ public:
         tabWidget->addTab(tabAmslerCharts, QString());
         tabOCTExam = new QWidget();
         tabOCTExam->setObjectName(QStringLiteral("tabOCTExam"));
-        horizontalLayout_3 = new QHBoxLayout(tabOCTExam);
-        horizontalLayout_3->setSpacing(6);
-        horizontalLayout_3->setContentsMargins(11, 11, 11, 11);
-        horizontalLayout_3->setObjectName(QStringLiteral("horizontalLayout_3"));
-        verticalLayout_7 = new QVBoxLayout();
-        verticalLayout_7->setSpacing(6);
-        verticalLayout_7->setObjectName(QStringLiteral("verticalLayout_7"));
+        horizontalLayout_16 = new QHBoxLayout(tabOCTExam);
+        horizontalLayout_16->setSpacing(6);
+        horizontalLayout_16->setContentsMargins(11, 11, 11, 11);
+        horizontalLayout_16->setObjectName(QStringLiteral("horizontalLayout_16"));
+        verticalLayout_4 = new QVBoxLayout();
+        verticalLayout_4->setSpacing(6);
+        verticalLayout_4->setObjectName(QStringLiteral("verticalLayout_4"));
         horizontalLayout_2 = new QHBoxLayout();
         horizontalLayout_2->setSpacing(6);
         horizontalLayout_2->setObjectName(QStringLiteral("horizontalLayout_2"));
@@ -1039,8 +1070,14 @@ public:
 
         horizontalLayout_2->setStretch(0, 3);
 
-        verticalLayout_7->addLayout(horizontalLayout_2);
+        verticalLayout_4->addLayout(horizontalLayout_2);
 
+        horizontalLayout_3 = new QHBoxLayout();
+        horizontalLayout_3->setSpacing(6);
+        horizontalLayout_3->setObjectName(QStringLiteral("horizontalLayout_3"));
+        verticalLayout_2 = new QVBoxLayout();
+        verticalLayout_2->setSpacing(6);
+        verticalLayout_2->setObjectName(QStringLiteral("verticalLayout_2"));
         bScanHCPlot = new QCustomPlot(tabOCTExam);
         bScanHCPlot->setObjectName(QStringLiteral("bScanHCPlot"));
         QSizePolicy sizePolicy4(QSizePolicy::Preferred, QSizePolicy::Expanding);
@@ -1048,9 +1085,10 @@ public:
         sizePolicy4.setVerticalStretch(0);
         sizePolicy4.setHeightForWidth(bScanHCPlot->sizePolicy().hasHeightForWidth());
         bScanHCPlot->setSizePolicy(sizePolicy4);
-        bScanHCPlot->setMinimumSize(QSize(820, 300));
+        bScanHCPlot->setMinimumSize(QSize(400, 600));
+        bScanHCPlot->setMaximumSize(QSize(1500, 16777215));
 
-        verticalLayout_7->addWidget(bScanHCPlot);
+        verticalLayout_2->addWidget(bScanHCPlot);
 
         horizontalLayout = new QHBoxLayout();
         horizontalLayout->setSpacing(6);
@@ -1086,15 +1124,22 @@ public:
         horizontalLayout->addWidget(nextImageButton);
 
 
-        verticalLayout_7->addLayout(horizontalLayout);
+        verticalLayout_2->addLayout(horizontalLayout);
 
+
+        horizontalLayout_3->addLayout(verticalLayout_2);
+
+        verticalLayout_3 = new QVBoxLayout();
+        verticalLayout_3->setSpacing(6);
+        verticalLayout_3->setObjectName(QStringLiteral("verticalLayout_3"));
         bScanVCPlot = new QCustomPlot(tabOCTExam);
         bScanVCPlot->setObjectName(QStringLiteral("bScanVCPlot"));
         sizePolicy4.setHeightForWidth(bScanVCPlot->sizePolicy().hasHeightForWidth());
         bScanVCPlot->setSizePolicy(sizePolicy4);
-        bScanVCPlot->setMinimumSize(QSize(820, 300));
+        bScanVCPlot->setMinimumSize(QSize(400, 600));
+        bScanVCPlot->setMaximumSize(QSize(1500, 16777215));
 
-        verticalLayout_7->addWidget(bScanVCPlot);
+        verticalLayout_3->addWidget(bScanVCPlot);
 
         horizontalLayout_9 = new QHBoxLayout();
         horizontalLayout_9->setSpacing(6);
@@ -1128,10 +1173,16 @@ public:
         horizontalLayout_9->addWidget(nextNormalImageButton);
 
 
-        verticalLayout_7->addLayout(horizontalLayout_9);
+        verticalLayout_3->addLayout(horizontalLayout_9);
 
 
-        horizontalLayout_3->addLayout(verticalLayout_7);
+        horizontalLayout_3->addLayout(verticalLayout_3);
+
+
+        verticalLayout_4->addLayout(horizontalLayout_3);
+
+
+        horizontalLayout_16->addLayout(verticalLayout_4);
 
         verticalLayout_6 = new QVBoxLayout();
         verticalLayout_6->setSpacing(6);
@@ -1401,7 +1452,7 @@ public:
         verticalLayout_6->addWidget(fundusImageLabel);
 
 
-        horizontalLayout_3->addLayout(verticalLayout_6);
+        horizontalLayout_16->addLayout(verticalLayout_6);
 
         tabWidget->addTab(tabOCTExam, QString());
         tabRetinaAnalysis = new QWidget();
@@ -1499,10 +1550,10 @@ public:
         tabWidget->addTab(tabRetinaAnalysis, QString());
         tabVirtualMap = new QWidget();
         tabVirtualMap->setObjectName(QStringLiteral("tabVirtualMap"));
-        horizontalLayout_5 = new QHBoxLayout(tabVirtualMap);
-        horizontalLayout_5->setSpacing(6);
-        horizontalLayout_5->setContentsMargins(11, 11, 11, 11);
-        horizontalLayout_5->setObjectName(QStringLiteral("horizontalLayout_5"));
+        horizontalLayout_18 = new QHBoxLayout(tabVirtualMap);
+        horizontalLayout_18->setSpacing(6);
+        horizontalLayout_18->setContentsMargins(11, 11, 11, 11);
+        horizontalLayout_18->setObjectName(QStringLiteral("horizontalLayout_18"));
         verticalLayout_10 = new QVBoxLayout();
         verticalLayout_10->setSpacing(6);
         verticalLayout_10->setObjectName(QStringLiteral("verticalLayout_10"));
@@ -1649,7 +1700,7 @@ public:
         verticalLayout_10->addLayout(horizontalLayout_10);
 
 
-        horizontalLayout_5->addLayout(verticalLayout_10);
+        horizontalLayout_18->addLayout(verticalLayout_10);
 
         verticalLayout_9 = new QVBoxLayout();
         verticalLayout_9->setSpacing(6);
@@ -1669,12 +1720,35 @@ public:
 
         verticalLayout_9->addWidget(virtualMapImageCPlot);
 
+        horizontalLayout_5 = new QHBoxLayout();
+        horizontalLayout_5->setSpacing(6);
+        horizontalLayout_5->setObjectName(QStringLiteral("horizontalLayout_5"));
+        label = new QLabel(tabVirtualMap);
+        label->setObjectName(QStringLiteral("label"));
+        sizePolicy5.setHeightForWidth(label->sizePolicy().hasHeightForWidth());
+        label->setSizePolicy(sizePolicy5);
+
+        horizontalLayout_5->addWidget(label);
+
+        virtualMapValueHoverLabel = new QLabel(tabVirtualMap);
+        virtualMapValueHoverLabel->setObjectName(QStringLiteral("virtualMapValueHoverLabel"));
+        QSizePolicy sizePolicy7(QSizePolicy::Expanding, QSizePolicy::Fixed);
+        sizePolicy7.setHorizontalStretch(0);
+        sizePolicy7.setVerticalStretch(0);
+        sizePolicy7.setHeightForWidth(virtualMapValueHoverLabel->sizePolicy().hasHeightForWidth());
+        virtualMapValueHoverLabel->setSizePolicy(sizePolicy7);
+
+        horizontalLayout_5->addWidget(virtualMapValueHoverLabel);
+
+
+        verticalLayout_9->addLayout(horizontalLayout_5);
+
         verticalSpacer_3 = new QSpacerItem(20, 40, QSizePolicy::Minimum, QSizePolicy::Expanding);
 
         verticalLayout_9->addItem(verticalSpacer_3);
 
 
-        horizontalLayout_5->addLayout(verticalLayout_9);
+        horizontalLayout_18->addLayout(verticalLayout_9);
 
         tabWidget->addTab(tabVirtualMap, QString());
         tabErrorAnalysis = new QWidget();
@@ -2192,6 +2266,8 @@ public:
         label_28->setText(QApplication::translate("OCTAnnotate", "Grubo\305\233\304\207 siatk\303\263wki [um]:", 0));
         label_44->setText(QString());
         label_41->setText(QApplication::translate("OCTAnnotate", "Wirtualna mapa r\304\231cznej segmentacji:", 0));
+        label->setText(QApplication::translate("OCTAnnotate", "Warto\305\233\304\207:", 0));
+        virtualMapValueHoverLabel->setText(QString());
         tabWidget->setTabText(tabWidget->indexOf(tabVirtualMap), QApplication::translate("OCTAnnotate", "Wirtualna mapa", 0));
         label_12->setText(QApplication::translate("OCTAnnotate", "Wczytany plik:", 0));
         autoSegmentFileLabel->setText(QString());

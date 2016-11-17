@@ -1921,6 +1921,9 @@ void PatientData::resetBscansData(){
     this->resetVirtualMapAuto();
     this->resetVirtualMapError();
 
+    // clear image flattening memory
+    this->resetFlatDifferences();
+
     this->autoAnnotations = false;
 }
 
@@ -1989,6 +1992,45 @@ void PatientData::setOCTdata(QImage bscan, int bscanNumber){
         }
     }
 
+}
+
+void PatientData::resetFlatDifferences(){
+    // clear memory
+    this->flatDifferences.clear();
+
+    // create empty matrix
+    QList<int> row;
+    row.reserve(this->bscanWidth);
+    for (int i=0; i < this->bscanWidth; i++){
+        row.append(-1);
+    }
+    for (int j=0; j < this->bscansNumber; j++){
+        this->flatDifferences.insert(j, row);
+    }
+}
+
+void PatientData::setFlatDifferences(int bscanNumber, QList<int> flatDiff){
+    this->flatDifferences[bscanNumber] = flatDiff;
+}
+
+QList<int> PatientData::getFlatDifferences(int bscanNumber){
+    return this->flatDifferences.at(bscanNumber);
+}
+
+QList<int> PatientData::getFlatDifferencesNormal(int bscanNormalNumber){
+    QList<int> diffNormal;
+    for (int i=0; i < this->bscansNumber; i++){
+        diffNormal.append(getFlatDifference(i,bscanNormalNumber));
+    }
+    return diffNormal;
+}
+
+int PatientData::getFlatDifference(int bscanNumber, int bscanColumn){
+    int diff = 0;
+
+    diff = this->flatDifferences[bscanNumber][bscanColumn];
+
+    return diff;
 }
 
 

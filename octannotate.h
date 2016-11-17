@@ -201,7 +201,7 @@ private:
 
 // paint on OCT exam
     void displayAnnotations(QList<int> flatDiff);
-    void displayNormalAnnotations();
+    void displayNormalAnnotations(QList<int> flatDiffNormal);
     void drawLayer(QPoint endPoint, QPoint prevPoint=QPoint(-1,-1));
     void drawLayerNormal(QPoint endPoint, QPoint prevPoint=QPoint(-1,-1));
     void eraseLayer(QPoint endPoint);

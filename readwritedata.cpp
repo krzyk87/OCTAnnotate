@@ -1,4 +1,5 @@
 #include "readwritedata.h"
+#include "calculate.h"
 
 #include <QTextStream>
 #include <QDir>
@@ -363,7 +364,7 @@ void ReadWriteData::readGeneralExamData(){
 
 void ReadWriteData::readOctExamData(){
     emit processingData(0, "Trwa pobieranie listy skanów...");
-    double tasks = pData->getBscansNumber()*2; // gdy contrast enhancement to 3
+    double tasks = pData->getBscansNumber()*3; // gdy contrast enhancement to 3
     double count = 0;
     OCTDevice device = pData->getOCTDevice();
 
@@ -379,6 +380,7 @@ void ReadWriteData::readOctExamData(){
     pData->setImageFileList(imageList);
     pData->resetBscansData();  // Bscans memory reset
 
+    emit processingData((count)/tasks*100,"Trwa odczyt danych OCT...");
     int imageNumber = 0;
     foreach (QString imagePath, imageList) {
         QImage img(imagePath);
@@ -387,8 +389,19 @@ void ReadWriteData::readOctExamData(){
         emit processingData((++count)/tasks*100,"");
     }
 
+    // image flattening
+    Calculate *calc = new Calculate();
+    emit processingData((count)/tasks*100,"Trwa wyprostowywanie skanów...");
+    imageNumber = 0;
+    foreach (QString imagePath, imageList) {
+        QImage img(imagePath);
+        pData->setFlatDifferences(imageNumber,calc->calculateFlatteningDifferences(&img));
+        imageNumber++;
+        emit processingData((++count)/tasks*100,"");
+    }
+
     // read fundus image
-    emit processingData(count, "Trwa odczyt obrazu fundus...");
+    emit processingData(++count, "Trwa odczyt obrazu fundus...");
     QImage fundus;
     QString fundusFilePath = octDir->absolutePath().append("/fnds_rec.bmp");
     if (QFile(fundusFilePath).exists()){

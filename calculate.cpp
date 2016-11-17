@@ -658,7 +658,7 @@ void Calculate::imageEnhancement(QImage *img, float contrast, int brightness){
     }
 }
 
-QList<int> Calculate::imageFlattening(QImage *img, QImage *imgFlat){
+QList<int> Calculate::calculateFlatteningDifferences(QImage *img){
 
     // finding most hyperreflective line
     QList<int> maxValueIndex;
@@ -801,31 +801,38 @@ QList<int> Calculate::imageFlattening(QImage *img, QImage *imgFlat){
 
     // flattening image
     QList<int> differences;
-    int bottom_val = 0;
-    for (int c=0; c < img->width(); c++){
-        if (y_full[c] > bottom_val)
-            bottom_val = y_full[c];
-    }
+    int bottom_val = 320+160;//0;
+    //for (int c=0; c < img->width(); c++){
+    //    if (y_full[c] > bottom_val)
+    //        bottom_val = y_full[c];
+    //}
     for (int c=0; c < img->width(); c++){
         differences.append(bottom_val - y_full[c]);
     }
 
+
+    return differences;
+}
+
+QImage Calculate::flattenImage(QImage *img, QList<int> flatDiff){
+    QImage imgFlat = QImage(img->size(),img->format());
+    imgFlat.fill(0);
+
     int imgHeight = img->height();
     for (int c=0; c < img->width(); c++){
-        if (differences[c] >= 0){
-            for (int y=0; y < (imgHeight - differences[c]); y++){
+        if (flatDiff[c] >= 0){
+            for (int y=0; y < (imgHeight - flatDiff[c]); y++){
                 int value = qRed(img->pixel(c,y));
-                imgFlat->setColor(value, qRgb(value, value, value));
-                imgFlat->setPixel(c, y + differences[c], value);
+                imgFlat.setColor(value, qRgb(value, value, value));
+                imgFlat.setPixel(c, y + flatDiff[c], value);
             }
         } else {
-            for (int y=(0-differences[c]); y < imgHeight; y++){
+            for (int y=(0-flatDiff[c]); y < imgHeight; y++){
                 int value = qRed(img->pixel(c,y));
-                imgFlat->setColor(value, qRgb(value, value, value));
-                imgFlat->setPixel(c, y + differences[c], img->pixel(c,y));
+                imgFlat.setColor(value, qRgb(value, value, value));
+                imgFlat.setPixel(c, y + flatDiff[c], img->pixel(c,y));
             }
         }
     }
-
-    return differences;
+    return imgFlat;
 }

@@ -360,10 +360,25 @@
           </item>
           <item>
            <layout class="QVBoxLayout" name="verticalLayout_5">
+            <property name="sizeConstraint">
+             <enum>QLayout::SetFixedSize</enum>
+            </property>
             <item>
              <widget class="QGroupBox" name="groupBox_5">
+              <property name="sizePolicy">
+               <sizepolicy hsizetype="Maximum" vsizetype="Maximum">
+                <horstretch>0</horstretch>
+                <verstretch>0</verstretch>
+               </sizepolicy>
+              </property>
+              <property name="layoutDirection">
+               <enum>Qt::LeftToRight</enum>
+              </property>
               <property name="title">
                <string>Ostrość widzenia i M-Charts</string>
+              </property>
+              <property name="alignment">
+               <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
               </property>
               <layout class="QGridLayout" name="gridLayout_3">
                <item row="0" column="1">
@@ -629,6 +644,9 @@
                <spacer name="horizontalSpacer_11">
                 <property name="orientation">
                  <enum>Qt::Horizontal</enum>
+                </property>
+                <property name="sizeType">
+                 <enum>QSizePolicy::Preferred</enum>
                 </property>
                 <property name="sizeHint" stdset="0">
                  <size>
@@ -3900,6 +3918,7 @@
     <bool>false</bool>
    </attribute>
    <addaction name="actionImageFlattening"/>
+   <addaction name="actionEditAnnotations"/>
   </widget>
   <action name="actionSaveGeneralExam">
    <property name="text">
@@ -4058,6 +4077,17 @@
    </property>
    <property name="toolTip">
     <string>Image flattening</string>
+   </property>
+  </action>
+  <action name="actionEditAnnotations">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Edytuj segmentacje</string>
+   </property>
+   <property name="toolTip">
+    <string>Edit Annotations</string>
    </property>
   </action>
  </widget>

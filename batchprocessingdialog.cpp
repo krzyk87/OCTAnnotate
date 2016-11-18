@@ -57,7 +57,8 @@ void BatchProcessingDialog::on_acceptButton_clicked()
 
         // setting progress bar
         tasksNumber = 3;
-        // TODO: calculate age
+//        if (ui->calculateAgeCBox->isChecked())
+//            tasksNumber++;
         if (ui->searchAutoSegmentationsCBox->isChecked())
             tasksNumber++;
         if (ui->copyAutoAsManualCBox->isChecked())

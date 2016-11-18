@@ -154,6 +154,8 @@ private slots:
 
     void on_batchProcessingButton_clicked();
 
+    void on_actionEditAnnotations_toggled(bool arg1);
+
 public slots:
     void on_errorOccured(QString);
     void on_processingData(double, QString msg = "");
@@ -268,6 +270,7 @@ private:
     bool showBscanOnErrorPlot;
     bool blockPCV;
     bool flattenImage;
+    bool editAnnotations;
     QString openBscanNumber;
     QString dataSaveStructure;
     QString databasePath;

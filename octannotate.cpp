@@ -43,6 +43,7 @@ OCTAnnotate::OCTAnnotate(QWidget *parent) : QMainWindow(parent),
     autoDir = QDir(settingsDialog->getPathAutoSegm());
     tmpDir = examDir;
 //    ui->actionImageFlattening->setChecked(true);
+    ui->actionEditAnnotations->setChecked(true);
 
     patientsDB = new DbManager(databasePath);
 
@@ -50,7 +51,7 @@ OCTAnnotate::OCTAnnotate(QWidget *parent) : QMainWindow(parent),
         qDebug() << "Database not opened!";
         QMessageBox::critical(this,"Database connection error","Could not connect to the patients database. Please set the correct path to the database in the Settings menu and restart the application.");
     } else {
-        qDebug() << "Database opened.";
+        qDebug() << "Database opened!";
         initializeModelPatients();
         initializeModelScans();
         ui->scanListGroupCBox->setCurrentIndex(0);
@@ -819,7 +820,7 @@ bool OCTAnnotate::eventFilter(QObject *target, QEvent *event){
             currPoint.setX(ui->bScanHCPlot->xAxis->pixelToCoord(mouseEvent->pos().x()));
             currPoint.setY(patientData.getBscanHeight() - ui->bScanHCPlot->yAxis->pixelToCoord(mouseEvent->pos().y()));
 
-            if (event->type() == QEvent::MouseButtonPress){
+            if ((event->type() == QEvent::MouseButtonPress) && (editAnnotations)){
                 if (mouseEvent->button() == Qt::LeftButton){    // start drawing
 
                     if (settingScanCenter){
@@ -970,7 +971,7 @@ bool OCTAnnotate::eventFilter(QObject *target, QEvent *event){
             currPoint.setX(ui->bScanVCPlot->xAxis->pixelToCoord(mouseEvent->pos().x()));
             currPoint.setY(patientData.getBscanHeight() - ui->bScanVCPlot->yAxis->pixelToCoord(mouseEvent->pos().y()));
 
-            if (event->type() == QEvent::MouseButtonPress){
+            if ((event->type() == QEvent::MouseButtonPress) && (editAnnotations)){
                 if (mouseEvent->button() == Qt::LeftButton){    // start drawing
 
                     if (settingScanCenter){
@@ -1476,6 +1477,18 @@ void OCTAnnotate::drawLayer(QPoint endPoint, QPoint prevPoint){
     int graphID = getAllLayers().indexOf(selectedLayer);
     myPenColor = getLayerColor(selectedLayer);
 
+    if (flattenImage){
+        int diff = patientData.getFlatDifference(currentImageNumber,endPoint.x());
+        endPoint.setY(endPoint.y() - diff);
+        if (isPointSet(prevPoint)){
+            diff = patientData.getFlatDifference(currentImageNumber,prevPoint.x());
+            prevPoint.setY(prevPoint.y() - diff);
+        } else {
+            diff = patientData.getFlatDifference(currentImageNumber,lastPoint.x());
+            lastPoint.setY(lastPoint.y() - diff);
+        }
+    }
+
     QPoint startPoint;
     if (isPointSet(prevPoint))
         startPoint = prevPoint;
@@ -1498,13 +1511,6 @@ void OCTAnnotate::drawLayer(QPoint endPoint, QPoint prevPoint){
                 if (endPoint.y() > epILM.y())
                     endPoint = epILM;
             }
-//            if (ui->ilmLayerCBox->isChecked()){ // draw ILM again - TODO: nie dziala?
-//                painter.setPen(QPen(ilmColor,myPenWidth, Qt::SolidLine, Qt::RoundCap, Qt::RoundJoin));
-//                pointsList = patientData.getLayerPoints(currentImageNumber,ILM,min,max);
-//                foreach (QPoint p, pointsList){
-//                    painter.drawPoint(p);
-//                }
-//            }
         }
         if (isPointSet(prevPoint)){
             saveLayer(endPoint, "draw", prevPoint);
@@ -1520,6 +1526,10 @@ void OCTAnnotate::drawLayer(QPoint endPoint, QPoint prevPoint){
         for (int i=0; i<pointsCount; i++){
             x[i] = pointsList.at(i).x();
             y[i] = height - pointsList.at(i).y();
+            if (flattenImage){
+                int diff = patientData.getFlatDifference(currentImageNumber,x[i]);
+                y[i] -= diff;
+            }
         }
         ui->bScanHCPlot->graph(graphID)->addData(x,y);
         ui->bScanHCPlot->replot();
@@ -1529,6 +1539,18 @@ void OCTAnnotate::drawLayer(QPoint endPoint, QPoint prevPoint){
 void OCTAnnotate::drawLayerNormal(QPoint endPoint, QPoint prevPoint){
     int graphID = getAllLayers().indexOf(selectedLayer);
     myPenColor = getLayerColor(selectedLayer);
+
+    if (flattenImage){
+        int diff = patientData.getFlatDifference(endPoint.x(),currentNormalImageNumber);
+        endPoint.setY(endPoint.y() - diff);
+        if (isPointSet(prevPoint)){
+            diff = patientData.getFlatDifference(prevPoint.x(),currentNormalImageNumber);
+            prevPoint.setY(prevPoint.y() - diff);
+        } else {
+            diff = patientData.getFlatDifference(lastPointN.x(),currentNormalImageNumber);
+            lastPointN.setY(lastPointN.y() - diff);
+        }
+    }
 
     QPoint startPoint;
     if (isPointSet(prevPoint))
@@ -1542,13 +1564,6 @@ void OCTAnnotate::drawLayerNormal(QPoint endPoint, QPoint prevPoint){
     if ((min >= 0) && (max < patientData.getBscansNumber())){
         // erase old pixels
         ui->bScanVCPlot->graph(graphID)->removeData(min,max);
-//        int pointsCount = max - min + 1;
-//        QVector<double> xr(pointsCount), yr(pointsCount);
-//        for (int i=0; i<pointsCount; i++){
-//            xr[i] = min+i;
-//            yr[i] = std::numeric_limits<double>::quiet_NaN();
-//        }
-//        ui->bScanHCPlot->graph(graphID)->addData(xr,yr);
 
         if ((selectedLayer == PCV) && blockPCV){
             QPoint spILM = patientData.getLayerPoint(startPoint.x(),ILM,currentNormalImageNumber);
@@ -1575,6 +1590,10 @@ void OCTAnnotate::drawLayerNormal(QPoint endPoint, QPoint prevPoint){
         for (int i=0; i<pointsCount; i++){
             x[i] = min+i+1;
             y[i] = height - pointsList.at(i).y();
+            if (flattenImage){
+                int diff = patientData.getFlatDifference(x[i],currentNormalImageNumber);
+                y[i] -= diff;
+            }
         }
         ui->bScanVCPlot->graph(graphID)->addData(x,y);
         ui->bScanVCPlot->replot();
@@ -1601,33 +1620,11 @@ void OCTAnnotate::eraseLayer(QPoint endPoint){
         }
         ui->bScanHCPlot->graph(graphID)->addData(x,y);
         ui->bScanHCPlot->replot();
-
-//        QList<QPoint> pointsList = patientData.getLayerPoints(currentImageNumber, layer, min, max);
-//        foreach (QPoint p, pointsList) {
-//            if ((p.x() != -1) && (p.y() != -1)){
-//                // redraw ILM
-//                if (layer == PCV){
-//                    QPoint ilmPoint = patientData.getLayerPoint(currentImageNumber,ILM,p.x());
-//                    if (p.y() == ilmPoint.y()){
-//                        painter.setPen(QPen(ilmColor, myPenWidth, Qt::SolidLine, Qt::RoundCap, Qt::RoundJoin));
-//                        painter.drawPoint(ilmPoint);
-//                    }
-//                }
-//                // redraw PCV
-//                if (layer == ILM){
-//                    QPoint pcvPoint = patientData.getLayerPoint(currentImageNumber,PCV,p.x());
-//                    if (p.y() == pcvPoint.y()){
-//                        painter.setPen(QPen(pcvColor, myPenWidth, Qt::SolidLine, Qt::RoundCap, Qt::RoundJoin));
-//                        painter.drawPoint(pcvPoint);
-//                    }
-//                }
-//            }
-//        }
     }
 }
 
 void OCTAnnotate::eraseLayerNormal(QPoint endPoint){
-    QPoint startPoint = lastPoint;
+    QPoint startPoint = lastPointN;
     int graphID = getAllLayers().indexOf(selectedLayer);
 
     int min = qMin(startPoint.x(),endPoint.x());
@@ -5691,4 +5688,9 @@ void OCTAnnotate::on_searchForScansButton_clicked()
         qDebug() << folderSearchPath + "/" + folderName;
         on_addScanFolderButton_clicked(folderSearchPath + "/" + folderName);
     }
+}
+
+void OCTAnnotate::on_actionEditAnnotations_toggled(bool state)
+{
+    editAnnotations = state;
 }

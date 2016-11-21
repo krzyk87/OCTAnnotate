@@ -514,8 +514,8 @@ void OCTAnnotate::loadImage(int imageNumber){
         // display annotations
         displayAnnotations(flatDiff);
 
-        ui->zoomInButton->setEnabled(true);
-        ui->zoomOutButton->setEnabled(true);
+//        ui->zoomInButton->setEnabled(true);
+//        ui->zoomOutButton->setEnabled(true);
 
         // display image name
         ui->imageNumberLabel->setText(imageFileInfo.fileName());
@@ -3008,25 +3008,37 @@ void OCTAnnotate::on_zoomOutButton_clicked()
 void OCTAnnotate::rescaleImage(){
     scaleFactor = qBound(0,scaleFactor,scales.count()-1);
 
-    int h = patientData.getBscanHeight() / scales[scaleFactor];
-    double y2 = (int)((double)(patientData.getBscanHeight() - h) / 2.0);
+    int imageHeight = patientData.getBscanHeight() / scales[scaleFactor];
+    double y2 = (int)((double)(patientData.getBscanHeight() - imageHeight) / 2.0);
     double y1 = (double)patientData.getBscanHeight() - y2;
-    bscanRange = QCPRange(y1,y2);
+    double offset = 0;//bscanRange.lower;
+    bscanRange = QCPRange(y1-offset,y2-offset);
     ui->bScanHCPlot->yAxis->setRange(bscanRange);
     ui->bScanVCPlot->yAxis->setRange(bscanRange);
 
     QImage image(patientData.getImageFileList().at(currentImageNumber));
     Calculate *calc = new Calculate();
     calc->imageEnhancement(&image, contrast, brightness);
-    QImage newImage = image.copy(0,bscanRange.lower,patientData.getBscanWidth(),h);
+    QImage newImage = image.copy(0,bscanRange.lower,patientData.getBscanWidth(),imageHeight);
     ui->bScanHCPlot->axisRect()->setBackground(QPixmap::fromImage(newImage),true,Qt::IgnoreAspectRatio);
     ui->bScanHCPlot->replot();
 
     QImage normalImage = patientData.getNormalImage(currentNormalImageNumber);
     calc->imageEnhancement(&normalImage, contrast, brightness);
-    QImage newNormalImage = normalImage.copy(0,bscanRange.lower,patientData.getBscansNumber(),h);
+    QImage newNormalImage = normalImage.copy(0,bscanRange.lower,patientData.getBscansNumber(),imageHeight);
     ui->bScanVCPlot->axisRect()->setBackground(QPixmap::fromImage(newNormalImage),true,Qt::IgnoreAspectRatio);
     ui->bScanVCPlot->replot();
+
+    if (scaleFactor <= 0){
+        ui->zoomOutButton->setEnabled(false);
+    } else {
+        ui->zoomOutButton->setEnabled(true);
+    }
+    if (scaleFactor >= scales.count()-1){
+        ui->zoomInButton->setEnabled(false);
+    } else {
+        ui->zoomInButton->setEnabled(true);
+    }
 }
 
 void OCTAnnotate::changeImageRange(int dir){
@@ -4829,6 +4841,7 @@ void OCTAnnotate::on_readingDataFinished(QString data){
     ui->actionFillFromILM->setEnabled(true);
     ui->actionFillStraight->setEnabled(true);
     ui->actionSetAutoSegmentationAsManual->setEnabled(true);
+    ui->zoomInButton->setEnabled(true);
 
     // setup plots
     setupVirtualMapPlot(ui->virtualMapImageCPlot);

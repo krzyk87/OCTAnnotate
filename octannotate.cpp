@@ -224,6 +224,7 @@ OCTAnnotate::OCTAnnotate(QWidget *parent) : QMainWindow(parent),
     scales.append(4.0);
     scales.append(4.5);
     scales.append(5.0);
+    bscanRange = QCPRange(0,640);
 
     // TODO: inne nazwy granic warstw (takie jak wyświetlane, a nie takie jak w kodzie)
     QList<Layers> layers = getAllLayers();
@@ -493,31 +494,28 @@ void OCTAnnotate::loadImage(int imageNumber){
             flatDiff.append(0);
         }
         if (flattenImage){
-            flatDiff = patientData.getFlatDifferences(currentImageNumber);
+            if (patientData.hasManualAnnotations())
+                flatDiff = patientData.getFlatDifferencesRPE(currentImageNumber);
+            else
+                flatDiff = patientData.getFlatDifferences(currentImageNumber);
             image = calc->flattenImage(&image,flatDiff);
         }
         calc->imageEnhancement(&image, contrast, brightness);
 
         // rescale image
         scaleFactor = qBound(0,scaleFactor,scales.count()-1);
-        int h = patientData.getBscanHeight() / scales[scaleFactor]; // TODO: zle liczone h, nie bierze pod uwage przesuniecia rolką
-        double y2 = (int)((double)(patientData.getBscanHeight() - h) / 2.0);
-        double y1 = (double)patientData.getBscanHeight() - y2;
-        QImage newImage = image.copy(0,y2,patientData.getBscanWidth(),y1);
+        int imageHeight = patientData.getBscanHeight() / scales[scaleFactor];
+        double dy = qBound(0, patientData.getBscanHeight() - (int)bscanRange.upper, patientData.getBscanHeight()-imageHeight);
+        QImage newImage = image.copy(0, dy, patientData.getBscanWidth(), imageHeight);
 
         // display image
-        ui->bScanHCPlot->yAxis->setRange(y1,y2);
+        ui->bScanHCPlot->yAxis->setRange(bscanRange);
         ui->bScanHCPlot->axisRect()->setBackground(QPixmap::fromImage(newImage),true,Qt::IgnoreAspectRatio);
         // display annotations
         displayAnnotations(flatDiff);
 
-        //scaleFactor = 0;
-        //rescaleImage();
-//        if (scaleFactorY < 2.0)
-            ui->zoomInButton->setEnabled(true);
-//        if (scaleFactorY > 0.5)
-            ui->zoomOutButton->setEnabled(true);
-//        bscanLabel->resize(scrollArea->width()-20, orgImageSize.height() * scaleFactorY);
+        ui->zoomInButton->setEnabled(true);
+        ui->zoomOutButton->setEnabled(true);
 
         // display image name
         ui->imageNumberLabel->setText(imageFileInfo.fileName());
@@ -539,20 +537,29 @@ void OCTAnnotate::loadNormalImage(int normalImageNumber){
         flatDiffNormal.append(0);
     }
     if (flattenImage){
-        flatDiffNormal = patientData.getFlatDifferencesNormal(currentNormalImageNumber);
+        if (patientData.hasManualAnnotations())
+            flatDiffNormal = patientData.getFlatDifferencesNormalRPE(currentNormalImageNumber);
+        else
+            flatDiffNormal = patientData.getFlatDifferencesNormal(currentNormalImageNumber);
         normalImage = calc->flattenImage(&normalImage,flatDiffNormal);
     }
     calc->imageEnhancement(&normalImage, contrast, brightness);
 
-    // display image
-    ui->bScanVCPlot->axisRect()->setBackground(QPixmap::fromImage(normalImage),true,Qt::IgnoreAspectRatio);
-    ui->currNormalImageNumberLEdit->setText(QString::number(currentNormalImageNumber));
     // scale
+    scaleFactor = qBound(0,scaleFactor,scales.count()-1);
+    int imageHeight = patientData.getBscanHeight() / scales[scaleFactor];
+    double dy = qBound(0, patientData.getBscanHeight() - (int)bscanRange.upper, patientData.getBscanHeight()-imageHeight);
+    QImage newImage = normalImage.copy(0, dy, patientData.getBscansNumber(), imageHeight);
+
+    // display image
+    ui->bScanVCPlot->yAxis->setRange(bscanRange);
+    ui->bScanVCPlot->axisRect()->setBackground(QPixmap::fromImage(newImage),true,Qt::IgnoreAspectRatio);
+    ui->currNormalImageNumberLEdit->setText(QString::number(currentNormalImageNumber));
 
     // display annotations
     displayNormalAnnotations(flatDiffNormal);
 
-    // enable / disable buttons
+    // TODO: enable / disable buttons
 }
 
 void OCTAnnotate::on_nextImageButton_clicked()
@@ -562,9 +569,7 @@ void OCTAnnotate::on_nextImageButton_clicked()
             loadImage(currentImageNumber + 1);
             loadNormalImage(currentNormalImageNumber);
             fundusAnnotate = true;
-            //on_computeVirtualMapButton_clicked();
             currentImageLayersNumber = currentImageNumber;
-            //displayImageLayersPlot(currentImageLayersNumber);
         }
     }
 }
@@ -575,9 +580,7 @@ void OCTAnnotate::on_prevImageButton_clicked(){
             loadImage(currentImageNumber - 1);
             loadNormalImage(currentNormalImageNumber);
             fundusAnnotate = true;
-            //on_computeVirtualMapButton_clicked();
             currentImageLayersNumber = currentImageNumber;
-            //displayImageLayersPlot(currentImageLayersNumber);
         }
     }
 }
@@ -1479,14 +1482,26 @@ void OCTAnnotate::drawLayer(QPoint endPoint, QPoint prevPoint){
     myPenColor = getLayerColor(selectedLayer);
 
     if (flattenImage){
-        int diff = patientData.getFlatDifference(currentImageNumber,endPoint.x());
-        endPoint.setY(endPoint.y() - diff);
-        if (isPointSet(prevPoint)){
-            diff = patientData.getFlatDifference(currentImageNumber,prevPoint.x());
-            prevPoint.setY(prevPoint.y() - diff);
+        if (patientData.hasManualAnnotations()){
+            int diff = patientData.getFlatDifferenceRPE(currentImageNumber,endPoint.x());
+            endPoint.setY(endPoint.y() - diff);
+            if (isPointSet(prevPoint)){
+                diff = patientData.getFlatDifferenceRPE(currentImageNumber,prevPoint.x());
+                prevPoint.setY(prevPoint.y() - diff);
+            } else {
+                diff = patientData.getFlatDifferenceRPE(currentImageNumber,lastPoint.x());
+                lastPoint.setY(lastPoint.y() - diff);
+            }
         } else {
-            diff = patientData.getFlatDifference(currentImageNumber,lastPoint.x());
-            lastPoint.setY(lastPoint.y() - diff);
+            int diff = patientData.getFlatDifference(currentImageNumber,endPoint.x());
+            endPoint.setY(endPoint.y() - diff);
+            if (isPointSet(prevPoint)){
+                diff = patientData.getFlatDifference(currentImageNumber,prevPoint.x());
+                prevPoint.setY(prevPoint.y() - diff);
+            } else {
+                diff = patientData.getFlatDifference(currentImageNumber,lastPoint.x());
+                lastPoint.setY(lastPoint.y() - diff);
+            }
         }
     }
 
@@ -1528,7 +1543,11 @@ void OCTAnnotate::drawLayer(QPoint endPoint, QPoint prevPoint){
             x[i] = pointsList.at(i).x();
             y[i] = height - pointsList.at(i).y();
             if (flattenImage){
-                int diff = patientData.getFlatDifference(currentImageNumber,x[i]);
+                int diff = 0;
+                if (patientData.hasManualAnnotations())
+                    diff = patientData.getFlatDifferenceRPE(currentImageNumber,x[i]);
+                else
+                    diff = patientData.getFlatDifference(currentImageNumber,x[i]);
                 y[i] -= diff;
             }
         }
@@ -1542,14 +1561,26 @@ void OCTAnnotate::drawLayerNormal(QPoint endPoint, QPoint prevPoint){
     myPenColor = getLayerColor(selectedLayer);
 
     if (flattenImage){
-        int diff = patientData.getFlatDifference(endPoint.x(),currentNormalImageNumber);
-        endPoint.setY(endPoint.y() - diff);
-        if (isPointSet(prevPoint)){
-            diff = patientData.getFlatDifference(prevPoint.x(),currentNormalImageNumber);
-            prevPoint.setY(prevPoint.y() - diff);
+        if (patientData.hasManualAnnotations()){
+            int diff = patientData.getFlatDifferenceRPE(endPoint.x(),currentNormalImageNumber);
+            endPoint.setY(endPoint.y() - diff);
+            if (isPointSet(prevPoint)){
+                diff = patientData.getFlatDifferenceRPE(prevPoint.x(),currentNormalImageNumber);
+                prevPoint.setY(prevPoint.y() - diff);
+            } else {
+                diff = patientData.getFlatDifferenceRPE(lastPointN.x(),currentNormalImageNumber);
+                lastPointN.setY(lastPointN.y() - diff);
+            }
         } else {
-            diff = patientData.getFlatDifference(lastPointN.x(),currentNormalImageNumber);
-            lastPointN.setY(lastPointN.y() - diff);
+            int diff = patientData.getFlatDifference(endPoint.x(),currentNormalImageNumber);
+            endPoint.setY(endPoint.y() - diff);
+            if (isPointSet(prevPoint)){
+                diff = patientData.getFlatDifference(prevPoint.x(),currentNormalImageNumber);
+                prevPoint.setY(prevPoint.y() - diff);
+            } else {
+                diff = patientData.getFlatDifference(lastPointN.x(),currentNormalImageNumber);
+                lastPointN.setY(lastPointN.y() - diff);
+            }
         }
     }
 
@@ -1592,7 +1623,11 @@ void OCTAnnotate::drawLayerNormal(QPoint endPoint, QPoint prevPoint){
             x[i] = min+i+1;
             y[i] = height - pointsList.at(i).y();
             if (flattenImage){
-                int diff = patientData.getFlatDifference(x[i],currentNormalImageNumber);
+                int diff = 0;
+                if (patientData.hasManualAnnotations())
+                    diff = patientData.getFlatDifferenceRPE(x[i],currentNormalImageNumber);
+                else
+                    diff = patientData.getFlatDifference(x[i],currentNormalImageNumber);
                 y[i] -= diff;
             }
         }
@@ -2974,22 +3009,22 @@ void OCTAnnotate::rescaleImage(){
     scaleFactor = qBound(0,scaleFactor,scales.count()-1);
 
     int h = patientData.getBscanHeight() / scales[scaleFactor];
-    double dy = (int)((double)(patientData.getBscanHeight() - h) / 2.0);
-    double y1 = (double)patientData.getBscanHeight() - dy;
-    double y2 = dy;
-    ui->bScanHCPlot->yAxis->setRange(y1,y2);
-    ui->bScanVCPlot->yAxis->setRange(y1,y2);
+    double y2 = (int)((double)(patientData.getBscanHeight() - h) / 2.0);
+    double y1 = (double)patientData.getBscanHeight() - y2;
+    bscanRange = QCPRange(y1,y2);
+    ui->bScanHCPlot->yAxis->setRange(bscanRange);
+    ui->bScanVCPlot->yAxis->setRange(bscanRange);
 
     QImage image(patientData.getImageFileList().at(currentImageNumber));
     Calculate *calc = new Calculate();
     calc->imageEnhancement(&image, contrast, brightness);
-    QImage newImage = image.copy(0,dy,patientData.getBscanWidth(),h);
+    QImage newImage = image.copy(0,bscanRange.lower,patientData.getBscanWidth(),h);
     ui->bScanHCPlot->axisRect()->setBackground(QPixmap::fromImage(newImage),true,Qt::IgnoreAspectRatio);
     ui->bScanHCPlot->replot();
 
     QImage normalImage = patientData.getNormalImage(currentNormalImageNumber);
     calc->imageEnhancement(&normalImage, contrast, brightness);
-    QImage newNormalImage = normalImage.copy(0,dy,patientData.getBscansNumber(),h);
+    QImage newNormalImage = normalImage.copy(0,bscanRange.lower,patientData.getBscansNumber(),h);
     ui->bScanVCPlot->axisRect()->setBackground(QPixmap::fromImage(newNormalImage),true,Qt::IgnoreAspectRatio);
     ui->bScanVCPlot->replot();
 }
@@ -3008,12 +3043,13 @@ void OCTAnnotate::changeImageRange(int dir){
     }
     ui->bScanHCPlot->yAxis->setRange(newRange);
     ui->bScanVCPlot->yAxis->setRange(newRange);
+    bscanRange = newRange;
 
     QImage image(patientData.getImageFileList().at(currentImageNumber));
     Calculate *calc = new Calculate();
     calc->imageEnhancement(&image, contrast, brightness);
     double dy = qBound(0, patientData.getBscanHeight() - (int)newRange.upper, patientData.getBscanHeight()-imageHeight);
-    QImage newImage = image.copy(0,dy,patientData.getBscanWidth(),imageHeight);
+    QImage newImage = image.copy(0, dy, patientData.getBscanWidth(), imageHeight);
     ui->bScanHCPlot->axisRect()->setBackground(QPixmap::fromImage(newImage),true,Qt::IgnoreAspectRatio);
     ui->bScanHCPlot->replot();
 
@@ -3737,7 +3773,10 @@ void OCTAnnotate::displayImageLayersPlot(int bscanNumber, Layers selectedLayer){
             // contrast enhancement
             Calculate *calc = new Calculate();
             if (flattenImage){
-                flatDiff = calc->calculateFlatteningDifferences(&image);
+                if (patientData.hasManualAnnotations())
+                    flatDiff = patientData.getFlatDifferencesRPE(bscanNumber);
+                else
+                    flatDiff = patientData.getFlatDifferences(bscanNumber);
                 image = calc->flattenImage(&image,flatDiff);
             }
             calc->imageEnhancement(&image, contrast, brightness);
@@ -3970,10 +4009,10 @@ void OCTAnnotate::displayVolumes(){
         QCPItemText *labelRight = new QCPItemText(ui->ETDRSgridCPlot);
         ui->ETDRSgridCPlot->addItem(labelLeft);
         ui->ETDRSgridCPlot->addItem(labelRight);
-        labelLeft->position->setCoords(-2.8,-2.8);
-        labelRight->position->setCoords(2.8,-2.8);
-        labelLeft->setFont(QFont(font().family(), 16));
-        labelRight->setFont(QFont(font().family(), 16));
+        labelLeft->position->setCoords(-2.5,-2.8);
+        labelRight->position->setCoords(2.5,-2.8);
+        labelLeft->setFont(QFont(font().family(), 12));
+        labelRight->setFont(QFont(font().family(), 12));
 
         if (patientData.getEye() == 1){    // right eye
             labelLeft->setText("T <-");

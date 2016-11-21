@@ -245,9 +245,9 @@ public:
     QList<int> getFlatDifferencesNormal(int bscanNormalNumber);
     int getFlatDifference(int bscanNumber, int bscanColumn);
     void calculateFlatDifferencesRPE(int bscanNumber);
-//    QList<int> getFlatDifferencesRPE(int bscanNumber);
-//    QList<int> getFlatDifferencesNormalRPE(int bscanNormalNumber);
-//    int getFlatDifferenceRPE(int bscanNumber, int bscanColumn);
+    QList<int> getFlatDifferencesRPE(int bscanNumber);
+    QList<int> getFlatDifferencesNormalRPE(int bscanNormalNumber);
+    int getFlatDifferenceRPE(int bscanNumber, int bscanColumn);
 
     // ratios
     void calculateRatios();
@@ -269,6 +269,7 @@ public:
     void fillLayerFromILM(Layers layer, int bscanNumber = -1);
     void fillLayerStraight(Layers layer, int bscanNumber = -1);
     void resetManualAnnotations();
+    bool hasManualAnnotations();
 
     // auto annotations
     void resetAutoAnnotations();
@@ -409,6 +410,7 @@ private:
     double errorPSNR;
     double errorProc;
 
+    bool manualAnnotations;
     bool autoAnnotations;
 
     // VMT virtual map

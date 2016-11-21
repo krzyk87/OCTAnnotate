@@ -532,7 +532,7 @@ void ReadWriteData::readFileManualSegmentation(QFile *dataFile){
         }
         emit processingData(count, "Trwa obliczanie współczynników wypłaszczania warstw...");
         for (int i=0; i < pData->getBscansNumber(); i++){
-            // pData->calculateFlatteningRPE(i);
+            pData->calculateFlatDifferencesRPE(i);
             emit processingData((++count)/tasks*100,"");
         }
     }

@@ -863,6 +863,7 @@ PatientData::PatientData()
         layersErrorPSNR.append(0);
         layersErrorProc.append(0);
     }
+    this->manualAnnotations = false;
     this->autoAnnotations = false;
 
     this->contactAreaCF = 0.0;
@@ -928,6 +929,7 @@ void PatientData::setFundusImage(QImage newImage){
 // Annotations ----------------------------------------------------------------
 void PatientData::setPoint(int bscanNumber, Layers layer, QPoint p){
     this->Bscans[bscanNumber].layers[(int)layer].setPoint(p);
+    this->manualAnnotations = true;
 }
 
 void PatientData::setLayerPoints(int bscanNumber, QList<QPoint> pointsList, Layers layer, bool isNormal){
@@ -938,6 +940,7 @@ void PatientData::setLayerPoints(int bscanNumber, QList<QPoint> pointsList, Laye
             this->Bscans[p.x()].layers[(int)layer].setPoint(QPoint(bscanNumber,p.y()));
         }
     }
+    this->manualAnnotations = true;
 }
 
 QPoint PatientData::getLayerPoint(int bscanNumber, Layers layer, int x){
@@ -1048,8 +1051,14 @@ void PatientData::resetManualAnnotations(){
         }
     }
 
+    this->manualAnnotations = false;
+
     this->resetVirtualMap();
     this->resetVirtualMapError();
+}
+
+bool PatientData::hasManualAnnotations(){
+    return this->manualAnnotations;
 }
 
 // Auto annotations -----------------------------------------------------------
@@ -1924,6 +1933,7 @@ void PatientData::resetBscansData(){
     // clear image flattening memory
     this->resetFlatDifferences();
 
+    this->manualAnnotations = false;
     this->autoAnnotations = false;
 }
 
@@ -2035,6 +2045,40 @@ int PatientData::getFlatDifference(int bscanNumber, int bscanColumn){
     return diff;
 }
 
+void PatientData::calculateFlatDifferencesRPE(int bscanNumber){
+    // get RPE line
+    QList<int> differences;
+    QList<QPoint> rpeLine = this->Bscans[bscanNumber].layers[CHR].getPoints(0,this->bscanWidth-1);
+
+    int bottom_val = 320+160;
+
+    for (int c=0; c < this->bscanWidth; c++){
+        if (rpeLine[c].y() != -1)
+            differences.append(bottom_val - rpeLine[c].y());
+        else
+            differences.append(0);
+    }
+
+    this->flatDifferencesRPE[bscanNumber] = differences;
+}
+
+QList<int> PatientData::getFlatDifferencesRPE(int bscanNumber){
+    return this->flatDifferencesRPE.at(bscanNumber);
+}
+
+QList<int> PatientData::getFlatDifferencesNormalRPE(int bscanNormalNumber){
+    QList<int> diffNormal;
+    for (int i=0; i < this->bscansNumber; i++){
+        diffNormal.append(getFlatDifferenceRPE(i, bscanNormalNumber));
+    }
+    return diffNormal;
+}
+
+int PatientData::getFlatDifferenceRPE(int bscanNumber, int bscanColumn){
+    int diff = 0;
+    diff = this->flatDifferencesRPE[bscanNumber][bscanColumn];
+    return diff;
+}
 
 // General Exam Data ----------------------------------------------------------
 QString PatientData::getSnOL(){

@@ -286,6 +286,7 @@ private:
 //    double flatFactor;
     QList<double> scales;
 //    QList<double> flats;
+    QCPRange bscanRange;
     float contrast;
     int brightness;
 

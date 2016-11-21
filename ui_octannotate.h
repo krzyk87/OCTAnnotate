@@ -1,7 +1,7 @@
 /********************************************************************************
 ** Form generated from reading UI file 'octannotate.ui'
 **
-** Created by: Qt User Interface Compiler version 5.4.2
+** Created by: Qt User Interface Compiler version 5.4.1
 **
 ** WARNING! All changes made in this file will be lost when recompiling UI file!
 ********************************************************************************/
@@ -185,7 +185,7 @@ public:
     QHBoxLayout *horizontalLayout_9;
     QPushButton *prevNormalImageButton;
     QSpacerItem *horizontalSpacer_3;
-    QLineEdit *lineEdit;
+    QLineEdit *currNormalImageNumberLEdit;
     QSpacerItem *horizontalSpacer_10;
     QPushButton *nextNormalImageButton;
     QVBoxLayout *verticalLayout_6;
@@ -1166,13 +1166,13 @@ public:
 
         horizontalLayout_9->addItem(horizontalSpacer_3);
 
-        lineEdit = new QLineEdit(tabOCTExam);
-        lineEdit->setObjectName(QStringLiteral("lineEdit"));
-        lineEdit->setMinimumSize(QSize(50, 0));
-        lineEdit->setMaximumSize(QSize(100, 16777215));
-        lineEdit->setAlignment(Qt::AlignCenter);
+        currNormalImageNumberLEdit = new QLineEdit(tabOCTExam);
+        currNormalImageNumberLEdit->setObjectName(QStringLiteral("currNormalImageNumberLEdit"));
+        currNormalImageNumberLEdit->setMinimumSize(QSize(50, 0));
+        currNormalImageNumberLEdit->setMaximumSize(QSize(100, 16777215));
+        currNormalImageNumberLEdit->setAlignment(Qt::AlignCenter);
 
-        horizontalLayout_9->addWidget(lineEdit);
+        horizontalLayout_9->addWidget(currNormalImageNumberLEdit);
 
         horizontalSpacer_10 = new QSpacerItem(40, 20, QSizePolicy::Expanding, QSizePolicy::Minimum);
 
@@ -2188,7 +2188,7 @@ public:
         currImageNumberLEdit->setText(QApplication::translate("OCTAnnotate", "0", 0));
         nextImageButton->setText(QApplication::translate("OCTAnnotate", "Ni\305\274ej", 0));
         prevNormalImageButton->setText(QApplication::translate("OCTAnnotate", "Lewo", 0));
-        lineEdit->setText(QApplication::translate("OCTAnnotate", "0", 0));
+        currNormalImageNumberLEdit->setText(QApplication::translate("OCTAnnotate", "0", 0));
         nextNormalImageButton->setText(QApplication::translate("OCTAnnotate", "Prawo", 0));
         editLayerGBox->setTitle(QApplication::translate("OCTAnnotate", "Edycja warstwy", 0));
         pcvLayerRButton->setText(QApplication::translate("OCTAnnotate", "PCV", 0));

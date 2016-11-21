@@ -1997,6 +1997,7 @@ void PatientData::setOCTdata(QImage bscan, int bscanNumber){
 void PatientData::resetFlatDifferences(){
     // clear memory
     this->flatDifferences.clear();
+    this->flatDifferencesRPE.clear();
 
     // create empty matrix
     QList<int> row;
@@ -2006,6 +2007,7 @@ void PatientData::resetFlatDifferences(){
     }
     for (int j=0; j < this->bscansNumber; j++){
         this->flatDifferences.insert(j, row);
+        this->flatDifferencesRPE.insert(j,row);
     }
 }
 

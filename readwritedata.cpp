@@ -453,7 +453,7 @@ void ReadWriteData::readFileManualSegmentation(QFile *dataFile){
         if (line.contains("<?")){
             dataFile->reset();
             // read as xml
-            tasks = 1 + 12 + 1 + 12 + pData->getBscansNumber();
+            tasks = 1 + 12 + 1 + 12 + 2*pData->getBscansNumber();
             QList<int> voxelSize;
             QXmlStreamReader xml(dataFile);
             xml.readNextStartElement();
@@ -528,6 +528,11 @@ void ReadWriteData::readFileManualSegmentation(QFile *dataFile){
         emit processingData(count, "Trwa uzupełnianie danych...");
         for (int i=0; i < pData->getBscansNumber(); i++){
             pData->fillContactArea(i);
+            emit processingData((++count)/tasks*100,"");
+        }
+        emit processingData(count, "Trwa obliczanie współczynników wypłaszczania warstw...");
+        for (int i=0; i < pData->getBscansNumber(); i++){
+            // pData->calculateFlatteningRPE(i);
             emit processingData((++count)/tasks*100,"");
         }
     }

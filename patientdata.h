@@ -244,6 +244,10 @@ public:
     QList<int> getFlatDifferences(int bscanNumber);
     QList<int> getFlatDifferencesNormal(int bscanNormalNumber);
     int getFlatDifference(int bscanNumber, int bscanColumn);
+    void calculateFlatDifferencesRPE(int bscanNumber);
+//    QList<int> getFlatDifferencesRPE(int bscanNumber);
+//    QList<int> getFlatDifferencesNormalRPE(int bscanNormalNumber);
+//    int getFlatDifferenceRPE(int bscanNumber, int bscanColumn);
 
     // ratios
     void calculateRatios();
@@ -381,6 +385,7 @@ private:
     QTime examTime;
     QList< QList< QList<int> > > octdata;
     QList< QList<int> > flatDifferences;
+    QList< QList<int> > flatDifferencesRPE;
 
     // ratios
     double areaUnit;

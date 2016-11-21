@@ -546,6 +546,7 @@ void OCTAnnotate::loadNormalImage(int normalImageNumber){
 
     // display image
     ui->bScanVCPlot->axisRect()->setBackground(QPixmap::fromImage(normalImage),true,Qt::IgnoreAspectRatio);
+    ui->currNormalImageNumberLEdit->setText(QString::number(currentNormalImageNumber));
     // scale
 
     // display annotations

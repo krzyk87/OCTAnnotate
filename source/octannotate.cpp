@@ -1521,6 +1521,11 @@ void OCTAnnotate::drawLayer(QPoint endPoint, QPoint prevPoint){
             saveLayer(endPoint, "draw");
         }
 
+        // if changed layer is RPE -> recalculate image flattening differences
+        if (selectedLayer == CHR){
+            patientData.calculateFlatDifferencesRPE(currentImageNumber);
+        }
+
         // draw new pixels
         QList<QPoint> pointsList = patientData.getLayerPoints(currentImageNumber, selectedLayer, min, max);
         int pointsCount = pointsList.count();
@@ -1599,6 +1604,11 @@ void OCTAnnotate::drawLayerNormal(QPoint endPoint, QPoint prevPoint){
             saveLayerNormal(endPoint, "draw", prevPoint);
         } else{
             saveLayerNormal(endPoint, "draw");
+        }
+
+        // if changed layer is RPE -> recalculate image flattening differences
+        if (selectedLayer == CHR){
+            patientData.calculateFlatDifferencesNormalRPE(currentNormalImageNumber);
         }
 
         // draw new pixels

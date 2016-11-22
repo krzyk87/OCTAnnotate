@@ -2062,6 +2062,18 @@ void PatientData::calculateFlatDifferencesRPE(int bscanNumber){
     this->flatDifferencesRPE[bscanNumber] = differences;
 }
 
+void PatientData::calculateFlatDifferencesNormalRPE(int bscanNormalNumber){
+    int bottom_val = 320+160;
+
+    for (int c=0; c < this->bscansNumber; c++){
+        QPoint rpeValue = this->Bscans[c].layers[CHR].getPoint(bscanNormalNumber);
+        if (rpeValue.y() != -1)
+            this->flatDifferencesRPE[c][bscanNormalNumber] = bottom_val - rpeValue.y();
+        else
+            this->flatDifferencesRPE[c][bscanNormalNumber] = 0;
+    }
+}
+
 QList<int> PatientData::getFlatDifferencesRPE(int bscanNumber){
     return this->flatDifferencesRPE.at(bscanNumber);
 }

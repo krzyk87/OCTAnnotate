@@ -245,6 +245,7 @@ public:
     QList<int> getFlatDifferencesNormal(int bscanNormalNumber);
     int getFlatDifference(int bscanNumber, int bscanColumn);
     void calculateFlatDifferencesRPE(int bscanNumber);
+    void calculateFlatDifferencesNormalRPE(int bscanNormalNumber);
     QList<int> getFlatDifferencesRPE(int bscanNumber);
     QList<int> getFlatDifferencesNormalRPE(int bscanNormalNumber);
     int getFlatDifferenceRPE(int bscanNumber, int bscanColumn);

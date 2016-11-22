@@ -1,7 +1,7 @@
 /********************************************************************************
 ** Form generated from reading UI file 'octannotate.ui'
 **
-** Created by: Qt User Interface Compiler version 5.4.1
+** Created by: Qt User Interface Compiler version 5.4.2
 **
 ** WARNING! All changes made in this file will be lost when recompiling UI file!
 ********************************************************************************/
@@ -46,10 +46,7 @@ class Ui_OCTAnnotate
 public:
     QAction *actionSaveGeneralExam;
     QAction *actionSaveOCTExam;
-    QAction *actionLoadPatientGeneral;
     QAction *actionLoadPatientOCT;
-    QAction *actionAddPatientNew;
-    QAction *actionAddPatientOCT;
     QAction *actionChangeLayerColor;
     QAction *actionSetScanCenter;
     QAction *actionClose;
@@ -65,7 +62,6 @@ public:
     QAction *actionSettings;
     QAction *actionShowCenterOnBscan;
     QAction *actionComputeErrorAllScans;
-    QAction *actionCreateManualSegmentationFromOCTExplorer;
     QAction *actionComputeStatistics;
     QAction *actionImageFlattening;
     QAction *actionEditAnnotations;
@@ -362,7 +358,6 @@ public:
     QSpacerItem *verticalSpacer_4;
     QMenuBar *menuBar;
     QMenu *menuPatient;
-    QMenu *menuExisting;
     QMenu *menuAnnotations;
     QMenu *menuProgram;
     QMenu *menuFillLineFrom;
@@ -386,16 +381,8 @@ public:
         actionSaveOCTExam = new QAction(OCTAnnotate);
         actionSaveOCTExam->setObjectName(QStringLiteral("actionSaveOCTExam"));
         actionSaveOCTExam->setEnabled(true);
-        actionLoadPatientGeneral = new QAction(OCTAnnotate);
-        actionLoadPatientGeneral->setObjectName(QStringLiteral("actionLoadPatientGeneral"));
-        actionLoadPatientGeneral->setEnabled(false);
         actionLoadPatientOCT = new QAction(OCTAnnotate);
         actionLoadPatientOCT->setObjectName(QStringLiteral("actionLoadPatientOCT"));
-        actionAddPatientNew = new QAction(OCTAnnotate);
-        actionAddPatientNew->setObjectName(QStringLiteral("actionAddPatientNew"));
-        actionAddPatientNew->setEnabled(false);
-        actionAddPatientOCT = new QAction(OCTAnnotate);
-        actionAddPatientOCT->setObjectName(QStringLiteral("actionAddPatientOCT"));
         actionChangeLayerColor = new QAction(OCTAnnotate);
         actionChangeLayerColor->setObjectName(QStringLiteral("actionChangeLayerColor"));
         actionSetScanCenter = new QAction(OCTAnnotate);
@@ -434,8 +421,6 @@ public:
         actionShowCenterOnBscan->setChecked(true);
         actionComputeErrorAllScans = new QAction(OCTAnnotate);
         actionComputeErrorAllScans->setObjectName(QStringLiteral("actionComputeErrorAllScans"));
-        actionCreateManualSegmentationFromOCTExplorer = new QAction(OCTAnnotate);
-        actionCreateManualSegmentationFromOCTExplorer->setObjectName(QStringLiteral("actionCreateManualSegmentationFromOCTExplorer"));
         actionComputeStatistics = new QAction(OCTAnnotate);
         actionComputeStatistics->setObjectName(QStringLiteral("actionComputeStatistics"));
         actionImageFlattening = new QAction(OCTAnnotate);
@@ -2013,9 +1998,6 @@ public:
         menuBar->setGeometry(QRect(0, 0, 1260, 21));
         menuPatient = new QMenu(menuBar);
         menuPatient->setObjectName(QStringLiteral("menuPatient"));
-        menuExisting = new QMenu(menuPatient);
-        menuExisting->setObjectName(QStringLiteral("menuExisting"));
-        menuExisting->setEnabled(false);
         menuAnnotations = new QMenu(menuPatient);
         menuAnnotations->setObjectName(QStringLiteral("menuAnnotations"));
         menuProgram = new QMenu(menuBar);
@@ -2035,11 +2017,7 @@ public:
         menuBar->addAction(menuProgram->menuAction());
         menuBar->addAction(menuPatient->menuAction());
         menuBar->addAction(menuCompute->menuAction());
-        menuPatient->addAction(menuExisting->menuAction());
-        menuPatient->addAction(actionAddPatientNew);
-        menuPatient->addSeparator();
         menuPatient->addAction(actionLoadPatientOCT);
-        menuPatient->addAction(actionLoadPatientGeneral);
         menuPatient->addAction(actionSaveOCTExam);
         menuPatient->addAction(actionSaveGeneralExam);
         menuPatient->addSeparator();
@@ -2063,7 +2041,6 @@ public:
         menuFillLineFrom->addAction(actionFillFromILM);
         menuFillLineFrom->addAction(actionFillStraight);
         menuCompute->addAction(actionComputeErrorAllScans);
-        menuCompute->addAction(actionCreateManualSegmentationFromOCTExplorer);
         menuCompute->addAction(actionComputeStatistics);
         toolBar->addAction(actionImageFlattening);
         toolBar->addAction(actionEditAnnotations);
@@ -2081,10 +2058,7 @@ public:
         OCTAnnotate->setWindowTitle(QApplication::translate("OCTAnnotate", "OCTAnnotate", 0));
         actionSaveGeneralExam->setText(QApplication::translate("OCTAnnotate", "Zapisz badanie og\303\263lne", 0));
         actionSaveOCTExam->setText(QApplication::translate("OCTAnnotate", "Zapisz badanie OCT", 0));
-        actionLoadPatientGeneral->setText(QApplication::translate("OCTAnnotate", "Wczytaj badanie og\303\263lne", 0));
         actionLoadPatientOCT->setText(QApplication::translate("OCTAnnotate", "Wczytaj badanie OCT", 0));
-        actionAddPatientNew->setText(QApplication::translate("OCTAnnotate", "Utw\303\263rz nowego", 0));
-        actionAddPatientOCT->setText(QApplication::translate("OCTAnnotate", "Dodaj z badania OCT", 0));
         actionChangeLayerColor->setText(QApplication::translate("OCTAnnotate", "Zmie\305\204 kolor warstwy", 0));
         actionSetScanCenter->setText(QApplication::translate("OCTAnnotate", "Ustaw \305\233rodek skanu", 0));
         actionClose->setText(QApplication::translate("OCTAnnotate", "Zamknij", 0));
@@ -2100,7 +2074,6 @@ public:
         actionSettings->setText(QApplication::translate("OCTAnnotate", "Ustawienia", 0));
         actionShowCenterOnBscan->setText(QApplication::translate("OCTAnnotate", "Poka\305\274 \305\233rodek skanu na B-skanie", 0));
         actionComputeErrorAllScans->setText(QApplication::translate("OCTAnnotate", "MSE dla wszystkich skan\303\263w", 0));
-        actionCreateManualSegmentationFromOCTExplorer->setText(QApplication::translate("OCTAnnotate", "Utw\303\263rz r\304\231czne segmentacje z OCTExplorer'a", 0));
         actionComputeStatistics->setText(QApplication::translate("OCTAnnotate", "Statystyk\304\231 trakcji dla wybranych skan\303\263w Avanti", 0));
         actionImageFlattening->setText(QApplication::translate("OCTAnnotate", "Wyprostowanie obrazu", 0));
 #ifndef QT_NO_TOOLTIP
@@ -2306,7 +2279,6 @@ public:
         label_42->setText(QApplication::translate("OCTAnnotate", "Wirtualna mapa automatycznej segmentacji:", 0));
         tabWidget->setTabText(tabWidget->indexOf(tabErrorAnalysis), QApplication::translate("OCTAnnotate", "Analiza b\305\202\304\231du", 0));
         menuPatient->setTitle(QApplication::translate("OCTAnnotate", "Pacjent", 0));
-        menuExisting->setTitle(QApplication::translate("OCTAnnotate", "Istniej\304\205cy", 0));
         menuAnnotations->setTitle(QApplication::translate("OCTAnnotate", "Segmentacja", 0));
         menuProgram->setTitle(QApplication::translate("OCTAnnotate", "Program", 0));
         menuFillLineFrom->setTitle(QApplication::translate("OCTAnnotate", "Uzupe\305\202nij lini\304\231 na podstawie punkt\303\263w", 0));

@@ -402,14 +402,21 @@ void ReadWriteData::readOctExamData(){
 
     // read fundus image
     emit processingData(++count, "Trwa odczyt obrazu fundus...");
-    QImage fundus;
+    QImage fundus = QImage(pData->getBscanWidth(), pData->getBscansNumber(), QImage::Format_Indexed8);
+    fundus.fill(0);
+
+    QString fundusFilePathExpl = octDir->absolutePath().append("/" + octDir->dirName() + "_Proj_Iowa.tif");
     QString fundusFilePath = octDir->absolutePath().append("/fnds_rec.bmp");
-    if (QFile(fundusFilePath).exists()){
+    if (QFile(fundusFilePathExpl).exists()){
+        fundus = QImage(fundusFilePathExpl);
+    } else if (QFile(fundusFilePath).exists()){
         fundus = QImage(fundusFilePath);
-        if (device == COPERNICUS){
-            fundus = fundus.mirrored(false,true);
-        } else if (device == AVANTI){
-            // contrast enhancement
+    }
+
+    if (device == COPERNICUS){
+        fundus = fundus.mirrored(false,true);
+    } else if (device == AVANTI){
+        // contrast enhancement
 //            for (int j=0; j<fundus.height(); j++){
 //                for (int i=0; i<fundus.width(); i++){
 //                    int value = QColor::fromRgb(fundus.pixel(i,j)).red();
@@ -419,13 +426,6 @@ void ReadWriteData::readOctExamData(){
 //                }
 //                emit processingData((++count)/tasks*100,"");
 //            }
-        } else {
-            fundus = QImage(pData->getBscanWidth(), pData->getBscansNumber(), QImage::Format_Indexed8);
-            fundus.fill(0);
-        }
-    } else {
-        fundus = QImage(pData->getBscanWidth(), pData->getBscansNumber(), QImage::Format_Indexed8);
-        fundus.fill(0);
     }
     pData->setFundusImage(fundus);
 
@@ -438,7 +438,7 @@ void ReadWriteData::readOctExamData(){
 void ReadWriteData::readFileManualSegmentation(QFile *dataFile){
     QString line;
     QPoint p(-1,-1);
-    double tasks = 1 + 12*pData->getBscansNumber() + 12 + pData->getBscansNumber();
+    double tasks = 1 + 13*pData->getBscansNumber() + 13 + pData->getBscansNumber();
     double count = 0;
     emit processingData(0, "Trwa odczyt danych ręcznej segmentacji...");
 
@@ -453,7 +453,8 @@ void ReadWriteData::readFileManualSegmentation(QFile *dataFile){
         if (line.contains("<?")){
             dataFile->reset();
             // read as xml
-            tasks = 1 + 12 + 1 + 12 + 2*pData->getBscansNumber();
+            int bn = pData->getBscansNumber();
+            tasks = 1 + 13*bn + 1 + 3*bn;
             QList<int> voxelSize;
             QXmlStreamReader xml(dataFile);
             xml.readNextStartElement();
@@ -465,7 +466,8 @@ void ReadWriteData::readFileManualSegmentation(QFile *dataFile){
                         emit processingData((++count)/tasks*100,"");
                     } else if (xml.name() == "surface"){
                         parseXmlSurfaceLines(xml);
-                        emit processingData((++count)/tasks*100,"");
+                        count += bn;
+                        emit processingData((count)/tasks*100,"");
                     } else if (xml.name() == "undefined_region"){
                         parseUndefinedRegion(xml);
                         emit processingData((++count)/tasks*100,"");
@@ -752,7 +754,7 @@ void ReadWriteData::parseXmlSurfaceLines(QXmlStreamReader &xml, bool isAuto){
                     xml.readNext();
                 }
                 scanNumber++;
-                emit processingData((scanNumber)/pData->getBscansNumber()*100,"");
+//                emit processingData((scanNumber)/pData->getBscansNumber()*100,"");
             }
         }
         xml.readNext();

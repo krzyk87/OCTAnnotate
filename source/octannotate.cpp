@@ -514,9 +514,6 @@ void OCTAnnotate::loadImage(int imageNumber){
         // display annotations
         displayAnnotations(flatDiff);
 
-//        ui->zoomInButton->setEnabled(true);
-//        ui->zoomOutButton->setEnabled(true);
-
         // display image name
         ui->imageNumberLabel->setText(imageFileInfo.fileName());
         ui->currImageNumberLEdit->setText(QString::number(currentImageNumber));
@@ -618,10 +615,7 @@ void OCTAnnotate::on_currImageNumberLEdit_returnPressed()
 
         loadImage(value);
         fundusAnnotate = true;
-        //displayVirtualMap(ui->virtualMapImageCPlot);
-        //displayVirtualMap(ui->virtualMapAutoImageCPlot, true);
         currentImageLayersNumber = currentImageNumber;
-        //displayImageLayersPlot(currentImageLayersNumber);
         ui->currImageNumberLEdit->clearFocus();
     }
 }
@@ -1294,13 +1288,6 @@ void OCTAnnotate::keyReleaseEvent(QKeyEvent *keyEvent){
     if (keyEvent->key() == Qt::Key_Control){
         isControlPressed = false;
     }
-}
-
-void OCTAnnotate::resizeEvent(QResizeEvent*){
-//    scaleFactorX = (double)(scrollArea->width()-20) / (double)(patientData.getBscanWidth());
-//    scaleFactorY = (double)(scrollArea->height()-2) / (double)(patientData.getBscanHeight());
-//    bscanLabel->resize(scrollArea->width()-20, orgImageSize.height() * scaleFactorY);
-//    bscan2Label->resize(scrollArea2->width()-20, orgImageSize.height() * scaleFactorY);
 }
 
 void OCTAnnotate::paintEvent(QPaintEvent *){
@@ -3017,14 +3004,29 @@ void OCTAnnotate::rescaleImage(){
     ui->bScanVCPlot->yAxis->setRange(bscanRange);
 
     QImage image(patientData.getImageFileList().at(currentImageNumber));
+    QImage normalImage = patientData.getNormalImage(currentNormalImageNumber);
+
     Calculate *calc = new Calculate();
     calc->imageEnhancement(&image, contrast, brightness);
+    calc->imageEnhancement(&normalImage, contrast, brightness);
+
+    if (flattenImage){
+        QList<int> flatDiff, flatDiffNormal;
+        if (patientData.hasManualAnnotations()){
+            flatDiff = patientData.getFlatDifferencesRPE(currentImageNumber);
+            flatDiffNormal = patientData.getFlatDifferencesNormalRPE(currentNormalImageNumber);
+        } else {
+            flatDiff = patientData.getFlatDifferences(currentImageNumber);
+            flatDiffNormal = patientData.getFlatDifferencesNormal(currentNormalImageNumber);
+        }
+        image = calc->flattenImage(&image, flatDiff);
+        normalImage = calc->flattenImage(&normalImage, flatDiffNormal);
+    }
+
     QImage newImage = image.copy(0,bscanRange.lower,patientData.getBscanWidth(),imageHeight);
     ui->bScanHCPlot->axisRect()->setBackground(QPixmap::fromImage(newImage),true,Qt::IgnoreAspectRatio);
     ui->bScanHCPlot->replot();
 
-    QImage normalImage = patientData.getNormalImage(currentNormalImageNumber);
-    calc->imageEnhancement(&normalImage, contrast, brightness);
     QImage newNormalImage = normalImage.copy(0,bscanRange.lower,patientData.getBscansNumber(),imageHeight);
     ui->bScanVCPlot->axisRect()->setBackground(QPixmap::fromImage(newNormalImage),true,Qt::IgnoreAspectRatio);
     ui->bScanVCPlot->replot();
@@ -3045,31 +3047,52 @@ void OCTAnnotate::changeImageRange(int dir){
     int imageHeight = patientData.getBscanHeight() / scales[scaleFactor];
     QCPRange plotRange = ui->bScanHCPlot->yAxis->range();
     QCPRange newRange;
+    bool rescale = false;
 
     if ((dir > 0) && (plotRange.upper < patientData.getBscanHeight())){
         double upper = qBound(0.0, plotRange.upper + 20, (double)patientData.getBscanHeight());
         newRange = QCPRange(upper - imageHeight, upper);
+        rescale = true;
     } else if ((dir < 0) && (plotRange.lower > 0)){
         double lower = qBound(0.0, plotRange.lower - 20, (double)patientData.getBscanHeight());
         newRange = QCPRange(lower, lower + imageHeight);
+        rescale = true;
     }
-    ui->bScanHCPlot->yAxis->setRange(newRange);
-    ui->bScanVCPlot->yAxis->setRange(newRange);
-    bscanRange = newRange;
 
-    QImage image(patientData.getImageFileList().at(currentImageNumber));
-    Calculate *calc = new Calculate();
-    calc->imageEnhancement(&image, contrast, brightness);
-    double dy = qBound(0, patientData.getBscanHeight() - (int)newRange.upper, patientData.getBscanHeight()-imageHeight);
-    QImage newImage = image.copy(0, dy, patientData.getBscanWidth(), imageHeight);
-    ui->bScanHCPlot->axisRect()->setBackground(QPixmap::fromImage(newImage),true,Qt::IgnoreAspectRatio);
-    ui->bScanHCPlot->replot();
+    if (rescale){
+        ui->bScanHCPlot->yAxis->setRange(newRange);
+        ui->bScanVCPlot->yAxis->setRange(newRange);
+        bscanRange = newRange;
 
-    QImage normalImage = patientData.getNormalImage(currentNormalImageNumber);
-    calc->imageEnhancement(&normalImage, contrast, brightness);
-    QImage newNormalImage = normalImage.copy(0,dy,patientData.getBscansNumber(),imageHeight);
-    ui->bScanVCPlot->axisRect()->setBackground(QPixmap::fromImage(newNormalImage),true,Qt::IgnoreAspectRatio);
-    ui->bScanVCPlot->replot();
+        Calculate *calc = new Calculate();
+        QImage image(patientData.getImageFileList().at(currentImageNumber));
+        QImage normalImage = patientData.getNormalImage(currentNormalImageNumber);
+
+        calc->imageEnhancement(&image, contrast, brightness);
+        calc->imageEnhancement(&normalImage, contrast, brightness);
+
+        if (flattenImage){
+            QList<int> flatDiff, flatDiffNormal;
+            if (patientData.hasManualAnnotations()){
+                flatDiff = patientData.getFlatDifferencesRPE(currentImageNumber);
+                flatDiffNormal = patientData.getFlatDifferencesNormalRPE(currentNormalImageNumber);
+            } else {
+                flatDiff = patientData.getFlatDifferences(currentImageNumber);
+                flatDiffNormal = patientData.getFlatDifferencesNormal(currentNormalImageNumber);
+            }
+            image = calc->flattenImage(&image, flatDiff);
+            normalImage = calc->flattenImage(&normalImage, flatDiffNormal);
+        }
+
+        double dy = qBound(0, patientData.getBscanHeight() - (int)newRange.upper, patientData.getBscanHeight()-imageHeight);
+        QImage newImage = image.copy(0, dy, patientData.getBscanWidth(), imageHeight);
+        ui->bScanHCPlot->axisRect()->setBackground(QPixmap::fromImage(newImage),true,Qt::IgnoreAspectRatio);
+        ui->bScanHCPlot->replot();
+
+        QImage newNormalImage = normalImage.copy(0,dy,patientData.getBscansNumber(),imageHeight);
+        ui->bScanVCPlot->axisRect()->setBackground(QPixmap::fromImage(newNormalImage),true,Qt::IgnoreAspectRatio);
+        ui->bScanVCPlot->replot();
+    }
 }
 
 void OCTAnnotate::adjustScrollBar(QScrollBar *scrollBar, double factor)
@@ -4276,10 +4299,7 @@ void OCTAnnotate::on_actionSetAutoSegmentationAsManual_triggered()
             }
         }
         on_tabWidget_currentChanged();
-
         octDataModified = true;
-//        QList<int> flatDiff;
-//        displayAnnotations(flatDiff);
 
         QMessageBox::information(this, "OCTAnnotate", "Oznaczenia automatycznej segmentacji warstw zostały skopiowane jako oznaczenia ręczne.");
     }
@@ -4527,65 +4547,6 @@ void OCTAnnotate::on_actionFillStraight_triggered()
     }
 }
 
-/*void OCTAnnotate::on_actionAddPatientNew_triggered()
-{
-    NewPatientDialog *newPatientDialog = new NewPatientDialog();
-    int result = newPatientDialog->exec();
-
-    if (result == QDialog::Accepted) {
-        ui->lastNameLEdit->setText(newPatientDialog->getLastName());
-        ui->firstNameLEdit->setText(newPatientDialog->getFirstName());
-        ui->birthDateEdit->setDate(newPatientDialog->getBirthDate());
-        ui->genderCBox->setCurrentIndex(newPatientDialog->getGender());
-    }
-}*/
-
-/*void OCTAnnotate::on_actionLoadPatientGeneral_triggered()
-{
-    QMessageBox msgBox;
-    QPushButton *saveButton = msgBox.addButton(" Zapisz i wczytaj nowe badanie ", QMessageBox::YesRole);
-    QPushButton *cancelButton = msgBox.addButton(" Anuluj ", QMessageBox::RejectRole);
-    msgBox.addButton(" Wczytaj nowe badanie bez zapisywania ", QMessageBox::NoRole);
-    bool selectNew = true;
-
-    if (generalDataModified){
-        msgBox.setText("Informacje o badaniu okulistycznym zostały zmienione. Czy chcesz zapisać zmiany przed otwarciem nowego badania?");
-        msgBox.exec();
-        if (msgBox.clickedButton() == saveButton){  // save data before quit
-            on_actionSaveGeneralExam_triggered();
-        } else if (msgBox.clickedButton() == cancelButton) {   // quit without saving
-            selectNew = false;
-        }
-    }
-    if (octDataModified){
-        msgBox.setText("Anotacje badania OCT zostały zmienione. Czy zapisać zmiany przed wczytaniem nowego badania?");
-        msgBox.exec();
-        if (msgBox.clickedButton() == saveButton){
-            on_actionSaveOCTExam_triggered();
-        } else if (msgBox.clickedButton() == cancelButton) {
-            selectNew = false;
-        }
-    }
-
-    if (selectNew){
-        // okno wyboru osoby z listy plików
-        QString fileName = QFileDialog::getOpenFileName(this, tr("Open General Exam File"), manualDir.path(), tr("General Exam Data File (*.ged)"));
-        if (!fileName.isEmpty()){
-
-            QFileInfo fileInfo = QFileInfo(fileName);
-            QString baseName = fileInfo.baseName();
-            QStringList list = baseName.split("_");
-            patientData.lastName = list.at(0);
-            patientData.firstName = list.at(1);
-
-            readGeneralExamData();
-            ui->lastNameLEdit->setText(patientData.lastName);
-            ui->firstNameLEdit->setText(patientData.firstName);
-            ui->actionSaveGeneralExam->setEnabled(true);
-        }
-    }
-}*/
-
 void OCTAnnotate::on_actionSettings_triggered()
 {
     SettingsDialog *settingsDialog = new SettingsDialog();
@@ -4810,9 +4771,6 @@ void OCTAnnotate::on_readingDataFinished(QString data){
     currentImageLayersNumber = currentImageNumber;
     currentNormalImageNumber = patientData.getBscanWidth()/2;
 
-//    scaleFactorX = (double)(scrollArea->width()-20) / (double)(patientData.getBscanWidth());
-//    scaleFactorY = (double)(scrollArea->height()-2) / (double)(patientData.getBscanHeight());
-
     // enable navigation buttons
     if (currentImageNumber < (patientData.getBscansNumber()-1)){
         ui->nextImageButton->setEnabled(true);
@@ -4882,58 +4840,6 @@ void OCTAnnotate::on_savingDataFinished(QString data){
 
 void OCTAnnotate::on_returnNewDirectory(QString newDir){
     octDir = QDir(newDir);
-}
-
-void OCTAnnotate::on_actionCreateManualSegmentationFromOCTExplorer_triggered(QList<QString> folderList)
-{
-    // MGR BERA
-//    folderList.append("NAZWISKO1_IMIE1_2014_07_01_12_32_22_R_Centralna_3D_8,00 mm_ 800x100"); // 1
-//    folderList.append("NAZWISKO2_IMIE2_2014_09_19_09_51_09_R_Centralna_3D_8,00 mm_ 800x100"); // 1
-//    folderList.append("NAZWISKO3_IMIE3_2014_08_12_13_06_42_R_Centralna_3D_8,00 mm_ 800x100"); // 1
-//    folderList.append("NAZWISKO4_IMIE4_2014_09_23_10_20_06_L_Centralna_3D_8,00 mm_ 799x100"); // 1
-//    folderList.append("NAZWISKO5_IMIE5_2013_11_21_10_00_12_L_Centralna_3D_8,00 mm_ 800x100"); // 1
-//    folderList.append("NAZWISKO6_IMIE6_2013_11_26_12_19_00_R_Centralna_3D_8,00 mm_ 800x100"); // 1
-//    folderList.append("NAZWISKO7_IMIE7_2013_12_03_12_28_38_R_Centralna_3D_8,00 mm_ 800x100"); // 1
-//    folderList.append("NAZWISKO8_IMIE8_2015_01_16_11_07_02_L_Centralna_3D_8,00 mm_ 800x100"); // 1
-//    folderList.append("NAZWISKO9_IMIE9_2014_04_23_10_46_49_L_Centralna_3D_8,00 mm_ 800x100"); // 1
-//    folderList.append("NAZWISKO10_IMIE10_2014_09_16_14_14_56_R_Centralna_3D_8,00 mm_ 800x100"); // 1
-
-    foreach(QString folderName, folderList){
-        QDir fn = QDir(folderName);
-        QString scanName = fn.dirName();
-        qDebug() << "Processing... " + scanName;
-
-        // read oct scan -----------------------------------------------------------------------------------------------------------
-        octDir = QDir(folderName + "/");
-        autoDir = QDir(folderName + "/");
-
-        patientData = PatientData();
-
-        ReadWriteData *rwData = new ReadWriteData();
-        rwData->setDataObject(&patientData);
-        rwData->setDirectoryOct(&octDir);
-        rwData->setDirectoryManual(&manualDir);
-        rwData->setDirectoryAuto(&autoDir);
-        rwData->setAutoFilePath(folderName + "/" + scanName + "_Surfaces_Iowa.xml");
-        rwData->setDataSaveStrucure(dataSaveStructure);
-        rwData->addDirective("readPatientData");
-        rwData->addDirective("readOctExamData");
-        rwData->addDirective("readAutoSegmentationData");
-        rwData->addDirective("copyAutoAsManualAll");
-        rwData->addDirective("saveManualSegmentationData");
-
-        QThread *thread = new QThread;
-        rwData->moveToThread(thread);
-        connect(thread, SIGNAL(started()), rwData, SLOT(process()));
-        connect(rwData, SIGNAL(errorOccured(QString)), this, SLOT(on_errorOccured(QString)));
-        connect(rwData, SIGNAL(processingData(double,QString)), this, SLOT(on_processingData(double,QString)));
-        connect(rwData, SIGNAL(finished()), thread, SLOT(quit()));
-        connect(rwData, SIGNAL(finished()), rwData, SLOT(deleteLater()));
-        connect(thread, SIGNAL(finished()), thread, SLOT(deleteLater()));
-        thread->start();
-        thread->wait(30*1000);
-//        thread->wait();
-    }
 }
 
 void OCTAnnotate::on_actionComputeStatistics_triggered()
@@ -5438,6 +5344,7 @@ void OCTAnnotate::on_batchProcessingButton_clicked()
     batchDialog->setModal(true);
     batchDialog->show();
 
+    // refresh data views
 //    modelPatients->select();
 //    modelScans->select();
 }

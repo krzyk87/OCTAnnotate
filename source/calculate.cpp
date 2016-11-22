@@ -817,20 +817,21 @@ QList<int> Calculate::calculateFlatteningDifferences(QImage *img){
 QImage Calculate::flattenImage(QImage *img, QList<int> flatDiff){
     QImage imgFlat = QImage(img->size(),img->format());
     imgFlat.fill(0);
+    uint value = 0;
 
     int imgHeight = img->height();
     for (int c=0; c < img->width(); c++){
         if (flatDiff[c] >= 0){
             for (int y=0; y < (imgHeight - flatDiff[c]); y++){
-                int value = qRed(img->pixel(c,y));
+                value = (uint)qRed(img->pixel(c,y));
                 imgFlat.setColor(value, qRgb(value, value, value));
                 imgFlat.setPixel(c, y + flatDiff[c], value);
             }
         } else {
             for (int y=(0-flatDiff[c]); y < imgHeight; y++){
-                int value = qRed(img->pixel(c,y));
+                value = (uint)qRed(img->pixel(c,y));
                 imgFlat.setColor(value, qRgb(value, value, value));
-                imgFlat.setPixel(c, y + flatDiff[c], img->pixel(c,y));
+                imgFlat.setPixel(c, y + flatDiff[c], value);
             }
         }
     }

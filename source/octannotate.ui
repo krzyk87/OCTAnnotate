@@ -3843,14 +3843,6 @@
     <property name="title">
      <string>Pacjent</string>
     </property>
-    <widget class="QMenu" name="menuExisting">
-     <property name="enabled">
-      <bool>false</bool>
-     </property>
-     <property name="title">
-      <string>Istniejący</string>
-     </property>
-    </widget>
     <widget class="QMenu" name="menuAnnotations">
      <property name="title">
       <string>Segmentacja</string>
@@ -3863,11 +3855,7 @@
      <addaction name="actionReadManualAnnotations"/>
      <addaction name="actionSetAutoSegmentationAsManual"/>
     </widget>
-    <addaction name="menuExisting"/>
-    <addaction name="actionAddPatientNew"/>
-    <addaction name="separator"/>
     <addaction name="actionLoadPatientOCT"/>
-    <addaction name="actionLoadPatientGeneral"/>
     <addaction name="actionSaveOCTExam"/>
     <addaction name="actionSaveGeneralExam"/>
     <addaction name="separator"/>
@@ -3899,7 +3887,6 @@
      <string>Oblicz</string>
     </property>
     <addaction name="actionComputeErrorAllScans"/>
-    <addaction name="actionCreateManualSegmentationFromOCTExplorer"/>
     <addaction name="actionComputeStatistics"/>
    </widget>
    <addaction name="menuProgram"/>
@@ -3933,30 +3920,9 @@
     <string>Zapisz badanie OCT</string>
    </property>
   </action>
-  <action name="actionLoadPatientGeneral">
-   <property name="enabled">
-    <bool>false</bool>
-   </property>
-   <property name="text">
-    <string>Wczytaj badanie ogólne</string>
-   </property>
-  </action>
   <action name="actionLoadPatientOCT">
    <property name="text">
     <string>Wczytaj badanie OCT</string>
-   </property>
-  </action>
-  <action name="actionAddPatientNew">
-   <property name="enabled">
-    <bool>false</bool>
-   </property>
-   <property name="text">
-    <string>Utwórz nowego</string>
-   </property>
-  </action>
-  <action name="actionAddPatientOCT">
-   <property name="text">
-    <string>Dodaj z badania OCT</string>
    </property>
   </action>
   <action name="actionChangeLayerColor">
@@ -4056,11 +4022,6 @@
   <action name="actionComputeErrorAllScans">
    <property name="text">
     <string>MSE dla wszystkich skanów</string>
-   </property>
-  </action>
-  <action name="actionCreateManualSegmentationFromOCTExplorer">
-   <property name="text">
-    <string>Utwórz ręczne segmentacje z OCTExplorer'a</string>
    </property>
   </action>
   <action name="actionComputeStatistics">

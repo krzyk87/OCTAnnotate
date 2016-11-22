@@ -129,7 +129,6 @@ private slots:
     void on_actionSetAutoSegmentationAsManual_triggered();
     void on_actionSettings_triggered();
     void on_actionComputeErrorAllScans_triggered();
-    void on_actionCreateManualSegmentationFromOCTExplorer_triggered(QList<QString> folderList);
     void on_actionComputeStatistics_triggered();
 
     void on_layerErrorCBox_currentIndexChanged(int index);
@@ -147,7 +146,6 @@ private slots:
     void on_showAllScansRButton_toggled();
     void on_scanListGroupCBox_currentIndexChanged(int index);
 
-//    void on_patientsListTableView_doubleClicked(const QModelIndex &index);
     void on_patientsListTableView_clicked(const QModelIndex &currentIndex);
     void on_scansListTableView_doubleClicked(const QModelIndex &currentIndex);
     void on_scansListTableView_clicked(const QModelIndex &index);
@@ -173,7 +171,6 @@ protected:
     void closeEvent(QCloseEvent * cEvent);
     void keyPressEvent(QKeyEvent *keyEvent);
     void keyReleaseEvent(QKeyEvent *keyEvent);
-    void resizeEvent(QResizeEvent * /*resEvent*/);
 
 private:
     Ui::OCTAnnotate *ui;

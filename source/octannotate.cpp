@@ -9,6 +9,7 @@
 #include "calculate.h"
 #include "readwritedata.h"
 #include "dbmanager.h"
+#include "infodialog.h"
 
 #include <QFileDialog>
 #include <QFile>
@@ -5663,4 +5664,10 @@ void OCTAnnotate::on_searchForScansButton_clicked()
 void OCTAnnotate::on_actionEditAnnotations_toggled(bool state)
 {
     editAnnotations = state;
+}
+
+void OCTAnnotate::on_actionInfo_triggered()
+{
+    InfoDialog *myInfo = new InfoDialog();
+    myInfo->show();
 }

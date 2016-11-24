@@ -65,6 +65,7 @@ public:
     QAction *actionComputeStatistics;
     QAction *actionImageFlattening;
     QAction *actionEditAnnotations;
+    QAction *actionInfo;
     QWidget *centralWidget;
     QHBoxLayout *horizontalLayout_11;
     QTabWidget *tabWidget;
@@ -362,6 +363,7 @@ public:
     QMenu *menuProgram;
     QMenu *menuFillLineFrom;
     QMenu *menuCompute;
+    QMenu *menuInfo;
     QStatusBar *statusBar;
     QToolBar *toolBar;
 
@@ -429,6 +431,8 @@ public:
         actionEditAnnotations = new QAction(OCTAnnotate);
         actionEditAnnotations->setObjectName(QStringLiteral("actionEditAnnotations"));
         actionEditAnnotations->setCheckable(true);
+        actionInfo = new QAction(OCTAnnotate);
+        actionInfo->setObjectName(QStringLiteral("actionInfo"));
         centralWidget = new QWidget(OCTAnnotate);
         centralWidget->setObjectName(QStringLiteral("centralWidget"));
         centralWidget->setMaximumSize(QSize(6000, 3000));
@@ -2006,6 +2010,8 @@ public:
         menuFillLineFrom->setObjectName(QStringLiteral("menuFillLineFrom"));
         menuCompute = new QMenu(menuBar);
         menuCompute->setObjectName(QStringLiteral("menuCompute"));
+        menuInfo = new QMenu(menuBar);
+        menuInfo->setObjectName(QStringLiteral("menuInfo"));
         OCTAnnotate->setMenuBar(menuBar);
         statusBar = new QStatusBar(OCTAnnotate);
         statusBar->setObjectName(QStringLiteral("statusBar"));
@@ -2017,6 +2023,7 @@ public:
         menuBar->addAction(menuProgram->menuAction());
         menuBar->addAction(menuPatient->menuAction());
         menuBar->addAction(menuCompute->menuAction());
+        menuBar->addAction(menuInfo->menuAction());
         menuPatient->addAction(actionLoadPatientOCT);
         menuPatient->addAction(actionSaveOCTExam);
         menuPatient->addAction(actionSaveGeneralExam);
@@ -2042,6 +2049,7 @@ public:
         menuFillLineFrom->addAction(actionFillStraight);
         menuCompute->addAction(actionComputeErrorAllScans);
         menuCompute->addAction(actionComputeStatistics);
+        menuInfo->addAction(actionInfo);
         toolBar->addAction(actionImageFlattening);
         toolBar->addAction(actionEditAnnotations);
 
@@ -2083,6 +2091,7 @@ public:
 #ifndef QT_NO_TOOLTIP
         actionEditAnnotations->setToolTip(QApplication::translate("OCTAnnotate", "Edit Annotations", 0));
 #endif // QT_NO_TOOLTIP
+        actionInfo->setText(QApplication::translate("OCTAnnotate", "Info", 0));
         addPatientDBButton->setText(QApplication::translate("OCTAnnotate", "Dodaj pacjenta", 0));
         editPatientDBButton->setText(QApplication::translate("OCTAnnotate", "Edytuj pacjenta", 0));
         deletePatientDBButton->setText(QApplication::translate("OCTAnnotate", "Usu\305\204 pacjenta", 0));
@@ -2283,6 +2292,7 @@ public:
         menuProgram->setTitle(QApplication::translate("OCTAnnotate", "Program", 0));
         menuFillLineFrom->setTitle(QApplication::translate("OCTAnnotate", "Uzupe\305\202nij lini\304\231 na podstawie punkt\303\263w", 0));
         menuCompute->setTitle(QApplication::translate("OCTAnnotate", "Oblicz", 0));
+        menuInfo->setTitle(QApplication::translate("OCTAnnotate", "Pomoc", 0));
         toolBar->setWindowTitle(QApplication::translate("OCTAnnotate", "toolBar", 0));
     } // retranslateUi
 

@@ -23,7 +23,8 @@ SOURCES += main.cpp\
     readwritedata.cpp \
     computeerrorsettingsdialog.cpp \
     dbmanager.cpp \
-    batchprocessingdialog.cpp
+    batchprocessingdialog.cpp \
+    infodialog.cpp
 
 HEADERS  += octannotate.h \
     patientdata.h \
@@ -35,13 +36,15 @@ HEADERS  += octannotate.h \
     readwritedata.h \
     computeerrorsettingsdialog.h \
     dbmanager.h \
-    batchprocessingdialog.h
+    batchprocessingdialog.h \
+    infodialog.h
 
 FORMS    += octannotate.ui \
     newpatientdialog.ui \
     settingsdialog.ui \
     computeerrorsettingsdialog.ui \
-    batchprocessingdialog.ui
+    batchprocessingdialog.ui \
+    infodialog.ui
 
 #INCLUDEPATH += C:\\opencv\\mybuild\\install\\include
 

@@ -154,6 +154,8 @@ private slots:
 
     void on_actionEditAnnotations_toggled(bool arg1);
 
+    void on_actionInfo_triggered();
+
 public slots:
     void on_errorOccured(QString);
     void on_processingData(double, QString msg = "");

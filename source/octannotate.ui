@@ -3889,9 +3889,16 @@
     <addaction name="actionComputeErrorAllScans"/>
     <addaction name="actionComputeStatistics"/>
    </widget>
+   <widget class="QMenu" name="menuInfo">
+    <property name="title">
+     <string>Pomoc</string>
+    </property>
+    <addaction name="actionInfo"/>
+   </widget>
    <addaction name="menuProgram"/>
    <addaction name="menuPatient"/>
    <addaction name="menuCompute"/>
+   <addaction name="menuInfo"/>
   </widget>
   <widget class="QStatusBar" name="statusBar"/>
   <widget class="QToolBar" name="toolBar">
@@ -4049,6 +4056,11 @@
    </property>
    <property name="toolTip">
     <string>Edit Annotations</string>
+   </property>
+  </action>
+  <action name="actionInfo">
+   <property name="text">
+    <string>Info</string>
    </property>
   </action>
  </widget>

@@ -62,3 +62,5 @@ FORMS    += octannotate.ui \
 
 OTHER_FILES += \
     circ_profile_legend.png
+    logoPUEPS.png
+    logoPUT.png

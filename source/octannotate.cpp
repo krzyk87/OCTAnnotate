@@ -5223,90 +5223,125 @@ void OCTAnnotate::on_addScanFolderButton_clicked(QString folderPath)
         pathOctExam = QFileDialog::getExistingDirectory(this, tr("Open Directory"), examDir.absolutePath(), QFileDialog::ShowDirsOnly);
     else
         pathOctExam = folderPath;
+
     if (!pathOctExam.isEmpty()){
-        QDir newExamDir = QDir(pathOctExam);
+//        QDir newExamDir = QDir(pathOctExam);
 
-        QString examPath = newExamDir.dirName();//examDir.relativeFilePath(pathOctExam);
-        QString filePath = "";
+//        QString examPath = newExamDir.dirName();//examDir.relativeFilePath(pathOctExam);
 
-        if (patientsDB->getScanID(examPath) != -1){
-            QMessageBox::critical(this, tr("Error"), tr("Scan exists in the database!"));
+        addScanToDB(QDir(pathOctExam).dirName());
+    }
+}
+
+void OCTAnnotate::on_addScanFileButton_clicked()
+{
+    QString pathOctExam = QFileDialog::getOpenFileName(this, tr("Open OCT file"), examDir.absolutePath(), tr("Avanti RTvue raw OCT data file (*.OCT)"));
+
+    if (!pathOctExam.isEmpty()){
+        QFile newExamDir(pathOctExam);
+
+        QString examPath = newExamDir.fileName();
+
+        addScanToDB(examPath);
+
+    } else {
+        QMessageBox::critical(this, tr("Error"), "Nieprawidłowy plik! Nie można wczytać danych.");
+    }
+}
+
+void OCTAnnotate::addScanToDB(QString scanPath){
+
+    QString examPath = scanPath;
+    QDir newExamDir;
+    if (scanPath.contains(".OCT")){
+        examPath.chop(4);
+//        newExamDir = QDir(examPath);
+    } else {
+        newExamDir = QDir(examPath);
+    }
+
+    if (patientsDB->getScanID(examPath) != -1){
+        QMessageBox::critical(this, tr("Error"), tr("Scan already exists in the database!"));
+    } else {
+        QString infoFilePathAvanti = newExamDir.absolutePath().append("/" + newExamDir.dirName() + ".txt");
+        QFile infoFileAvanti(infoFilePathAvanti);
+        if (!infoFileAvanti.exists()){
+            infoFilePathAvanti = newExamDir.absolutePath().append(".txt");
+            infoFileAvanti.setFileName(infoFilePathAvanti);
+        }
+        // search for info file in another location...
+        if (!infoFileAvanti.exists()){
+            QMessageBox::critical(this, tr("Error"), tr("Nie można otworzyć pliku z danymi badania (.txt)"));
         } else {
-            QString infoFilePathAvanti = newExamDir.absolutePath().append("/" + newExamDir.dirName() + ".txt");
-            QFile infoFileAvanti(infoFilePathAvanti);
-            if (infoFileAvanti.exists()){
+            QDate birth_date = QDate(1900,1,1);
+            int gender = 3; // undefined
 
-                QDate birth_date = QDate(1900,1,1);
-                int gender = 3; // undefined
+            QStringList fileName = newExamDir.dirName().split(",");
+            if (fileName.count() < 2){   // zabezpieczenie przed nieodpowiednim katalogiem...
+                QMessageBox::critical(this, tr("Error"), "Nieprawidłowy katalog! Nie można wczytać danych.");
+            } else {
+                QStringList fileName2 = fileName.at(1).split(" ");
 
-                QStringList fileName = newExamDir.dirName().split(",");
-                if (fileName.count() < 2){   // zabezpieczenie przed nieodpowiednim katalogiem...
-                    QMessageBox::critical(this, tr("Error"), "Nieprawidłowy katalog! Nie można wczytać danych.");
-                } else {
-                    QStringList fileName2 = fileName.at(1).split(" ");
+                QString lastName = fileName.at(0);
+                QString firstName = fileName2.at(1);
 
-                    QString lastName = fileName.at(0);
-                    QString firstName = fileName2.at(1);
+                QStringList examId = fileName2.at(2).split("_");
+                QStringList examCode = fileName2.at(3).split("_");
+                QString examType = examId.at(2) + " " + examCode.at(0);
+                QString eye = examCode.at(1);
+                QDate examDate = QDate::fromString(examCode.at(2),"yyyy-MM-dd");
+                QTime examTime = QTime::fromString(examCode.at(3),"hh.mm.ss");
 
-                    QStringList examId = fileName2.at(2).split("_");
-                    QStringList examCode = fileName2.at(3).split("_");
-                    QString examType = examId.at(2) + " " + examCode.at(0);
-                    QString eye = examCode.at(1);
-                    QDate examDate = QDate::fromString(examCode.at(2),"yyyy-MM-dd");
-                    QTime examTime = QTime::fromString(examCode.at(3),"hh.mm.ss");
+                int scanWidth = 0;
+                int scanHeight = 0;
+                QString device = "?";
 
-                    int scanWidth = 0;
-                    int scanHeight = 0;
-                    QString device = "?";
+                QString line;
 
-                    QString line;
-
-                    device = "Avanti";
-                    if (infoFileAvanti.open(QIODevice::ReadOnly)){    // AVANTI <<-------------------------------
-                        QTextStream infoText(&infoFileAvanti);
-                        bool scanLengthRead = false;
-                        bool scanUsageRead = false;
-                        do {
-                            line = infoText.readLine();
-                            if (line.contains("=")){
-                                QStringList data = line.split("=");
-                                if (data.at(0) == "XY Scan Length" && !scanLengthRead){
-                                    scanWidth = data.at(1).toInt();
-                                    scanLengthRead = true;
-                                }
-                                if (data.at(0) == "XY Scan Usage" && !scanUsageRead){
-                                    scanHeight = data.at(1).toInt();
-                                    scanUsageRead = true;
-                                }
-                                // brith date - not possible
-                                // gender - not possible
+                device = "Avanti";
+                if (infoFileAvanti.open(QIODevice::ReadOnly)){    // AVANTI <<-------------------------------
+                    QTextStream infoText(&infoFileAvanti);
+                    bool scanLengthRead = false;
+                    bool scanUsageRead = false;
+                    do {
+                        line = infoText.readLine();
+                        if (line.contains("=")){
+                            QStringList data = line.split("=");
+                            if (data.at(0) == "XY Scan Length" && !scanLengthRead){
+                                scanWidth = data.at(1).toInt();
+                                scanLengthRead = true;
                             }
-                        } while (!line.isNull());
-                        if (infoFileAvanti.isOpen())
-                            infoFileAvanti.close();
-                    }
-
-                    QString examDimensions = QString::number(scanWidth) + " x " + QString::number(scanHeight);
-                    double examQI = 0;
-
-                    QString direction = "0";
-
-                    // check if patient exists in database
-                    int patientID = patientsDB->getPatientID(lastName,firstName);
-                    if (patientID == -1){
-                        // add patient to the database
-                        patientsDB->addNewPatient(lastName,firstName,birth_date,gender,"undef.","undef.","","");
-                        patientID = patientsDB->getPatientID(lastName,firstName);
-                        modelPatients->select();
-                    }
-
-                    // add scan to the database
-                    patientsDB->addNewScan(patientID, eye, QDateTime(examDate, examTime), device, examType, direction, examDimensions, examQI, filePath, examPath);
-                    modelScans->select();
+                            if (data.at(0) == "XY Scan Usage" && !scanUsageRead){
+                                scanHeight = data.at(1).toInt();
+                                scanUsageRead = true;
+                            }
+                            // brith date - not possible
+                            // gender - not possible
+                        }
+                    } while (!line.isNull());
+                    if (infoFileAvanti.isOpen())
+                        infoFileAvanti.close();
                 }
 
-            } else {
-                QMessageBox::critical(this, tr("Error"), tr("Nie można otworzyć pliku z danymi badania (.txt)"));
+                QString examDimensions = QString::number(scanWidth) + " x " + QString::number(scanHeight);
+                double examQI = 0;
+
+                QString direction = "0";
+
+                // check if patient exists in database
+                int patientID = patientsDB->getPatientID(lastName,firstName);
+                if (patientID == -1){
+                    // add patient to the database
+                    patientsDB->addNewPatient(lastName,firstName,birth_date,gender,"undef.","undef.","","");
+                    patientID = patientsDB->getPatientID(lastName,firstName);
+                    modelPatients->select();
+                }
+
+                QString filePath = "";
+
+                // add scan to the database
+                patientsDB->addNewScan(patientID, eye, QDateTime(examDate, examTime), device, examType, direction, examDimensions, examQI, filePath, examPath);
+                modelScans->select();
             }
         }
     }
@@ -5571,14 +5606,16 @@ void OCTAnnotate::on_scansListTableView_clicked(const QModelIndex &index)
     QString folderName = selectedRecord.value("scan_folder_path").toString();
     QString subfolder = selectedRecord.value("device").toString() + " " + selectedRecord.value("series").toString();
 
-    QString temp = "/" + subfolder + "/" + folderName + "/" + folderName + "_Proj_Iowa.tif";
+//    QString temp = "/" + subfolder + "/" + folderName + "/" + folderName + "_Proj_Iowa.tif";
+    QString temp = "/" + folderName + "_Proj_Iowa.tif";
     QString fundusPath = examDir.absolutePath().append(temp);
 
     if (QFile(fundusPath).exists()){
         QImage fundusImage(fundusPath);
         ui->fundusDBLabel->setPixmap(QPixmap::fromImage(fundusImage));
     } else {
-        QString fundusPath2 = examDir.absolutePath().append("/" + subfolder + "/" + folderName + "/fnds_rec.bmp");
+//        QString fundusPath2 = examDir.absolutePath().append("/" + subfolder + "/" + folderName + "/fnds_rec.bmp");
+        QString fundusPath2 = examDir.absolutePath().append("/" + folderName + "/fnds_rec.bmp");
         if (QFile(fundusPath2).exists()){
             QImage fundusImage(fundusPath2);
             ui->fundusDBLabel->setPixmap(QPixmap::fromImage(fundusImage));
@@ -5587,8 +5624,10 @@ void OCTAnnotate::on_scansListTableView_clicked(const QModelIndex &index)
         }
     }
 
-    QString bscanHPath = examDir.absolutePath().append("/" + subfolder + "/" + folderName + "/" + "Skan_nr_71.bmp");
-    QString bscanVPath = examDir.absolutePath().append("/" + subfolder + "/" + folderName + "/" + "Skan_nr_143.bmp");
+//    QString bscanHPath = examDir.absolutePath().append("/" + subfolder + "/" + folderName + "/" + "Skan_nr_71.bmp");
+//    QString bscanVPath = examDir.absolutePath().append("/" + subfolder + "/" + folderName + "/" + "Skan_nr_143.bmp");
+    QString bscanHPath = examDir.absolutePath().append("/" + folderName + "/" + "Skan_nr_71.bmp");
+    QString bscanVPath = examDir.absolutePath().append("/" + folderName + "/" + "Skan_nr_143.bmp");
 
     if (QFile(bscanHPath).exists()){
         QImage imageH(bscanHPath);
@@ -5632,7 +5671,8 @@ void OCTAnnotate::on_scansListTableView_doubleClicked(const QModelIndex &current
 {
     int row = currentIndex.row();
     QSqlRecord record = modelScans->record(row);
-    QString scanFolder = examDir.absolutePath() + "/" + record.value("device").toString() + " " + record.value("series").toString() + "/" + record.value("scan_folder_path").toString();
+//    QString scanFolder = examDir.absolutePath() + "/" + record.value("device").toString() + " " + record.value("series").toString() + "/" + record.value("scan_folder_path").toString();
+    QString scanFolder = examDir.absolutePath() + "/" + record.value("scan_folder_path").toString();
     on_actionLoadPatientOCT_triggered(scanFolder);
 }
 

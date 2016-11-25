@@ -756,6 +756,13 @@
                </widget>
               </item>
               <item>
+               <widget class="QPushButton" name="addScanFileButton">
+                <property name="text">
+                 <string>Dodaj .OCT skan</string>
+                </property>
+               </widget>
+              </item>
+              <item>
                <widget class="QPushButton" name="batchProcessingButton">
                 <property name="text">
                  <string>Przetwarzanie seryjne</string>

@@ -194,6 +194,10 @@ bool ReadWriteData::readPatientData(){
     } else {
         QString infoFilePath = octDir->absolutePath().append("/" + octDir->dirName() + ".txt");
         QFile infoFile(infoFilePath);
+        if (!infoFile.exists()){
+            infoFilePath = octDir->absolutePath().append(".txt");
+            infoFile.setFileName(infoFilePath);
+        }
         if (infoFile.open(QIODevice::ReadOnly)){    // AVANTI <<-------------------------------
             fileOpened = true;
             pData->setOCTDevice(AVANTI);

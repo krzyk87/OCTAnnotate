@@ -120,6 +120,7 @@ public:
     QComboBox *scanListGroupCBox;
     QPushButton *searchForScansButton;
     QPushButton *addScanFolderButton;
+    QPushButton *addScanFileButton;
     QPushButton *batchProcessingButton;
     QVBoxLayout *verticalLayout_26;
     QLabel *bscanHLabel;
@@ -775,6 +776,11 @@ public:
         addScanFolderButton->setObjectName(QStringLiteral("addScanFolderButton"));
 
         horizontalLayout_8->addWidget(addScanFolderButton);
+
+        addScanFileButton = new QPushButton(tabDatabase);
+        addScanFileButton->setObjectName(QStringLiteral("addScanFileButton"));
+
+        horizontalLayout_8->addWidget(addScanFileButton);
 
         batchProcessingButton = new QPushButton(tabDatabase);
         batchProcessingButton->setObjectName(QStringLiteral("batchProcessingButton"));
@@ -2144,6 +2150,7 @@ public:
         );
         searchForScansButton->setText(QApplication::translate("OCTAnnotate", "Wyszukaj skany", 0));
         addScanFolderButton->setText(QApplication::translate("OCTAnnotate", "Dodaj katalog", 0));
+        addScanFileButton->setText(QApplication::translate("OCTAnnotate", "Dodaj .OCT skan", 0));
         batchProcessingButton->setText(QApplication::translate("OCTAnnotate", "Przetwarzanie seryjne", 0));
         bscanHLabel->setText(QApplication::translate("OCTAnnotate", "Bscan Horizontal", 0));
         bscanVLabel->setText(QApplication::translate("OCTAnnotate", "Bscan Vertical", 0));

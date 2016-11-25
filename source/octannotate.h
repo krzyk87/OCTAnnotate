@@ -27,6 +27,7 @@ public:
 
 private slots:
     void on_actionClose_triggered();
+    void on_actionInfo_triggered();
 
 // Data
     void on_tabWidget_currentChanged();
@@ -94,6 +95,7 @@ private slots:
     void on_zoomInButton_clicked();
     void on_zoomOutButton_clicked();
     void on_actionImageFlattening_toggled(bool state);
+    void on_actionEditAnnotations_toggled(bool state);
 
     void on_actionChangeLayerColor_triggered();
     void on_actionSetScanCenter_toggled(bool checked);
@@ -141,6 +143,8 @@ private slots:
 
     void on_searchForScansButton_clicked();
     void on_addScanFolderButton_clicked(QString folderPath = "");
+    void on_addScanFileButton_clicked();
+    void addScanToDB(QString scanPath);
 
     void on_searchPatientDBButton_clicked();
     void on_showAllScansRButton_toggled();
@@ -151,10 +155,6 @@ private slots:
     void on_scansListTableView_clicked(const QModelIndex &index);
 
     void on_batchProcessingButton_clicked();
-
-    void on_actionEditAnnotations_toggled(bool arg1);
-
-    void on_actionInfo_triggered();
 
 public slots:
     void on_errorOccured(QString);

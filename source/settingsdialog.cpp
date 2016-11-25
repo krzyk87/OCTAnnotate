@@ -6,12 +6,12 @@
 #include <QTextStream>
 #include <QFileDialog>
 
-const QString SettingsDialog::pathOctExamDef = QDir::currentPath();
-const QString SettingsDialog::pathManualSegmDef = QDir::currentPath().append("/examData");
-const QString SettingsDialog::pathAutoSegmDef = QDir::currentPath().append("/examData");
+const QString SettingsDialog::pathOctExamDef = "octData"; //QDir::currentPath().append("/octData");
+const QString SettingsDialog::pathManualSegmDef = "examData/mvri"; //QDir::currentPath().append("/examData/mvri");
+const QString SettingsDialog::pathAutoSegmDef = "examData/avri"; //QDir::currentPath().append("/examData/avri");
 const QString SettingsDialog::openBskanDef = "m";
-const QString SettingsDialog::dataSaveStructureDef = "txt";
-const QString SettingsDialog::databasePathDef = "/database/CAVRIpatients.db";
+const QString SettingsDialog::dataSaveStructureDef = "xml";
+const QString SettingsDialog::databasePathDef = "database/patients.db"; //QDir::currentPath().append("/database/patients.db");
 const bool SettingsDialog::showETDRSGridDef = true;
 const bool SettingsDialog::showCenterOnBscanDef = true;
 const bool SettingsDialog::showBscanOnErrorPlotDef = true;
@@ -251,15 +251,27 @@ void SettingsDialog::on_resetPathDatabaseButton_clicked()
 }
 
 QString SettingsDialog::getPathOctExam(){
-    return this->pathOctExam;
+    QString path = this->pathOctExam;
+
+    if (QDir(path).isRelative())
+        path = QDir::currentPath().append("/" + path);
+    return path;
 }
 
 QString SettingsDialog::getPathManualSegm(){
-    return this->pathManualSegm;
+    QString path = this->pathManualSegm;
+
+    if (QDir(path).isRelative())
+        path = QDir::currentPath().append("/" + path);
+    return path;
 }
 
 QString SettingsDialog::getPathAutoSegm(){
-    return this->pathAutoSegm;
+    QString path = this->pathAutoSegm;
+
+    if (QDir(path).isRelative())
+        path = QDir::currentPath().append("/" + path);
+    return path;
 }
 
 QString SettingsDialog::getOpenBskan(){
@@ -271,7 +283,17 @@ QString SettingsDialog::getDataSaveStructure(){
 }
 
 QString SettingsDialog::getDatabasePath(){
-    return this->databasePath;
+    QString path = this->databasePath;
+
+//    QDir d = QDir(path);
+
+//    if (d.makeAbsolute())
+//        path = d.path();
+
+    if (QDir(path).isRelative())
+        path = QDir::currentPath().append("/" + path);
+
+    return path;
 }
 
 bool SettingsDialog::getShowETDRSGrid(){

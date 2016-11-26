@@ -5229,7 +5229,9 @@ void OCTAnnotate::on_addScanFolderButton_clicked(QString folderPath)
 
 //        QString examPath = newExamDir.dirName();//examDir.relativeFilePath(pathOctExam);
 
-        addScanToDB(QDir(pathOctExam).dirName());
+        addScanToDB(pathOctExam);
+    } else {
+        QMessageBox::critical(this, tr("Error"), "Scan path is empty!");
     }
 }
 
@@ -5238,29 +5240,34 @@ void OCTAnnotate::on_addScanFileButton_clicked()
     QString pathOctExam = QFileDialog::getOpenFileName(this, tr("Open OCT file"), examDir.absolutePath(), tr("Avanti RTvue raw OCT data file (*.OCT)"));
 
     if (!pathOctExam.isEmpty()){
-        QFile newExamDir(pathOctExam);
+//        QFile newExamDir(pathOctExam);
 
-        QString examPath = newExamDir.fileName();
+//        QString examPath = newExamDir.fileName();
 
-        addScanToDB(examPath);
+        addScanToDB(pathOctExam);//examPath);
 
     } else {
         QMessageBox::critical(this, tr("Error"), "Nieprawidłowy plik! Nie można wczytać danych.");
     }
 }
 
-void OCTAnnotate::addScanToDB(QString scanPath){
+void OCTAnnotate::addScanToDB(QString examPath){
 
-    QString examPath = scanPath;
-    QDir newExamDir;
-    if (scanPath.contains(".OCT")){
+    QDir newExamDir = QDir(examPath);
+
+    if (examPath.contains(".OCT")){
         examPath.chop(4);
-//        newExamDir = QDir(examPath);
-    } else {
         newExamDir = QDir(examPath);
-    }
 
-    if (patientsDB->getScanID(examPath) != -1){
+        // read binary .OCT file
+        QFile scanFile(examPath);
+
+    } else {
+        // read folder with images
+    }
+    QString scanName = newExamDir.dirName();
+
+    if (patientsDB->getScanID(scanName) != -1){
         QMessageBox::critical(this, tr("Error"), tr("Scan already exists in the database!"));
     } else {
         QString infoFilePathAvanti = newExamDir.absolutePath().append("/" + newExamDir.dirName() + ".txt");

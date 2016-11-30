@@ -22,6 +22,8 @@
 #include <QXmlStreamReader>
 #include <QDebug>
 
+const QString OCTAnnotate::settingsFilePath = QDir::currentPath().append("/config.ini");
+
 OCTAnnotate::OCTAnnotate(QWidget *parent) : QMainWindow(parent),
     ui(new Ui::OCTAnnotate)
 {
@@ -30,24 +32,16 @@ OCTAnnotate::OCTAnnotate(QWidget *parent) : QMainWindow(parent),
     font.setPixelSize(11);
     this->setFont(font);
     quit = false;
-
-    SettingsDialog *settingsDialog = new SettingsDialog();
-    databasePath = settingsDialog->getDatabasePath();
-    dataSaveStructure = settingsDialog->getDataSaveStructure();
-    openBscanNumber = settingsDialog->getOpenBskan();
-    showETDRSGrid = settingsDialog->getShowETDRSGrid();
-    showCenterOnBscan = settingsDialog->getShowCenterOnBscan();
-    showBscanOnErrorPlot = settingsDialog->getShowBscanOnErrorPlot();
-    blockPCV = settingsDialog->getBlockPCV();
-    examDir = QDir(settingsDialog->getPathOctExam());
-    manualDir = QDir(settingsDialog->getPathManualSegm());
-    autoDir = QDir(settingsDialog->getPathAutoSegm());
-    tmpDir = examDir;
-//    ui->actionImageFlattening->setChecked(true);
     ui->actionEditAnnotations->setChecked(true);
+    ui->actionSaveGeneralExam->setEnabled(false);
+    ui->actionSaveOCTExam->setEnabled(false);
 
+    // configurations
+    SettingsDialog *settingsDialog = new SettingsDialog(settingsFilePath);
+    loadConfigurations(settingsDialog);
+
+    // setup patients database
     patientsDB = new DbManager(databasePath);
-
     if (!patientsDB->isOpen()){
         qDebug() << "Database not opened!";
         QMessageBox::critical(this,"Database connection error","Could not connect to the patients database. Please set the correct path to the database in the Settings menu and restart the application.");
@@ -59,12 +53,9 @@ OCTAnnotate::OCTAnnotate(QWidget *parent) : QMainWindow(parent),
         ui->fundusDBLabel->setScaledContents(true);
         ui->bscanHLabel->setScaledContents(true);
         ui->bscanVLabel->setScaledContents(true);
-    }
+    }  
 
-    ui->actionSaveGeneralExam->setEnabled(false);
-    ui->actionSaveOCTExam->setEnabled(false);
-
-    currentDir = QDir::current();
+    patientData = PatientData();
 
     currentImageNumber = 0;
     currentNormalImageNumber = 0;
@@ -98,21 +89,15 @@ OCTAnnotate::OCTAnnotate(QWidget *parent) : QMainWindow(parent),
     ui->ETDRSgridCPlot->installEventFilter(this);
     ui->imageLayersCPlot->installEventFilter(this);
     ui->layerCPlot->installEventFilter(this);
-    ui->amslerRImageLabel->installEventFilter(this);
-    ui->amslerLImageLabel->installEventFilter(this);
     ui->bScanHCPlot->installEventFilter(this);
     ui->bScanVCPlot->installEventFilter(this);
     ui->errorVirtualMapCPlot->installEventFilter(this);
 
-    myPix = QPixmap();
-    myPix.fill(Qt::transparent);
     myPenColor = Qt::red;
     myPenWidth = 2;
     isControlPressed = false;
     drawing = false;
     erasing = false;
-    //displayNormalAnnotations = false;
-    eraseAnnotations = false;
     fundusAnnotate = false;
     prevPoint = QPoint(-1,-1);
     prevPointN = QPoint(-1,-1);
@@ -172,40 +157,12 @@ OCTAnnotate::OCTAnnotate(QWidget *parent) : QMainWindow(parent),
     ui->chrColorLabel->setAutoFillBackground(true);
     ui->chrColorLabel->setPalette(myPalette);
 
-    //ui->penButton->setStyleSheet("background-color: red");
-    //ui->sprayLightButton->setStyleSheet("background-color: white");
-    //ui->sprayDarkButton->setStyleSheet("background-color: black; color: white");
-
-    // Amsler grid lines
-    drawGrid = true;
-    drawAmsler = false;
-    repaintAmsler = false;
-    amsLinesNumber = 21;
-    amsLinePixDist = 15;
-    maxDistWidth = 0;
-    for (int i=0; i < amsLinesNumber; i++){
-        gridVLines.append(QLine(i*amsLinePixDist, 0, i*amsLinePixDist, amsLinePixDist*(amsLinesNumber-1)));
-        gridHLines.append(QLine(0, i*amsLinePixDist , amsLinePixDist*(amsLinesNumber-1), i*amsLinePixDist));
-    }
-    amsGridPen = QPen(Qt::black, 1, Qt::SolidLine, Qt::RoundCap, Qt::RoundJoin);
-    amsPen = QPen(Qt::red, 3, Qt::SolidLine, Qt::RoundCap, Qt::RoundJoin);
-    amsSprayLight = QPen(Qt::white, 10, Qt::SolidLine, Qt::RoundCap, Qt::RoundJoin);
-    amsSprayDark = QPen(Qt::black, 10, Qt::SolidLine, Qt::RoundCap, Qt::RoundJoin);
-    amsDistIdSelected = -1;
-    amsDistEyeSelected = "";
-
-    QStringList shapesList;
-    //shapesList << "Soczewka wypukła";
-    //shapesList << "Soczewka wklęsła";
-    shapesList << "Spirala w prawo";
-    shapesList << "Spirala w lewo";
-    //shapesList << "Falista siatka";
-    ui->distShapeCBox->addItems(shapesList);
-
+    // TODO: fix virtual map width for height ratio
     QSizePolicy policy(QSizePolicy::Expanding,QSizePolicy::Expanding);
     policy.setHeightForWidth(true);
     ui->virtualMapImageCPlot->setSizePolicy(policy);
     ui->virtualMapAutoImageCPlot->setSizePolicy(policy);
+
     setupImageLayersPlot();
     setupBScanPlots();
     setupVirtualMapPlot(ui->virtualMapImageCPlot);
@@ -246,23 +203,61 @@ OCTAnnotate::OCTAnnotate(QWidget *parent) : QMainWindow(parent),
     }
     ui->contactThresholdCBox->setCurrentIndex(1);
 
-    ui->tabWidget->removeTab(1);
     ui->tabWidget->removeTab(2);
     appVersion = "v1.6";
     this->setWindowTitle("OCTAnnotate " + appVersion);
     progressBar = new QProgressBar();
-    progressBar->setMaximumWidth(200);
+    progressBar->setMaximumWidth(250);
     progressBar->setMaximum(100);
     ui->statusBar->addPermanentWidget(progressBar);
     progressBar->setVisible(false);
-
-    patientData = PatientData();
 }
 
 OCTAnnotate::~OCTAnnotate()
 {
     patientsDB->closeDatabase();
     delete ui;
+}
+
+// initialization ---------------------------------------------------------------------------------
+void OCTAnnotate::loadConfigurations(SettingsDialog *sDialog){
+
+    databasePath = sDialog->getDatabasePath();
+    octDir = QDir(sDialog->getPathOctData());
+    examDir = QDir(sDialog->getPathExamData());
+    manualDir = QDir(sDialog->getPathExamData().append("mvri/"));
+    autoDir = QDir(sDialog->getPathExamData().append("avri/"));
+//    manualDir = QDir(settingsDialog->getPathManualSegm());
+//    autoDir = QDir(settingsDialog->getPathAutoSegm());
+    tmpDir = examDir;
+
+    dataSaveStructure = sDialog->getDataSaveStructure();
+    blockPCV = sDialog->getBlockPCV();
+
+    on_actionShowETDRSGrid_toggled(sDialog->getShowETDRSGrid());
+    on_actionShowCenterOnBscan_toggled(sDialog->getShowCenterOnBscan());
+//    showETDRSGrid = sDialog->getShowETDRSGrid();
+//    showCenterOnBscan = sDialog->getShowCenterOnBscan();
+    showBscanOnErrorPlot = sDialog->getShowBscanOnErrorPlot();
+    displayImageLayersPlot(currentImageLayersNumber,selectedErrorLayer);
+
+    currentDir = QDir::current();
+}
+
+void OCTAnnotate::on_actionSettings_triggered()
+{
+    SettingsDialog *settingsDialog = new SettingsDialog(settingsFilePath);
+    if(settingsDialog->exec() == QDialog::Accepted){
+        loadConfigurations(settingsDialog);
+//        databasePath = settingsDialog->getDatabasePath();
+//        examDir = settingsDialog->getPathOctExam();
+//        manualDir = settingsDialog->getPathManualSegm();
+//        autoDir = settingsDialog->getPathAutoSegm();
+
+//        dataSaveStructure = settingsDialog->getDataSaveStructure();
+//        blockPCV = settingsDialog->getBlockPCV();
+//        showBscanOnErrorPlot = settingsDialog->getShowBscanOnErrorPlot();
+    }
 }
 
 void OCTAnnotate::initializeModelPatients(){
@@ -375,6 +370,37 @@ void OCTAnnotate::closeEvent(QCloseEvent *cEvent){
         cEvent->ignore();
 }
 
+void OCTAnnotate::on_actionSetScanCenter_toggled(bool checked)
+{
+    if (checked){
+        settingScanCenter = true;
+        ui->statusBar->showMessage("Ustawianie środka skanu: Proszę kliknąć na obrazie B-skan...");
+    } else {
+        settingScanCenter = false;
+    }
+}
+
+void OCTAnnotate::on_actionShowCenterOnBscan_toggled(bool checked)
+{
+    showCenterOnBscan = checked;
+    if (!patientData.getImageFileList().isEmpty())
+        loadImage(currentImageNumber);
+}
+
+void OCTAnnotate::delay( int secondsToWait )
+{
+    QTime dieTime = QTime::currentTime().addSecs( secondsToWait );
+    while( QTime::currentTime() < dieTime )
+    {
+        QCoreApplication::processEvents( QEventLoop::AllEvents, 100 );
+    }
+}
+
+void OCTAnnotate::on_actionInfo_triggered()
+{
+    InfoDialog *myInfo = new InfoDialog();
+    myInfo->show();
+}
 
 // select OCT exam --------------------------------------------------------------------------------
 void OCTAnnotate::on_actionLoadPatientOCT_triggered(QString scanFolderPath)
@@ -450,26 +476,6 @@ void OCTAnnotate::on_actionLoadPatientOCT_triggered(QString scanFolderPath)
     }
 }
 
-void OCTAnnotate::listAmslerDistortions(){
-    QStringList list;
-
-    QList<AmslerDist> distR = patientData.getAmslerDistList("R");
-    foreach (AmslerDist dist, distR) {
-        list.append(QString::number(dist.getId()+1) + ". " + encodeDistType(dist.getType()));
-    }
-    ui->amslerRDistList->clear();
-    ui->amslerRDistList->addItems(list);
-
-    list.clear();
-    QList<AmslerDist> distL = patientData.getAmslerDistList("L");
-    foreach (AmslerDist dist, distL) {
-        list.append(QString::number(dist.getId()+1) + ". " + encodeDistType(dist.getType()));
-    }
-    ui->amslerLDistList->clear();
-    ui->amslerLDistList->addItems(list);
-}
-
-
 // load image -------------------------------------------------------------------------------------
 void OCTAnnotate::loadImage(int imageNumber){
     QFileInfo imageFileInfo(patientData.getImageFileList().at(imageNumber));
@@ -480,6 +486,7 @@ void OCTAnnotate::loadImage(int imageNumber){
         orgImageSize = image.size();
 
         currentImageNumber = imageNumber;
+        // enable / disable buttons
         if (currentImageNumber >= (patientData.getBscansNumber() - 1))
             ui->nextImageButton->setEnabled(false);
         else
@@ -529,6 +536,16 @@ void OCTAnnotate::loadNormalImage(int normalImageNumber){
 
     currentNormalImageNumber = normalImageNumber;
 
+    // enable / disable buttons
+    if (currentNormalImageNumber >= (patientData.getBscanWidth() - 1))
+        ui->nextNormalImageButton->setEnabled(false);
+    else
+        ui->nextNormalImageButton->setEnabled(true);
+    if (currentNormalImageNumber <= 0)
+        ui->prevNormalImageButton->setEnabled(false);
+    else
+        ui->prevNormalImageButton->setEnabled(true);
+
     // contrast enhancement
     Calculate *calc = new Calculate();
     QList<int> flatDiffNormal;
@@ -557,8 +574,6 @@ void OCTAnnotate::loadNormalImage(int normalImageNumber){
 
     // display annotations
     displayNormalAnnotations(flatDiffNormal);
-
-    // TODO: enable / disable buttons
 }
 
 void OCTAnnotate::on_nextImageButton_clicked()
@@ -622,6 +637,120 @@ void OCTAnnotate::on_currImageNumberLEdit_returnPressed()
     }
 }
 
+void OCTAnnotate::on_currNormalImageNumberLEdit_returnPressed()
+{
+    if (!patientData.getImageFileList().isEmpty()){
+        int value = ui->currNormalImageNumberLEdit->text().toInt();
+        if (value < 0)
+            value = 0;
+        if (value >= patientData.getBscanWidth())
+            value = patientData.getBscanWidth()-1;
+
+        loadNormalImage(value);
+        fundusAnnotate = true;
+        ui->currNormalImageNumberLEdit->clearFocus();
+    }
+}
+
+void OCTAnnotate::on_nextImageLayersButton_clicked()
+{
+    if (!patientData.getImageFileList().isEmpty()){
+        if (currentImageLayersNumber < (patientData.getBscansNumber() - 1)){
+            currentImageLayersNumber++;
+            displayImageLayersPlot(currentImageLayersNumber,selectedErrorLayer);
+            displayVirtualMap(ui->virtualMapAutoImageCPlot, true);
+            displayVirtualMap(ui->virtualMapImageCPlot);
+            loadImage(currentImageLayersNumber);
+
+            if (currentImageLayersNumber >= (patientData.getBscansNumber() - 1))
+                ui->nextImageLayersButton->setEnabled(false);
+            ui->prevImageLayersButton->setEnabled(true);
+
+            // display error for selected B-scan image
+                // pcv layer
+            ui->pcvLineErrorAvgLEdit->setText(QString::number(patientData.getLayerLineErrorAvg(PCV,currentImageLayersNumber)) + " px");
+            ui->pcvLineErrorDevLEdit->setText(QString::number(patientData.getLayerLineErrorDev(PCV,currentImageLayersNumber)) + " px");
+            ui->pcvLineErrorAvgLEdit_um->setText(QString::number(patientData.getLayerLineErrorAvg(PCV,currentImageLayersNumber,"um")) + " um");
+            ui->pcvLineErrorDevLEdit_um->setText(QString::number(patientData.getLayerLineErrorDev(PCV,currentImageLayersNumber,"um")) + " um");
+                // ilm layer
+            ui->ilmLineErrorAvgLEdit->setText(QString::number(patientData.getLayerLineErrorAvg(ILM,currentImageLayersNumber)) + " px");
+            ui->ilmLineErrorDevLEdit->setText(QString::number(patientData.getLayerLineErrorDev(ILM,currentImageLayersNumber)) + " px");
+            ui->ilmLineErrorAvgLEdit_um->setText(QString::number(patientData.getLayerLineErrorAvg(ILM,currentImageLayersNumber,"um")) + " um");
+            ui->ilmLineErrorDevLEdit_um->setText(QString::number(patientData.getLayerLineErrorDev(ILM,currentImageLayersNumber,"um")) + " um");
+        }
+    }
+}
+
+void OCTAnnotate::on_prevImageLayersButton_clicked()
+{
+    if (!patientData.getImageFileList().isEmpty()){
+        if (currentImageLayersNumber > 0){
+            currentImageLayersNumber--;
+            displayImageLayersPlot(currentImageLayersNumber,selectedErrorLayer);
+            displayVirtualMap(ui->virtualMapAutoImageCPlot, true);
+            displayVirtualMap(ui->virtualMapImageCPlot);
+            loadImage(currentImageLayersNumber);
+
+            if (currentImageLayersNumber <= 0)
+                ui->prevImageLayersButton->setEnabled(false);
+            ui->nextImageLayersButton->setEnabled(true);
+
+            // display error for selected B-scan image
+                // pcv layer
+            ui->pcvLineErrorAvgLEdit->setText(QString::number(patientData.getLayerLineErrorAvg(PCV,currentImageLayersNumber)) + " px");
+            ui->pcvLineErrorDevLEdit->setText(QString::number(patientData.getLayerLineErrorDev(PCV,currentImageLayersNumber)) + " px");
+            ui->pcvLineErrorAvgLEdit_um->setText(QString::number(patientData.getLayerLineErrorAvg(PCV,currentImageLayersNumber,"um")) + " um");
+            ui->pcvLineErrorDevLEdit_um->setText(QString::number(patientData.getLayerLineErrorDev(PCV,currentImageLayersNumber,"um")) + " um");
+                // ilm layer
+            ui->ilmLineErrorAvgLEdit->setText(QString::number(patientData.getLayerLineErrorAvg(ILM,currentImageLayersNumber)) + " px");
+            ui->ilmLineErrorDevLEdit->setText(QString::number(patientData.getLayerLineErrorDev(ILM,currentImageLayersNumber)) + " px");
+            ui->ilmLineErrorAvgLEdit_um->setText(QString::number(patientData.getLayerLineErrorAvg(ILM,currentImageLayersNumber,"um")) + " um");
+            ui->ilmLineErrorDevLEdit_um->setText(QString::number(patientData.getLayerLineErrorDev(ILM,currentImageLayersNumber,"um")) + " um");
+        }
+    }
+}
+
+void OCTAnnotate::on_currImageNumberLayersLEdit_returnPressed()
+{
+    if (!patientData.getImageFileList().isEmpty()){
+        int value = ui->currImageNumberLayersLEdit->text().toInt();
+        if (value < 0)
+            value = 0;
+        if (value >= patientData.getBscansNumber())
+            value = patientData.getBscansNumber()-1;
+
+        currentImageLayersNumber = value;
+        displayImageLayersPlot(currentImageLayersNumber,selectedErrorLayer);
+        loadImage(currentImageLayersNumber);
+        fundusAnnotate = true;
+        displayVirtualMap(ui->virtualMapImageCPlot);
+        displayVirtualMap(ui->virtualMapAutoImageCPlot, true);
+
+        if (currentImageLayersNumber <= 0)
+            ui->prevImageLayersButton->setEnabled(false);
+        else
+            ui->prevImageLayersButton->setEnabled(true);
+        if (currentImageLayersNumber >= (patientData.getBscansNumber()-1))
+            ui->nextImageLayersButton->setEnabled(false);
+        else
+            ui->nextImageLayersButton->setEnabled(true);
+
+        ui->currImageNumberLayersLEdit->clearFocus();
+    }
+}
+
+void OCTAnnotate::on_actionImageFlattening_toggled(bool state)
+{
+    flattenImage = state;
+    if (!patientData.getImageFileList().isEmpty()){
+        loadImage(currentImageNumber);
+        loadNormalImage(currentNormalImageNumber);
+        displayImageLayersPlot(currentImageLayersNumber,ILM);
+    }
+}
+
+
+// adjust contrast and brightness -----------------------------------------------------------------
 void OCTAnnotate::on_contrastSlider_valueChanged(int value)
 {
     contrast = (float)value / 10.0;
@@ -650,13 +779,13 @@ void OCTAnnotate::on_brightnessResetButton_clicked()
     ui->brightnessSlider->setValue(0);
 }
 
+
+// display / calculate data for each tab ----------------------------------------------------------
 void OCTAnnotate::on_tabWidget_currentChanged()
 {
     QWidget *currWidget = ui->tabWidget->currentWidget();
 
-    if (currWidget == ui->tabAmslerCharts){    // Amsler
-        drawGrid = true;
-    } else if (currWidget == ui->tabOCTExam){    // OCT Exam Tab
+    if (currWidget == ui->tabOCTExam){    // OCT Exam Tab
         if (!patientData.getImageFileList().isEmpty()){
             loadImage(currentImageNumber);
             loadNormalImage(currentNormalImageNumber);
@@ -689,8 +818,6 @@ void OCTAnnotate::on_tabWidget_currentChanged()
             ui->iosAnnotCountLabel->setText("(" + QString::number(iosAnnotatedCount) + " / " + BscansNumber + ")");
             ui->rpeAnnotCountLabel->setText("(" + QString::number(rpeAnnotatedCount) + " / " + BscansNumber + ")");
             ui->chrAnnotCountLabel->setText("(" + QString::number(chrAnnotatedCount) + " / " + BscansNumber + ")");
-
-
         }
     } else if (currWidget == ui->tabVirtualMap){
         if (!patientData.getImageFileList().isEmpty()){
@@ -763,8 +890,6 @@ void OCTAnnotate::on_actionSaveGeneralExam_triggered()
     patientData.setVisOL(ui->visOLLEdit->text());
     patientData.setSnOP(ui->snOPLEdit->text());
     patientData.setSnOL(ui->snOLLEdit->text());
-    patientData.setAmslerComment(ui->amslerRCommentTEdit->toPlainText(),"R");
-    patientData.setAmslerComment(ui->amslerLCommentTEdit->toPlainText(),"L");
 
     patientData.setMcvOP(ui->mcVOPLEdit->text());
     patientData.setMcvOL(ui->mcVOLLEdit->text());
@@ -811,6 +936,11 @@ void OCTAnnotate::on_actionSaveOCTExam_triggered()
 
 
 // draw / erase bscan layers ----------------------------------------------------------------------
+void OCTAnnotate::on_actionEditAnnotations_toggled(bool state)
+{
+    editAnnotations = state;
+}
+
 bool OCTAnnotate::eventFilter(QObject *target, QEvent *event){
     if (!patientData.getImageFileList().isEmpty()){
         QPoint currPoint;
@@ -1039,79 +1169,6 @@ bool OCTAnnotate::eventFilter(QObject *target, QEvent *event){
                 currentImageLayersNumber = currentImageNumber;
                 displayImageLayersPlot(currentImageLayersNumber,selectedErrorLayer);
             }
-        } else if (target == ui->amslerRImageLabel){
-
-            QMouseEvent *mouseEvent = static_cast<QMouseEvent*>(event);
-            if (event->type() == QEvent::MouseButtonPress){
-                if (mouseEvent->button() == Qt::LeftButton){
-                    lastAPoint = mouseEvent->pos();
-                    amsLinesTemp.clear();
-                    drawAmsler = true;
-                }
-            }
-            if (event->type() == QEvent::MouseMove){
-                if ((mouseEvent->buttons() & Qt::LeftButton) && drawAmsler){
-                    myPix = QPixmap(*ui->amslerRImageLabel->pixmap());
-                    drawOnAmsler(mouseEvent->pos());
-                    ui->amslerRImageLabel->setPixmap(myPix);
-                    if (currDistType < Convex)
-                        lastAPoint = mouseEvent->pos();
-                }
-            }
-            if (event->type() == QEvent::MouseButtonRelease){
-                if (mouseEvent->button() == Qt::LeftButton && drawAmsler){
-                    myPix = QPixmap(*ui->amslerRImageLabel->pixmap());
-                    drawOnAmsler(mouseEvent->pos());
-                    ui->amslerRImageLabel->setPixmap(myPix);
-                    lastAPoint = mouseEvent->pos();
-                    if ((currDistType < Convex) || (amsWidthTemp >= amsLinePixDist)){
-                        patientData.addAmslerDist("R", currDistType, amsLinesTemp, amsPointTemp, amsWidthTemp);
-                    }
-                    listAmslerDistortions();
-                    drawAmsler = false;
-                    maxDistWidth = 0;
-                    amsLinesTemp.clear();
-                    amsPointTemp = QPoint(-1,-1);
-                    amsWidthTemp = 0;
-                }
-            }
-
-        } else if (target == ui->amslerLImageLabel){
-
-            QMouseEvent *mouseEvent = static_cast<QMouseEvent*>(event);
-            if (event->type() == QEvent::MouseButtonPress){
-                if (mouseEvent->button() == Qt::LeftButton){
-                    lastAPoint = mouseEvent->pos();
-                    amsLinesTemp.clear();
-                    drawAmsler = true;
-                }
-            }
-            if (event->type() == QEvent::MouseMove){
-                if ((mouseEvent->buttons() & Qt::LeftButton) && drawAmsler){
-                    myPix = QPixmap(*ui->amslerLImageLabel->pixmap());
-                    drawOnAmsler(mouseEvent->pos());
-                    ui->amslerLImageLabel->setPixmap(myPix);
-                    if (currDistType < Convex)
-                        lastAPoint = mouseEvent->pos();
-                }
-            }
-            if (event->type() == QEvent::MouseButtonRelease){
-                if (mouseEvent->button() == Qt::LeftButton && drawAmsler){
-                    myPix = QPixmap(*ui->amslerLImageLabel->pixmap());
-                    drawOnAmsler(mouseEvent->pos());
-                    ui->amslerLImageLabel->setPixmap(myPix);
-                    lastAPoint = mouseEvent->pos();
-                    if ((currDistType < Convex) || (amsWidthTemp >= amsLinePixDist)){
-                        patientData.addAmslerDist("L", currDistType, amsLinesTemp, amsPointTemp, amsWidthTemp);
-                    }
-                    listAmslerDistortions();
-                    drawAmsler = false;
-                    maxDistWidth = 0;
-                    amsLinesTemp.clear();
-                    amsPointTemp = QPoint(-1,-1);
-                    amsWidthTemp = 0;
-                }
-            }
         } else if (target == ui->virtualMapImageCPlot){
             if (event->type() == QEvent::MouseButtonPress){
                 QMouseEvent *mouseEvent = static_cast<QMouseEvent*>(event);
@@ -1338,39 +1395,6 @@ void OCTAnnotate::paintEvent(QPaintEvent *){
             fundusAnnotate = false;
         }
     }
-
-    if ((ui->tabWidget->currentWidget() == ui->tabAmslerCharts) && drawGrid){
-
-        QPixmap pixR = QPixmap((amsLinesNumber-1)*amsLinePixDist+1, (amsLinesNumber-1)*amsLinePixDist+1);
-        QPixmap pixL = QPixmap((amsLinesNumber-1)*amsLinePixDist+1, (amsLinesNumber-1)*amsLinePixDist+1);
-        pixR.fill(Qt::transparent);
-        pixL.fill(Qt::transparent);
-
-        pixR = drawAmslerGrid(&pixR);
-        pixL = drawAmslerGrid(&pixL);
-        pixR = drawAmslerAnnotations(&pixR,"R");
-        pixL = drawAmslerAnnotations(&pixL,"L");
-        ui->amslerRImageLabel->setPixmap(pixR);
-        ui->amslerLImageLabel->setPixmap(pixL);
-
-        drawGrid = false;
-    }
-
-    /*if (repaintAmsler){
-        QPixmap pix;
-        if (amsDistEyeSelected == "R"){
-            pix = *ui->amslerRImageLabel->pixmap();
-            pix = drawAmslerAnnotation(&pix,"R",amsDistIdSelected);
-            ui->amslerRImageLabel->setPixmap(pix);
-
-        } else if (amsDistEyeSelected == "L"){
-            pix = *ui->amslerLImageLabel->pixmap();
-            pix = drawAmslerAnnotation(&pix,"L",amsDistIdSelected);
-            ui->amslerLImageLabel->setPixmap(pix);
-        }
-
-        repaintAmsler = false;
-    }*/
 }
 
 void OCTAnnotate::displayAnnotations(QList<int> flatDiff){
@@ -1773,6 +1797,8 @@ QList<QPoint> OCTAnnotate::computeLinePoints(QPoint p0, QPoint p1){
     return list;
 }
 
+
+// aditional settings -----------------------------------------------------------------------------
 void OCTAnnotate::setScanCenter(){
     ui->actionSetScanCenter->setChecked(false);
 
@@ -2089,619 +2115,41 @@ bool OCTAnnotate::isLayerActive(Layers layer){
     return isActive;
 }
 
-// draw asmler ------------------------------------------------------------------------------------
-QPixmap OCTAnnotate::drawAmslerGrid(QPixmap *pixmap){
 
-    // draw grid lines
-    QPainter painter(pixmap);
-
-    painter.setPen(amsGridPen);
-    foreach (QLine l, gridVLines) {
-        painter.drawLine(l);
-    }
-    foreach (QLine l, gridHLines) {
-        painter.drawLine(l);
-    }
-
-    QPoint middlePoint = QPoint(amsLinePixDist*(amsLinesNumber-1)/2, amsLinePixDist*(amsLinesNumber-1)/2);
-    painter.setPen(QPen(Qt::black, 8, Qt::SolidLine, Qt::RoundCap, Qt::RoundJoin));
-    painter.drawPoint(middlePoint);
-
-    return *pixmap;
-}
-
-QPixmap OCTAnnotate::drawAmslerAnnotations(QPixmap *pixmap, QString eye){
-    QPainter painter(pixmap);
-    QList<QLine> lines;
-    QPoint point, topLeft, bottomRight;
-    int width, i, lineNumber;
-
-    QList<AmslerDist> amslerDistList = patientData.getAmslerDistList(eye);
-    foreach (AmslerDist dist, amslerDistList) {
-        switch (dist.getType()) {
-        case Pen:
-            painter.setPen(amsPen);
-            lines = dist.getLines();
-            foreach (QLine l, lines) {
-                painter.drawLine(l);
-            }
-            break;
-
-        case WhiteSpot:
-            painter.setPen(amsSprayLight);
-            lines = dist.getLines();
-            foreach (QLine l, lines) {
-                painter.drawLine(l);
-            }
-            break;
-
-        case BlackSpot:
-            painter.setPen(amsSprayDark);
-            lines = dist.getLines();
-            foreach (QLine l, lines) {
-                painter.drawLine(l);
-            }
-            break;
-
-        case Convex:
-        case Concave:
-            point = dist.getPoint();
-            width = dist.getWidth();
-            topLeft = QPoint(point.x() - width, point.y() - width);
-            bottomRight = QPoint(point.x() + width - 1, point.y() + width - 1);
-
-            painter.setPen(QPen(Qt::white, 1));
-            painter.setBrush(QBrush(Qt::white));
-            painter.drawRect(QRect(topLeft, bottomRight));
-            i = 0;
-            lineNumber = width/amsLinePixDist + 1;
-            maxDistWidth = width;
-            painter.setPen(amsGridPen);
-
-            while (i < lineNumber){
-                drawAmslerStraightLines(point, i, &painter);
-                if (i > 0){
-                    drawAmslerCurvedLines(point, i, &painter, dist.getType());
-                }
-                i++;
-            }
-            maxDistWidth = 0;
-            break;
-
-        case RightSpiral:
-        case LeftSpiral:
-        {
-            point = dist.getPoint();
-            width = dist.getWidth();
-            topLeft = QPoint(point.x() - width, point.y() - width);
-            bottomRight = QPoint(point.x() + width - 1, point.y() + width - 1);
-
-            painter.setPen(QPen(Qt::white, 1));
-            painter.setBrush(QBrush(Qt::white));
-            painter.drawRect(QRect(topLeft, bottomRight));
-
-            painter.setPen(QPen(Qt::red, 1));
-            QList<QPoint> points;
-            QList<QPoint> pointList;
-            QPoint p1, p2;
-
-            for (int i=0; i <= width; i++){
-
-                // compute points' coordinates
-                int linesCount = (i/amsLinePixDist);
-                float angle = (width-i+1)*3.14/180;
-                if ( dist.getType() == LeftSpiral )
-                    angle = -angle;
-                pointList.clear();
-
-                for (int j=0; j <= linesCount; j++){
-                    p1 = QPoint(point.x() + j*amsLinePixDist, point.y() - i);
-                    p2 = QPoint(point.x() + j*amsLinePixDist, point.y() + i);
-                    pointList.append(p1);
-                    pointList.append(p2);
-
-                    p1 = QPoint(point.x() - j*amsLinePixDist, point.y() - i);
-                    p2 = QPoint(point.x() - j*amsLinePixDist, point.y() + i);
-                    pointList.append(p1);
-                    pointList.append(p2);
-
-                    p1 = QPoint(point.x() - i, point.y() + j*amsLinePixDist);
-                    p2 = QPoint(point.x() + i, point.y() + j*amsLinePixDist);
-                    pointList.append(p1);
-                    pointList.append(p2);
-
-                    p1 = QPoint(point.x() - i, point.y() - j*amsLinePixDist);
-                    p2 = QPoint(point.x() + i, point.y() - j*amsLinePixDist);
-                    pointList.append(p1);
-                    pointList.append(p2);
-                }
-
-                foreach (QPoint p, pointList) {
-                    p.setX(qCos(angle)*(p.x()-point.x()) - qSin(angle)*(p.y() - point.y()) + point.x());
-                    p.setY(qSin(angle)*(p.x()-point.x()) + qCos(angle)*(p.y() - point.y()) + point.y());
-                    points.append(p);
-                }
-            }
-
-            // draw points
-            foreach (QPoint p, points) {
-                painter.drawPoint(p);
-            }
-
-            maxDistWidth = 0;
-        }
-            break;
-        case None:
-            break;
-        }
-        // TODO: other types...
-    }
-
-    return *pixmap;
-}
-
-QPixmap OCTAnnotate::drawAmslerAnnotation(QPixmap *pixmap, QString eye, int id){
-    QPainter painter(pixmap);
-    QList<QLine> lines;
-    QPoint point, topLeft, bottomRight;
-    int width, i, lineNumber;
-
-    AmslerDist dist = patientData.getAmslerDist(eye, id);
-
-    switch (dist.getType()) {
-    case Pen:
-        painter.setPen(QPen(Qt::blue, 3, Qt::SolidLine, Qt::RoundCap, Qt::RoundJoin));
-        lines = dist.getLines();
-        foreach (QLine l, lines) {
-            painter.drawLine(l);
-        }
-        break;
-
-    case WhiteSpot:
-        painter.setPen(QPen(Qt::blue, 10, Qt::SolidLine, Qt::RoundCap, Qt::RoundJoin));
-        lines = dist.getLines();
-        foreach (QLine l, lines) {
-            painter.drawLine(l);
-        }
-        break;
-
-    case BlackSpot:
-        painter.setPen(QPen(Qt::blue, 10, Qt::SolidLine, Qt::RoundCap, Qt::RoundJoin));
-        lines = dist.getLines();
-        foreach (QLine l, lines) {
-            painter.drawLine(l);
-        }
-        break;
-
-    case Convex:
-    case Concave:
-        point = dist.getPoint();
-        width = dist.getWidth();
-        topLeft = QPoint(point.x() - width, point.y() - width);
-        bottomRight = QPoint(point.x() + width - 1, point.y() + width - 1);
-
-        painter.setPen(QPen(Qt::white, 1));
-        painter.setBrush(QBrush(Qt::white));
-        painter.drawRect(QRect(topLeft, bottomRight));
-        i = 0;
-        lineNumber = width/amsLinePixDist + 1;
-        maxDistWidth = width;
-        painter.setPen(amsGridPen);
-
-        while (i < lineNumber){ // TODO: other color...
-            drawAmslerStraightLines(point, i, &painter);
-            if (i > 0){
-                drawAmslerCurvedLines(point, i, &painter, dist.getType());
-            }
-            i++;
-        }
-        maxDistWidth = 0;
-        break;
-
-    case RightSpiral:
-    case LeftSpiral:
-    {
-        point = dist.getPoint();
-        width = dist.getWidth();
-        topLeft = QPoint(point.x() - width, point.y() - width);
-        bottomRight = QPoint(point.x() + width - 1, point.y() + width - 1);
-
-        painter.setPen(QPen(Qt::white, 1));
-        painter.setBrush(QBrush(Qt::white));
-        painter.drawRect(QRect(topLeft, bottomRight));
-
-        painter.setPen(QPen(Qt::blue, 1));
-        QList<QPoint> points;
-        QList<QPoint> pointList;
-        QPoint p1, p2;
-
-        for (int i=0; i <= width; i++){
-
-            // compute points' coordinates
-            int linesCount = (i/amsLinePixDist);
-            float angle = (width-i+1)*3.14/180;
-            if ( dist.getType() == LeftSpiral )
-                angle = -angle;
-            pointList.clear();
-
-            for (int j=0; j <= linesCount; j++){
-                p1 = QPoint(point.x() + j*amsLinePixDist, point.y() - i);
-                p2 = QPoint(point.x() + j*amsLinePixDist, point.y() + i);
-                pointList.append(p1);
-                pointList.append(p2);
-
-                p1 = QPoint(point.x() - j*amsLinePixDist, point.y() - i);
-                p2 = QPoint(point.x() - j*amsLinePixDist, point.y() + i);
-                pointList.append(p1);
-                pointList.append(p2);
-
-                p1 = QPoint(point.x() - i, point.y() + j*amsLinePixDist);
-                p2 = QPoint(point.x() + i, point.y() + j*amsLinePixDist);
-                pointList.append(p1);
-                pointList.append(p2);
-
-                p1 = QPoint(point.x() - i, point.y() - j*amsLinePixDist);
-                p2 = QPoint(point.x() + i, point.y() - j*amsLinePixDist);
-                pointList.append(p1);
-                pointList.append(p2);
-            }
-
-            foreach (QPoint p, pointList) {
-                p.setX(qCos(angle)*(p.x()-point.x()) - qSin(angle)*(p.y() - point.y()) + point.x());
-                p.setY(qSin(angle)*(p.x()-point.x()) + qCos(angle)*(p.y() - point.y()) + point.y());
-                points.append(p);
-            }
-        }
-
-        // draw points
-        foreach (QPoint p, points) {
-            painter.drawPoint(p);
-        }
-
-        maxDistWidth = 0;
-    }
-        break;
-    case None:
-        break;
-    }
-    // TODO: other types...
-
-    return *pixmap;
-}
-
-void OCTAnnotate::drawOnAmsler(QPoint endPoint){
-
-    QPoint startPoint = lastAPoint;
-    QPainter painter(&myPix);
-
-    switch (currDistType) {
-    case Pen:
-        painter.setPen(amsPen);         // draw with red pen
-        break;
-    case WhiteSpot:
-        painter.setPen(amsSprayLight);  // draw with white spray
-        break;
-    case BlackSpot:
-        painter.setPen(amsSprayDark);   // draw with dark spray
-        break;
-    default:
-        break;
-    }
-
-    int min = qMin(startPoint.x(),endPoint.x());
-    int max = qMax(startPoint.x(),endPoint.x());
-
-    if ((min >= 0) && (max < myPix.width())){
-
-        switch (currDistType) {
-        case None:
-            break;
-        case Pen:
-        case WhiteSpot:
-        case BlackSpot:
-            painter.drawLine(startPoint, endPoint);
-            amsLinesTemp.append(QLine(startPoint, endPoint));
-            generalDataModified = true;
-            break;
-
-        case Convex:
-        case Concave:
-        {
-            startPoint = findNearestCross(lastAPoint);
-            painter.setBrush(QBrush(Qt::white));
-
-            int dx = qAbs(endPoint.x() - startPoint.x());
-            int dy = qAbs(endPoint.y() - startPoint.y());
-            int distWidth = qMax(dx, dy);
-
-            if (distWidth < maxDistWidth){  // new area is smaller then the last
-                eraseAmslerArea(startPoint, &painter);
-            }
-
-            QPoint topLeft(startPoint.x() - distWidth, startPoint.y() - distWidth);
-            QPoint bottomRight(startPoint.x() + distWidth - 1, startPoint.y() + distWidth - 1);
-            painter.setPen(QPen(Qt::white, 1));
-            painter.drawRect(QRect(topLeft, bottomRight));
-            int i=0;
-            int lineNumber = distWidth/amsLinePixDist + 1;
-            painter.setPen(amsGridPen);
-
-            while (i < lineNumber){
-                drawAmslerStraightLines(startPoint, i, &painter);
-                if (i > 0){
-                    drawAmslerCurvedLines(startPoint, i, &painter, currDistType);
-                }
-                i++;
-            }
-            amsPointTemp = startPoint;
-            amsWidthTemp = distWidth;
-            maxDistWidth = qMax(maxDistWidth, distWidth);
-            generalDataModified = true;
-        }
-            break;
-
-        case RightSpiral:   // TODO: poprawić - brakuje części wewnętrznych linii... (to samo w drawAmslerAnnotations())
-        case LeftSpiral:
-        {
-            startPoint = findNearestCross(lastAPoint);
-            painter.setBrush(QBrush(Qt::white));
-
-            int dx = qAbs(endPoint.x() - startPoint.x());
-            int dy = qAbs(endPoint.y() - startPoint.y());
-            int distWidth = qMax(dx, dy);
-            if (distWidth < maxDistWidth){  // new area is smaller then the last
-                eraseAmslerArea(startPoint, &painter);
-            }
-
-            QPoint topLeft(startPoint.x() - distWidth, startPoint.y() - distWidth);
-            QPoint bottomRight(startPoint.x() + distWidth - 1, startPoint.y() + distWidth - 1);
-            painter.setPen(QPen(Qt::white, 1));
-            painter.drawRect(QRect(topLeft, bottomRight));
-
-            painter.setPen(QPen(Qt::red, 1));
-            QList<QPoint> points;
-            QPoint p1,p2;
-
-            QList<QPoint> pointList;
-            for (int i=0; i <= distWidth; i++){
-
-                // compute points' coordinates
-                int linesCount = (i/amsLinePixDist);
-                float angle = (distWidth-i+1)*3.14/180;
-                if (currDistType == LeftSpiral)
-                    angle = -angle;
-                pointList.clear();
-
-                for (int j=0; j <= linesCount; j++){
-                    p1 = QPoint(startPoint.x() + j*amsLinePixDist, startPoint.y() - i);
-                    p2 = QPoint(startPoint.x() + j*amsLinePixDist, startPoint.y() + i);
-                    pointList.append(p1);
-                    pointList.append(p2);
-
-                    p1 = QPoint(startPoint.x() - j*amsLinePixDist, startPoint.y() - i);
-                    p2 = QPoint(startPoint.x() - j*amsLinePixDist, startPoint.y() + i);
-                    pointList.append(p1);
-                    pointList.append(p2);
-
-                    p1 = QPoint(startPoint.x() - i, startPoint.y() + j*amsLinePixDist);
-                    p2 = QPoint(startPoint.x() + i, startPoint.y() + j*amsLinePixDist);
-                    pointList.append(p1);
-                    pointList.append(p2);
-
-                    p1 = QPoint(startPoint.x() - i, startPoint.y() - j*amsLinePixDist);
-                    p2 = QPoint(startPoint.x() + i, startPoint.y() - j*amsLinePixDist);
-                    pointList.append(p1);
-                    pointList.append(p2);
-                }
-
-                // rotate points
-                foreach (QPoint p, pointList) {
-                    p.setX(qCos(angle)*(p.x()-startPoint.x()) - qSin(angle)*(p.y() - startPoint.y()) + startPoint.x());
-                    p.setY(qSin(angle)*(p.x()-startPoint.x()) + qCos(angle)*(p.y() - startPoint.y()) + startPoint.y());
-                    points.append(p);
-                }
-            }
-
-            // draw points
-            foreach (QPoint p, points) {
-                painter.drawPoint(p);
-            }
-
-            amsPointTemp = startPoint;
-            amsWidthTemp = distWidth;
-            maxDistWidth = qMax(maxDistWidth, distWidth);
-            generalDataModified = true;
-        }
-            break;
-        }
-        // TODO: other types...
-    }
-}
-
-void OCTAnnotate::on_eraseAmslerButton_clicked()
+// layers display settings ------------------------------------------------------------------------
+void OCTAnnotate::on_allLayersCBox_stateChanged(int state)
 {
-    if ((amsDistEyeSelected != "") && (amsDistIdSelected != -1)){
-        patientData.deleteAmslerData(amsDistEyeSelected, amsDistIdSelected);
-
-        drawGrid = true;
-        generalDataModified = true;
-
-        listAmslerDistortions();
-    }
-}
-
-QPoint OCTAnnotate::findNearestCross(QPoint point){
-    QPoint p;
-
-    float minH = 1000;
-    float minV = 1000;
-    float distH = 0;
-    float distV = 0;
-    int lineHNumber = -1;
-    int lineVNumber = -1;
-    for (int i=0; i<amsLinesNumber; i++){
-        distH = qAbs(computeDistance(gridHLines[i], point));
-        distV = qAbs(computeDistance(gridVLines[i], point));
-        if (distH < minH){
-            lineHNumber = i;
-            minH = distH;
-        }
-        if (distV < minV){
-            lineVNumber = i;
-            minV = distV;
-        }
-    }
-
-    p = QPoint(amsLinePixDist*lineVNumber, amsLinePixDist*lineHNumber);
-    return p;
-}
-
-float OCTAnnotate::computeDistance(QLine line, QPoint point){
-    float d = 0;
-
-    d = (line.dy()*point.x() - line.dx()*point.y() - line.x1()*line.y2() + line.x2()*line.y1())/(qSqrt(qPow(line.dx(),2) + qPow(line.dy(),2)));
-
-    return d;
-}
-
-void OCTAnnotate::eraseAmslerArea(QPoint startPoint, QPainter *painter){
-    // erase what was before
-    QPoint topLeft(startPoint.x() - maxDistWidth, startPoint.y() - maxDistWidth);
-    QPoint bottomRight(startPoint.x() + maxDistWidth - 1, startPoint.y() + maxDistWidth - 1);
-    painter->setPen(QPen(Qt::white, 1));
-    painter->drawRect(QRect(topLeft, bottomRight));
-
-    // draw grid
-    QPoint p1, p2;
-    painter->setPen(amsGridPen);
-    int i=0;
-    int lineNumber = maxDistWidth/amsLinePixDist + 1;
-    while (i < lineNumber){
-        // vertical lines
-        p1 = QPoint(startPoint.x() + i*amsLinePixDist, startPoint.y() - maxDistWidth);
-        p2 = QPoint(startPoint.x() + i*amsLinePixDist, startPoint.y() + maxDistWidth);
-        painter->drawLine(p1, p2);
-        p1 = QPoint(startPoint.x() - i*amsLinePixDist, startPoint.y() - maxDistWidth);
-        p2 = QPoint(startPoint.x() - i*amsLinePixDist, startPoint.y() + maxDistWidth);
-        painter->drawLine(p1, p2);
-
-        // horizontal lines
-        p1 = QPoint(startPoint.x() - maxDistWidth, startPoint.y() + i*amsLinePixDist);
-        p2 = QPoint(startPoint.x() + maxDistWidth, startPoint.y() + i*amsLinePixDist);
-        painter->drawLine(p1, p2);
-        p1 = QPoint(startPoint.x() - maxDistWidth, startPoint.y() - i*amsLinePixDist);
-        p2 = QPoint(startPoint.x() + maxDistWidth, startPoint.y() - i*amsLinePixDist);
-        painter->drawLine(p1, p2);
-        i++;
-    }
-}
-
-void OCTAnnotate::drawAmslerStraightLines(QPoint startPoint, int i, QPainter *painter){
-    QPoint p1, p2;
-
-    // vertical straight lines
-    p1 = QPoint(startPoint.x() + i*amsLinePixDist, startPoint.y() - maxDistWidth);
-    p2 = QPoint(startPoint.x() + i*amsLinePixDist, startPoint.y() - i*amsLinePixDist);
-    painter->drawLine(p1, p2);
-    p1 = QPoint(startPoint.x() - i*amsLinePixDist, startPoint.y() - maxDistWidth);
-    p2 = QPoint(startPoint.x() - i*amsLinePixDist, startPoint.y() - i*amsLinePixDist);
-    painter->drawLine(p1, p2);
-    p1 = QPoint(startPoint.x() + i*amsLinePixDist, startPoint.y() + maxDistWidth);
-    p2 = QPoint(startPoint.x() + i*amsLinePixDist, startPoint.y() + i*amsLinePixDist);
-    painter->drawLine(p1, p2);
-    p1 = QPoint(startPoint.x() - i*amsLinePixDist, startPoint.y() + maxDistWidth);
-    p2 = QPoint(startPoint.x() - i*amsLinePixDist, startPoint.y() + i*amsLinePixDist);
-    painter->drawLine(p1, p2);
-
-    // horizontal straight lines
-    p1 = QPoint(startPoint.x() - maxDistWidth, startPoint.y() + i*amsLinePixDist);
-    p2 = QPoint(startPoint.x() - i*amsLinePixDist, startPoint.y() + i*amsLinePixDist);
-    painter->drawLine(p1, p2);
-    p1 = QPoint(startPoint.x() - maxDistWidth, startPoint.y() - i*amsLinePixDist);
-    p2 = QPoint(startPoint.x() - i*amsLinePixDist, startPoint.y() - i*amsLinePixDist);
-    painter->drawLine(p1, p2);
-    p1 = QPoint(startPoint.x() + maxDistWidth, startPoint.y() + i*amsLinePixDist);
-    p2 = QPoint(startPoint.x() + i*amsLinePixDist, startPoint.y() + i*amsLinePixDist);
-    painter->drawLine(p1, p2);
-    p1 = QPoint(startPoint.x() + maxDistWidth, startPoint.y() - i*amsLinePixDist);
-    p2 = QPoint(startPoint.x() + i*amsLinePixDist, startPoint.y() - i*amsLinePixDist);
-    painter->drawLine(p1, p2);
-}
-
-void OCTAnnotate::drawAmslerCurvedLines(QPoint startPoint, int i, QPainter *painter, DistType type){
-    QPoint p1, p2;
-    QRect rectangle;
-    int startAngle = 0;
-    int spanAngle = 0;
-
-    if (type == Convex){
-
-        // curved vertical lines
-        p1 = QPoint(startPoint.x() + i*amsLinePixDist - amsLinePixDist/2, startPoint.y() - i*amsLinePixDist); // topleft
-        p2 = QPoint(startPoint.x() + (i+1)*amsLinePixDist - amsLinePixDist/2, startPoint.y() + i*amsLinePixDist); // bottomright
-        rectangle = QRect(p1, p2);
-        startAngle = 90*16;
-        spanAngle = -180*16;
-        painter->drawArc(rectangle, startAngle, spanAngle);
-
-        p1 = QPoint(startPoint.x() - i*amsLinePixDist + amsLinePixDist/2, startPoint.y() - i*amsLinePixDist); // topleft
-        p2 = QPoint(startPoint.x() - (i+1)*amsLinePixDist + amsLinePixDist/2, startPoint.y() + i*amsLinePixDist); // bottomright
-        rectangle = QRect(p1, p2);
-        startAngle = 90*16;
-        spanAngle = 180*16;
-        painter->drawArc(rectangle, startAngle, spanAngle);
-
-        // curved horizontal lines
-        p1 = QPoint(startPoint.x() - i*amsLinePixDist, startPoint.y() - i*amsLinePixDist + amsLinePixDist/2); // topleft
-        p2 = QPoint(startPoint.x() + i*amsLinePixDist, startPoint.y() - (i+1)*amsLinePixDist + amsLinePixDist/2); // bottomright
-        rectangle = QRect(p1, p2);
-        startAngle = 0*16;
-        spanAngle = 180*16;
-        painter->drawArc(rectangle, startAngle, spanAngle);
-
-        p1 = QPoint(startPoint.x() - i*amsLinePixDist, startPoint.y() + i*amsLinePixDist - amsLinePixDist/2); // topleft
-        p2 = QPoint(startPoint.x() + i*amsLinePixDist, startPoint.y() + (i+1)*amsLinePixDist - amsLinePixDist/2); // bottomright
-        rectangle = QRect(p1, p2);
-        startAngle = 180*16;
-        spanAngle = 180*16;
-        painter->drawArc(rectangle, startAngle, spanAngle);
-
+    if (state){
+        ui->pcvLayerCBox->setChecked(true);
+        ui->ermLayerCBox->setChecked(true);
+        ui->ilmLayerCBox->setChecked(true);
+        ui->gclLayerCBox->setChecked(true);
+        ui->iplLayerCBox->setChecked(true);
+        ui->inlLayerCBox->setChecked(true);
+        ui->oplLayerCBox->setChecked(true);
+        ui->onlLayerCBox->setChecked(true);
+        ui->elmLayerCBox->setChecked(true);
+        ui->mezLayerCBox->setChecked(true);
+        ui->iosLayerCBox->setChecked(true);
+        ui->rpeLayerCBox->setChecked(true);
+        ui->chrLayerCBox->setChecked(true);
     } else {
-
-        // curved vertical lines
-        p1 = QPoint(startPoint.x() + i*amsLinePixDist - amsLinePixDist/2, startPoint.y() - i*amsLinePixDist); // topleft
-        p2 = QPoint(startPoint.x() + (i+1)*amsLinePixDist - amsLinePixDist/2, startPoint.y() + i*amsLinePixDist); // bottomright
-        rectangle = QRect(p1, p2);
-        startAngle = 90*16;
-        spanAngle = 180*16;
-        painter->drawArc(rectangle, startAngle, spanAngle);
-
-        p1 = QPoint(startPoint.x() - i*amsLinePixDist + amsLinePixDist/2, startPoint.y() - i*amsLinePixDist); // topleft
-        p2 = QPoint(startPoint.x() - (i+1)*amsLinePixDist + amsLinePixDist/2, startPoint.y() + i*amsLinePixDist); // bottomright
-        rectangle = QRect(p1, p2);
-        startAngle = 90*16;
-        spanAngle = -180*16;
-        painter->drawArc(rectangle, startAngle, spanAngle);
-
-        // curved horizontal lines
-        p1 = QPoint(startPoint.x() - i*amsLinePixDist, startPoint.y() - i*amsLinePixDist + amsLinePixDist/2); // topleft
-        p2 = QPoint(startPoint.x() + i*amsLinePixDist, startPoint.y() - (i+1)*amsLinePixDist + amsLinePixDist/2); // bottomright
-        rectangle = QRect(p1, p2);
-        startAngle = 0*16;
-        spanAngle = -180*16;
-        painter->drawArc(rectangle, startAngle, spanAngle);
-
-        p1 = QPoint(startPoint.x() - i*amsLinePixDist, startPoint.y() + i*amsLinePixDist - amsLinePixDist/2); // topleft
-        p2 = QPoint(startPoint.x() + i*amsLinePixDist, startPoint.y() + (i+1)*amsLinePixDist - amsLinePixDist/2); // bottomright
-        rectangle = QRect(p1, p2);
-        startAngle = 180*16;
-        spanAngle = -180*16;
-        painter->drawArc(rectangle, startAngle, spanAngle);
+        ui->pcvLayerCBox->setChecked(false);
+        ui->ermLayerCBox->setChecked(false);
+        ui->ilmLayerCBox->setChecked(false);
+        ui->gclLayerCBox->setChecked(false);
+        ui->iplLayerCBox->setChecked(false);
+        ui->inlLayerCBox->setChecked(false);
+        ui->oplLayerCBox->setChecked(false);
+        ui->onlLayerCBox->setChecked(false);
+        ui->elmLayerCBox->setChecked(false);
+        ui->mezLayerCBox->setChecked(false);
+        ui->iosLayerCBox->setChecked(false);
+        ui->rpeLayerCBox->setChecked(false);
+        ui->chrLayerCBox->setChecked(false);
     }
 }
 
-
-// bscan image navigation -------------------------------------------------------------------------
 void OCTAnnotate::on_pcvLayerCBox_stateChanged(int state){
     if (state){ // pcv visible
         ui->bScanHCPlot->graph(getAllLayers().indexOf(PCV))->setVisible(true);
@@ -2988,6 +2436,8 @@ void OCTAnnotate::on_chrLayerRButton_clicked()
         selectedLayer = CHR;
 }
 
+
+// bscan scale / zoom -----------------------------------------------------------------------------
 void OCTAnnotate::on_zoomInButton_clicked()
 {
     if (!patientData.getImageFileList().isEmpty()){
@@ -3113,113 +2563,7 @@ void OCTAnnotate::adjustScrollBar(QScrollBar *scrollBar, double factor)
 }
 
 
-// amsler drawing navigation ----------------------------------------------------------------------
-void OCTAnnotate::on_penButton_toggled(bool checked)
-{
-    if (checked){
-        ui->sprayLightButton->setChecked(false);
-        ui->sprayDarkButton->setChecked(false);
-        ui->lineButton->setChecked(false);
-        currDistType = Pen;
-    } else {
-        currDistType = None;
-    }
-}
-
-void OCTAnnotate::on_sprayLightButton_toggled(bool checked)
-{
-    if (checked){
-        ui->penButton->setChecked(false);
-        ui->sprayDarkButton->setChecked(false);
-        ui->lineButton->setChecked(false);
-        currDistType = WhiteSpot;
-    } else {
-        currDistType = None;
-    }
-}
-
-void OCTAnnotate::on_sprayDarkButton_toggled(bool checked)
-{
-    if (checked){
-        ui->penButton->setChecked(false);
-        ui->sprayLightButton->setChecked(false);
-        ui->lineButton->setChecked(false);
-        currDistType = BlackSpot;
-    } else {
-        currDistType = None;
-    }
-}
-
-void OCTAnnotate::on_lineButton_toggled(bool checked)
-{
-    if (checked){
-        ui->penButton->setChecked(false);
-        ui->sprayLightButton->setChecked(false);
-        ui->sprayDarkButton->setChecked(false);
-
-        ui->distShapeCBox->setEnabled(true);
-        switch (ui->distShapeCBox->currentIndex()) {
-        case 0:
-            currDistType = RightSpiral;
-            break;
-        case 1:
-            currDistType = LeftSpiral;
-            break;
-        case 2:
-            currDistType = Convex;
-            break;
-        case 3:
-            currDistType = Concave;
-            break;
-        // TODO: other types...
-        }
-    } else {
-        ui->distShapeCBox->setEnabled(false);
-        currDistType = None;
-    }
-}
-
-void OCTAnnotate::on_distShapeCBox_currentIndexChanged(int index)
-{
-    switch (index) {
-    case 0:
-        currDistType = RightSpiral;
-        break;
-    case 1:
-        currDistType = LeftSpiral;
-        break;
-    case 2:
-        currDistType = Convex;
-        break;
-    case 3:
-        currDistType = Concave;
-        break;
-    // TODO: other types...
-    }
-}
-
-void OCTAnnotate::on_amslerRDistList_itemClicked()
-{
-    amsDistEyeSelected = "R";
-    amsDistIdSelected = ui->amslerRDistList->currentRow();
-    ui->amslerLDistList->setCurrentRow(-1);
-
-    // TODO: color selected item
-    repaintAmsler = true;
-}
-
-void OCTAnnotate::on_amslerLDistList_itemClicked()
-{
-    amsDistEyeSelected = "L";
-    amsDistIdSelected = ui->amslerLDistList->currentRow();
-    ui->amslerRDistList->setCurrentRow(-1);
-
-    // TODO: color selected item
-    repaintAmsler = true;
-}
-
-
-// data edit --------------------------------------------------------------------------------------
+// general data edit ------------------------------------------------------------------------------
 void OCTAnnotate::on_visOPLEdit_textEdited()
 {
     QRegExp rx(",");
@@ -3247,17 +2591,6 @@ void OCTAnnotate::on_snOLLEdit_textEdited()
     ui->snOLLEdit->setText(ui->snOLLEdit->text().replace(rx, "."));
     generalDataModified = true;
 }
-
-void OCTAnnotate::on_amslerRCommentTEdit_textChanged()
-{
-    generalDataModified = true;
-}
-
-void OCTAnnotate::on_amslerLCommentTEdit_textChanged()
-{
-    generalDataModified = true;
-}
-
 
 // m-charts edit ----------------------------------------------------------------------------------
 void OCTAnnotate::on_mcVOPLEdit_textChanged()
@@ -3450,7 +2783,6 @@ void OCTAnnotate::setupBScanPlots(){
         ui->bScanHCPlot->graph(graphID)->setPen(QPen(getLayerColor(layer)));
         ui->bScanHCPlot->graph(graphID)->setLineStyle(QCPGraph::lsLine);
         ui->bScanHCPlot->graph(graphID)->setScatterStyle(QCPScatterStyle(QCPScatterStyle::ssCircle,1.5)); // 3.5 do publikacji
-        //ui->testWidget->graph(graphID)->setName("PCV manual annotation");
         graphID++;
     }
 
@@ -3476,7 +2808,6 @@ void OCTAnnotate::setupBScanPlots(){
         ui->bScanVCPlot->graph(graphID)->setPen(QPen(getLayerColor(layer)));
         ui->bScanVCPlot->graph(graphID)->setLineStyle(QCPGraph::lsLine);
         ui->bScanVCPlot->graph(graphID)->setScatterStyle(QCPScatterStyle(QCPScatterStyle::ssCircle,1.5));
-        //ui->testWidget->graph(graphID)->setName("PCV manual annotation");
         graphID++;
     }
 }
@@ -3930,6 +3261,15 @@ void OCTAnnotate::displayImageLayersPlot(int bscanNumber, Layers selectedLayer){
     }
 }
 
+void OCTAnnotate::on_actionShowETDRSGrid_toggled(bool checked)
+{
+    showETDRSGrid = checked;
+    displayVirtualMap(ui->virtualMapImageCPlot);
+    displayVirtualMap(ui->virtualMapAutoImageCPlot,true);
+}
+
+
+// display statistics -----------------------------------------------------------------------------
 void OCTAnnotate::displayCircProfile(){
     setupCircProfilePlot();
 
@@ -4073,93 +3413,8 @@ void OCTAnnotate::displayVolumes(){
     }
 }
 
-void OCTAnnotate::on_nextImageLayersButton_clicked()
-{
-    if (!patientData.getImageFileList().isEmpty()){
-        if (currentImageLayersNumber < (patientData.getBscansNumber() - 1)){
-            currentImageLayersNumber++;
-            displayImageLayersPlot(currentImageLayersNumber,selectedErrorLayer);
-            displayVirtualMap(ui->virtualMapAutoImageCPlot, true);
-            displayVirtualMap(ui->virtualMapImageCPlot);
-            loadImage(currentImageLayersNumber);
 
-            if (currentImageLayersNumber >= (patientData.getBscansNumber() - 1))
-                ui->nextImageLayersButton->setEnabled(false);
-            ui->prevImageLayersButton->setEnabled(true);
-
-            // display error for selected B-scan image
-                // pcv layer
-            ui->pcvLineErrorAvgLEdit->setText(QString::number(patientData.getLayerLineErrorAvg(PCV,currentImageLayersNumber)) + " px");
-            ui->pcvLineErrorDevLEdit->setText(QString::number(patientData.getLayerLineErrorDev(PCV,currentImageLayersNumber)) + " px");
-            ui->pcvLineErrorAvgLEdit_um->setText(QString::number(patientData.getLayerLineErrorAvg(PCV,currentImageLayersNumber,"um")) + " um");
-            ui->pcvLineErrorDevLEdit_um->setText(QString::number(patientData.getLayerLineErrorDev(PCV,currentImageLayersNumber,"um")) + " um");
-                // ilm layer
-            ui->ilmLineErrorAvgLEdit->setText(QString::number(patientData.getLayerLineErrorAvg(ILM,currentImageLayersNumber)) + " px");
-            ui->ilmLineErrorDevLEdit->setText(QString::number(patientData.getLayerLineErrorDev(ILM,currentImageLayersNumber)) + " px");
-            ui->ilmLineErrorAvgLEdit_um->setText(QString::number(patientData.getLayerLineErrorAvg(ILM,currentImageLayersNumber,"um")) + " um");
-            ui->ilmLineErrorDevLEdit_um->setText(QString::number(patientData.getLayerLineErrorDev(ILM,currentImageLayersNumber,"um")) + " um");
-        }
-    }
-}
-
-void OCTAnnotate::on_prevImageLayersButton_clicked()
-{
-    if (!patientData.getImageFileList().isEmpty()){
-        if (currentImageLayersNumber > 0){
-            currentImageLayersNumber--;
-            displayImageLayersPlot(currentImageLayersNumber,selectedErrorLayer);
-            displayVirtualMap(ui->virtualMapAutoImageCPlot, true);
-            displayVirtualMap(ui->virtualMapImageCPlot);
-            loadImage(currentImageLayersNumber);
-
-            if (currentImageLayersNumber <= 0)
-                ui->prevImageLayersButton->setEnabled(false);
-            ui->nextImageLayersButton->setEnabled(true);
-
-            // display error for selected B-scan image
-                // pcv layer
-            ui->pcvLineErrorAvgLEdit->setText(QString::number(patientData.getLayerLineErrorAvg(PCV,currentImageLayersNumber)) + " px");
-            ui->pcvLineErrorDevLEdit->setText(QString::number(patientData.getLayerLineErrorDev(PCV,currentImageLayersNumber)) + " px");
-            ui->pcvLineErrorAvgLEdit_um->setText(QString::number(patientData.getLayerLineErrorAvg(PCV,currentImageLayersNumber,"um")) + " um");
-            ui->pcvLineErrorDevLEdit_um->setText(QString::number(patientData.getLayerLineErrorDev(PCV,currentImageLayersNumber,"um")) + " um");
-                // ilm layer
-            ui->ilmLineErrorAvgLEdit->setText(QString::number(patientData.getLayerLineErrorAvg(ILM,currentImageLayersNumber)) + " px");
-            ui->ilmLineErrorDevLEdit->setText(QString::number(patientData.getLayerLineErrorDev(ILM,currentImageLayersNumber)) + " px");
-            ui->ilmLineErrorAvgLEdit_um->setText(QString::number(patientData.getLayerLineErrorAvg(ILM,currentImageLayersNumber,"um")) + " um");
-            ui->ilmLineErrorDevLEdit_um->setText(QString::number(patientData.getLayerLineErrorDev(ILM,currentImageLayersNumber,"um")) + " um");
-        }
-    }
-}
-
-void OCTAnnotate::on_currImageNumberLayersLEdit_returnPressed()
-{
-    if (!patientData.getImageFileList().isEmpty()){
-        int value = ui->currImageNumberLayersLEdit->text().toInt();
-        if (value < 0)
-            value = 0;
-        if (value >= patientData.getBscansNumber())
-            value = patientData.getBscansNumber()-1;
-
-        currentImageLayersNumber = value;
-        displayImageLayersPlot(currentImageLayersNumber,selectedErrorLayer);
-        loadImage(currentImageLayersNumber);
-        fundusAnnotate = true;
-        displayVirtualMap(ui->virtualMapImageCPlot);
-        displayVirtualMap(ui->virtualMapAutoImageCPlot, true);
-
-        if (currentImageLayersNumber <= 0)
-            ui->prevImageLayersButton->setEnabled(false);
-        else
-            ui->prevImageLayersButton->setEnabled(true);
-        if (currentImageLayersNumber >= (patientData.getBscansNumber()-1))
-            ui->nextImageLayersButton->setEnabled(false);
-        else
-            ui->nextImageLayersButton->setEnabled(true);
-
-        ui->currImageNumberLayersLEdit->clearFocus();
-    }
-}
-
+// recalculate virtual map for selected values ----------------------------------------------------
 void OCTAnnotate::on_layer1CBox_currentIndexChanged(int index)
 {
     vMapLayer1 = (Layers)index;
@@ -4217,20 +3472,6 @@ void OCTAnnotate::on_contactThresholdCBox_currentIndexChanged(int index)
         ui->contactAreaProcIMLabel->setText(QString::number(patientData.getContactAreaIM() / max2 * 100,3,0) + " %");
         ui->contactAreaProcOMLabel->setText(QString::number(patientData.getContactAreaOM() / max3 * 100,3,0) + " %");
     }
-}
-
-void OCTAnnotate::on_actionShowETDRSGrid_toggled(bool checked)
-{
-    showETDRSGrid = checked;
-    displayVirtualMap(ui->virtualMapImageCPlot);
-    displayVirtualMap(ui->virtualMapAutoImageCPlot,true);
-}
-
-void OCTAnnotate::on_actionShowCenterOnBscan_toggled(bool checked)
-{
-    showCenterOnBscan = checked;
-    if (!patientData.getImageFileList().isEmpty())
-        loadImage(currentImageNumber);
 }
 
 // auto annotations -------------------------------------------------------------------------------
@@ -4482,6 +3723,7 @@ QList<QList<int> > OCTAnnotate::convertSurfaceLines(QXmlStreamReader &xml, QList
     return lineMap;
 }
 
+// read manual annotations from selected file -----------------------------------------------------
 void OCTAnnotate::on_actionReadManualAnnotations_triggered()
 {
     if (!patientData.getImageFileList().isEmpty()){
@@ -4529,16 +3771,6 @@ void OCTAnnotate::on_actionReadManualAnnotations_triggered()
 
 
 // other ------------------------------------------------------------------------------------------
-void OCTAnnotate::on_actionSetScanCenter_toggled(bool checked)
-{
-    if (checked){
-        settingScanCenter = true;
-        ui->statusBar->showMessage("Ustawianie środka skanu: Proszę kliknąć na obrazie B-skan...");
-    } else {
-        settingScanCenter = false;
-    }
-}
-
 void OCTAnnotate::on_actionFillFromILM_triggered()
 {
     if (!patientData.getImageFileList().isEmpty()){
@@ -4559,23 +3791,6 @@ void OCTAnnotate::on_actionFillStraight_triggered()
     }
 }
 
-void OCTAnnotate::on_actionSettings_triggered()
-{
-    SettingsDialog *settingsDialog = new SettingsDialog();
-    if(settingsDialog->exec() == QDialog::Accepted){
-        on_actionShowETDRSGrid_toggled(settingsDialog->getShowETDRSGrid());
-        on_actionShowCenterOnBscan_toggled(settingsDialog->getShowCenterOnBscan());
-        blockPCV = settingsDialog->getBlockPCV();
-        openBscanNumber = settingsDialog->getOpenBskan();
-        examDir = settingsDialog->getPathOctExam();
-        manualDir = settingsDialog->getPathManualSegm();
-        autoDir = settingsDialog->getPathAutoSegm();
-        dataSaveStructure = settingsDialog->getDataSaveStructure();
-        showBscanOnErrorPlot = settingsDialog->getShowBscanOnErrorPlot();
-        displayImageLayersPlot(currentImageLayersNumber,selectedErrorLayer);
-    }
-}
-
 void OCTAnnotate::on_layerErrorCBox_currentIndexChanged(int index)
 {
     selectedErrorLayer = (Layers)index;
@@ -4593,6 +3808,8 @@ void OCTAnnotate::on_layerErrorCBox_currentIndexChanged(int index)
     }
 }
 
+
+// automatic segmentation error calculations ------------------------------------------------------
 void OCTAnnotate::on_actionComputeErrorAllScans_triggered()
 {
     ComputeErrorSettingsDialog *cesDialog = new ComputeErrorSettingsDialog();
@@ -4710,11 +3927,10 @@ void OCTAnnotate::on_actionComputeErrorAllScans_triggered()
     }
 }
 
+
+// thread handling --------------------------------------------------------------------------------
 void OCTAnnotate::on_errorOccured(QString err){
     QMessageBox::critical(this, tr("Error"), err);
-
-    // TODO (if przy readAuto):
-    // on_actionCloseAutoSegmentation_triggered();
 }
 
 void OCTAnnotate::on_processingData(double procent, QString msg){
@@ -4745,18 +3961,14 @@ void OCTAnnotate::on_readingDataFinished(QString data){
         ui->visOLLEdit->setText(patientData.getVisOL());
         ui->snOPLEdit->setText(patientData.getSnOP());
         ui->snOLLEdit->setText(patientData.getSnOL());
-        ui->amslerRCommentTEdit->setText(patientData.getAmslerComment("R"));
-        ui->amslerLCommentTEdit->setText(patientData.getAmslerComment("L"));
         ui->mcVOPLEdit->setText(patientData.getMcvOP());
         ui->mcVOLLEdit->setText(patientData.getMcvOL());
         ui->mcHOPLEdit->setText(patientData.getMchOP());
         ui->mcHOLLEdit->setText(patientData.getMchOL());
-        listAmslerDistortions();
         generalDataModified = false;
 
         // display information
         this->setWindowTitle("OCTAnnotate " + appVersion + " - " + octDir.dirName());
-        drawGrid = true;
     }
 
     ui->statusBar->clearMessage();
@@ -4771,15 +3983,11 @@ void OCTAnnotate::on_readingDataFinished(QString data){
 
     QMessageBox::information(this, "Odczyt danych OCT", msg);
 
-    if (openBscanNumber == "m"){
-        QPoint center = patientData.getScanCenter();
-        if (center.y() != -1)
-            currentImageNumber = center.y();
-        else
-            currentImageNumber = patientData.getBscansNumber()/2;   // middle B-scan
-    } else {
-        currentImageNumber = 0;
-    }
+    QPoint center = patientData.getScanCenter();
+    if (center.y() != -1)
+        currentImageNumber = center.y();
+    else
+        currentImageNumber = patientData.getBscansNumber()/2;   // middle B-scan
     currentImageLayersNumber = currentImageNumber;
     currentNormalImageNumber = patientData.getBscanWidth()/2;
 
@@ -4800,11 +4008,6 @@ void OCTAnnotate::on_readingDataFinished(QString data){
     }
     ui->actionSaveGeneralExam->setEnabled(true);
     ui->actionSaveOCTExam->setEnabled(true);
-    ui->penButton->setEnabled(true);
-    ui->sprayLightButton->setEnabled(true);
-    ui->sprayDarkButton->setEnabled(true);
-    ui->lineButton->setEnabled(true);
-    ui->eraseAmslerButton->setEnabled(true);
     ui->computeVirtualMapButton->setEnabled(true);
     ui->actionReadAutoSegmentation->setEnabled(true);
     ui->actionSetScanCenter->setEnabled(true);
@@ -4854,6 +4057,7 @@ void OCTAnnotate::on_returnNewDirectory(QString newDir){
     octDir = QDir(newDir);
 }
 
+// calculate statistics for CAVRI analysis -------------------------------------------------------
 void OCTAnnotate::on_actionComputeStatistics_triggered()
 {
     ui->statusBar->showMessage("Trwa odczyt danych...");
@@ -4917,39 +4121,8 @@ void OCTAnnotate::on_actionComputeStatistics_triggered()
     thread->start();
 }
 
-void OCTAnnotate::on_allLayersCBox_stateChanged(int state)
-{
-    if (state){
-        ui->pcvLayerCBox->setChecked(true);
-        ui->ermLayerCBox->setChecked(true);
-        ui->ilmLayerCBox->setChecked(true);
-        ui->gclLayerCBox->setChecked(true);
-        ui->iplLayerCBox->setChecked(true);
-        ui->inlLayerCBox->setChecked(true);
-        ui->oplLayerCBox->setChecked(true);
-        ui->onlLayerCBox->setChecked(true);
-        ui->elmLayerCBox->setChecked(true);
-        ui->mezLayerCBox->setChecked(true);
-        ui->iosLayerCBox->setChecked(true);
-        ui->rpeLayerCBox->setChecked(true);
-        ui->chrLayerCBox->setChecked(true);
-    } else {
-        ui->pcvLayerCBox->setChecked(false);
-        ui->ermLayerCBox->setChecked(false);
-        ui->ilmLayerCBox->setChecked(false);
-        ui->gclLayerCBox->setChecked(false);
-        ui->iplLayerCBox->setChecked(false);
-        ui->inlLayerCBox->setChecked(false);
-        ui->oplLayerCBox->setChecked(false);
-        ui->onlLayerCBox->setChecked(false);
-        ui->elmLayerCBox->setChecked(false);
-        ui->mezLayerCBox->setChecked(false);
-        ui->iosLayerCBox->setChecked(false);
-        ui->rpeLayerCBox->setChecked(false);
-        ui->chrLayerCBox->setChecked(false);
-    }
-}
 
+// data visualization for publication purposes ---------------------------------------------------
 void OCTAnnotate::on_plotLayersButton_clicked()
 {
     ui->layerCPlot->clearGraphs();
@@ -5135,15 +4308,8 @@ void OCTAnnotate::on_plotLayersButton_clicked()
     ui->errorVirtualMapCPlot->replot();
 }
 
-void OCTAnnotate::delay( int secondsToWait )
-{
-    QTime dieTime = QTime::currentTime().addSecs( secondsToWait );
-    while( QTime::currentTime() < dieTime )
-    {
-        QCoreApplication::processEvents( QEventLoop::AllEvents, 100 );
-    }
-}
 
+// patients database -----------------------------------------------------------------------------
 void OCTAnnotate::on_addPatientDBButton_clicked()
 {
     NewPatientDialog *newPatientDialog = new NewPatientDialog();
@@ -5355,6 +4521,22 @@ void OCTAnnotate::addScanToDB(QString examPath){
     }
 }
 
+void OCTAnnotate::on_searchForScansButton_clicked()
+{
+    // TODO:
+    // 1. zaladuj liste katalogow ze wskazanego katalogu
+    QString folderSearchPath = QFileDialog::getExistingDirectory(this, tr("Open Directory"), examDir.absolutePath(), QFileDialog::ShowDirsOnly);
+    QDir folderSearchDir = QDir(folderSearchPath);
+    QStringList folderList = folderSearchDir.entryList(QDir::Dirs | QDir::NoDotAndDotDot);
+
+    // 2. dla kazdego katalogu dodaj skan do bazy
+    foreach(QString folderName, folderList){
+        qDebug() << folderSearchPath + "/" + folderName;
+        on_addScanFolderButton_clicked(folderSearchPath + "/" + folderName);
+    }
+}
+
+// batch processing -------------------------------------------------------------------------------
 void OCTAnnotate::on_batchProcessingButton_clicked()
 {
     QList<QString> folderList;
@@ -5403,6 +4585,7 @@ void OCTAnnotate::on_batchProcessingButton_clicked()
 //    modelScans->select();
 }
 
+// search / filter / show data --------------------------------------------------------------------
 void OCTAnnotate::on_patientsListTableView_clicked(const QModelIndex &currentIndex)
 {
     // If user whants to see only scans for selected patient:
@@ -5682,40 +4865,4 @@ void OCTAnnotate::on_scansListTableView_doubleClicked(const QModelIndex &current
 //    QString scanFolder = examDir.absolutePath() + "/" + record.value("device").toString() + " " + record.value("series").toString() + "/" + record.value("scan_folder_path").toString();
     QString scanFolder = examDir.absolutePath() + "/" + record.value("scan_folder_path").toString();
     on_actionLoadPatientOCT_triggered(scanFolder);
-}
-
-void OCTAnnotate::on_actionImageFlattening_toggled(bool state)
-{
-    flattenImage = state;
-    if (!patientData.getImageFileList().isEmpty()){
-        loadImage(currentImageNumber);
-        loadNormalImage(currentNormalImageNumber);
-        displayImageLayersPlot(currentImageLayersNumber,ILM);
-    }
-}
-
-void OCTAnnotate::on_searchForScansButton_clicked()
-{
-    // TODO:
-    // 1. zaladuj liste katalogow ze wskazanego katalogu
-    QString folderSearchPath = QFileDialog::getExistingDirectory(this, tr("Open Directory"), examDir.absolutePath(), QFileDialog::ShowDirsOnly);
-    QDir folderSearchDir = QDir(folderSearchPath);
-    QStringList folderList = folderSearchDir.entryList(QDir::Dirs | QDir::NoDotAndDotDot);
-
-    // 2. dla kazdego katalogu dodaj skan do bazy
-    foreach(QString folderName, folderList){
-        qDebug() << folderSearchPath + "/" + folderName;
-        on_addScanFolderButton_clicked(folderSearchPath + "/" + folderName);
-    }
-}
-
-void OCTAnnotate::on_actionEditAnnotations_toggled(bool state)
-{
-    editAnnotations = state;
-}
-
-void OCTAnnotate::on_actionInfo_triggered()
-{
-    InfoDialog *myInfo = new InfoDialog();
-    myInfo->show();
 }

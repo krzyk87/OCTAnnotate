@@ -22,7 +22,6 @@
 #include <QtWidgets/QHeaderView>
 #include <QtWidgets/QLabel>
 #include <QtWidgets/QLineEdit>
-#include <QtWidgets/QListWidget>
 #include <QtWidgets/QMainWindow>
 #include <QtWidgets/QMenu>
 #include <QtWidgets/QMenuBar>
@@ -33,7 +32,6 @@
 #include <QtWidgets/QStatusBar>
 #include <QtWidgets/QTabWidget>
 #include <QtWidgets/QTableView>
-#include <QtWidgets/QTextEdit>
 #include <QtWidgets/QToolBar>
 #include <QtWidgets/QVBoxLayout>
 #include <QtWidgets/QWidget>
@@ -125,40 +123,6 @@ public:
     QVBoxLayout *verticalLayout_26;
     QLabel *bscanHLabel;
     QLabel *bscanVLabel;
-    QWidget *tabAmslerCharts;
-    QGridLayout *gridLayout_6;
-    QVBoxLayout *verticalLayout_19;
-    QLabel *label_19;
-    QLabel *amslerRImageLabel;
-    QSpacerItem *horizontalSpacer_8;
-    QVBoxLayout *verticalLayout_21;
-    QPushButton *penButton;
-    QSpacerItem *verticalSpacer_5;
-    QPushButton *sprayLightButton;
-    QPushButton *sprayDarkButton;
-    QSpacerItem *verticalSpacer_6;
-    QPushButton *lineButton;
-    QComboBox *distShapeCBox;
-    QSpacerItem *verticalSpacer_7;
-    QSpacerItem *horizontalSpacer_9;
-    QVBoxLayout *verticalLayout_20;
-    QLabel *label_20;
-    QLabel *amslerLImageLabel;
-    QVBoxLayout *verticalLayout_15;
-    QLabel *label_22;
-    QListWidget *amslerRDistList;
-    QSpacerItem *horizontalSpacer_6;
-    QPushButton *eraseAmslerButton;
-    QSpacerItem *horizontalSpacer_7;
-    QVBoxLayout *verticalLayout_18;
-    QLabel *label_23;
-    QListWidget *amslerLDistList;
-    QVBoxLayout *verticalLayout_16;
-    QLabel *label_18;
-    QTextEdit *amslerRCommentTEdit;
-    QVBoxLayout *verticalLayout_17;
-    QLabel *label_24;
-    QTextEdit *amslerLCommentTEdit;
     QWidget *tabOCTExam;
     QHBoxLayout *horizontalLayout_16;
     QVBoxLayout *verticalLayout_4;
@@ -823,197 +787,6 @@ public:
         verticalLayout_7->addLayout(horizontalLayout_14);
 
         tabWidget->addTab(tabDatabase, QString());
-        tabAmslerCharts = new QWidget();
-        tabAmslerCharts->setObjectName(QStringLiteral("tabAmslerCharts"));
-        gridLayout_6 = new QGridLayout(tabAmslerCharts);
-        gridLayout_6->setSpacing(6);
-        gridLayout_6->setContentsMargins(11, 11, 11, 11);
-        gridLayout_6->setObjectName(QStringLiteral("gridLayout_6"));
-        verticalLayout_19 = new QVBoxLayout();
-        verticalLayout_19->setSpacing(6);
-        verticalLayout_19->setObjectName(QStringLiteral("verticalLayout_19"));
-        label_19 = new QLabel(tabAmslerCharts);
-        label_19->setObjectName(QStringLiteral("label_19"));
-        label_19->setAlignment(Qt::AlignCenter);
-
-        verticalLayout_19->addWidget(label_19);
-
-        amslerRImageLabel = new QLabel(tabAmslerCharts);
-        amslerRImageLabel->setObjectName(QStringLiteral("amslerRImageLabel"));
-        amslerRImageLabel->setMinimumSize(QSize(301, 301));
-        amslerRImageLabel->setMaximumSize(QSize(301, 301));
-
-        verticalLayout_19->addWidget(amslerRImageLabel);
-
-
-        gridLayout_6->addLayout(verticalLayout_19, 0, 0, 1, 1);
-
-        horizontalSpacer_8 = new QSpacerItem(143, 20, QSizePolicy::Expanding, QSizePolicy::Minimum);
-
-        gridLayout_6->addItem(horizontalSpacer_8, 0, 1, 1, 1);
-
-        verticalLayout_21 = new QVBoxLayout();
-        verticalLayout_21->setSpacing(6);
-        verticalLayout_21->setObjectName(QStringLiteral("verticalLayout_21"));
-        penButton = new QPushButton(tabAmslerCharts);
-        penButton->setObjectName(QStringLiteral("penButton"));
-        penButton->setEnabled(false);
-        penButton->setFont(font);
-        penButton->setCheckable(true);
-
-        verticalLayout_21->addWidget(penButton);
-
-        verticalSpacer_5 = new QSpacerItem(20, 20, QSizePolicy::Minimum, QSizePolicy::Expanding);
-
-        verticalLayout_21->addItem(verticalSpacer_5);
-
-        sprayLightButton = new QPushButton(tabAmslerCharts);
-        sprayLightButton->setObjectName(QStringLiteral("sprayLightButton"));
-        sprayLightButton->setEnabled(false);
-        sprayLightButton->setFont(font);
-        sprayLightButton->setCheckable(true);
-
-        verticalLayout_21->addWidget(sprayLightButton);
-
-        sprayDarkButton = new QPushButton(tabAmslerCharts);
-        sprayDarkButton->setObjectName(QStringLiteral("sprayDarkButton"));
-        sprayDarkButton->setEnabled(false);
-        sprayDarkButton->setFont(font);
-        sprayDarkButton->setCheckable(true);
-
-        verticalLayout_21->addWidget(sprayDarkButton);
-
-        verticalSpacer_6 = new QSpacerItem(20, 20, QSizePolicy::Minimum, QSizePolicy::Expanding);
-
-        verticalLayout_21->addItem(verticalSpacer_6);
-
-        lineButton = new QPushButton(tabAmslerCharts);
-        lineButton->setObjectName(QStringLiteral("lineButton"));
-        lineButton->setEnabled(false);
-        lineButton->setFont(font);
-        lineButton->setCheckable(true);
-
-        verticalLayout_21->addWidget(lineButton);
-
-        distShapeCBox = new QComboBox(tabAmslerCharts);
-        distShapeCBox->setObjectName(QStringLiteral("distShapeCBox"));
-        distShapeCBox->setEnabled(false);
-
-        verticalLayout_21->addWidget(distShapeCBox);
-
-        verticalSpacer_7 = new QSpacerItem(20, 40, QSizePolicy::Minimum, QSizePolicy::Expanding);
-
-        verticalLayout_21->addItem(verticalSpacer_7);
-
-
-        gridLayout_6->addLayout(verticalLayout_21, 0, 2, 1, 1);
-
-        horizontalSpacer_9 = new QSpacerItem(142, 20, QSizePolicy::Expanding, QSizePolicy::Minimum);
-
-        gridLayout_6->addItem(horizontalSpacer_9, 0, 3, 1, 1);
-
-        verticalLayout_20 = new QVBoxLayout();
-        verticalLayout_20->setSpacing(6);
-        verticalLayout_20->setObjectName(QStringLiteral("verticalLayout_20"));
-        label_20 = new QLabel(tabAmslerCharts);
-        label_20->setObjectName(QStringLiteral("label_20"));
-        label_20->setAlignment(Qt::AlignCenter);
-
-        verticalLayout_20->addWidget(label_20);
-
-        amslerLImageLabel = new QLabel(tabAmslerCharts);
-        amslerLImageLabel->setObjectName(QStringLiteral("amslerLImageLabel"));
-        amslerLImageLabel->setMinimumSize(QSize(301, 301));
-        amslerLImageLabel->setMaximumSize(QSize(301, 301));
-
-        verticalLayout_20->addWidget(amslerLImageLabel);
-
-
-        gridLayout_6->addLayout(verticalLayout_20, 0, 4, 1, 1);
-
-        verticalLayout_15 = new QVBoxLayout();
-        verticalLayout_15->setSpacing(6);
-        verticalLayout_15->setObjectName(QStringLiteral("verticalLayout_15"));
-        label_22 = new QLabel(tabAmslerCharts);
-        label_22->setObjectName(QStringLiteral("label_22"));
-
-        verticalLayout_15->addWidget(label_22);
-
-        amslerRDistList = new QListWidget(tabAmslerCharts);
-        amslerRDistList->setObjectName(QStringLiteral("amslerRDistList"));
-        amslerRDistList->setMinimumSize(QSize(299, 90));
-
-        verticalLayout_15->addWidget(amslerRDistList);
-
-
-        gridLayout_6->addLayout(verticalLayout_15, 1, 0, 1, 1);
-
-        horizontalSpacer_6 = new QSpacerItem(143, 20, QSizePolicy::Expanding, QSizePolicy::Minimum);
-
-        gridLayout_6->addItem(horizontalSpacer_6, 1, 1, 1, 1);
-
-        eraseAmslerButton = new QPushButton(tabAmslerCharts);
-        eraseAmslerButton->setObjectName(QStringLiteral("eraseAmslerButton"));
-        eraseAmslerButton->setEnabled(false);
-
-        gridLayout_6->addWidget(eraseAmslerButton, 1, 2, 1, 1);
-
-        horizontalSpacer_7 = new QSpacerItem(142, 20, QSizePolicy::Expanding, QSizePolicy::Minimum);
-
-        gridLayout_6->addItem(horizontalSpacer_7, 1, 3, 1, 1);
-
-        verticalLayout_18 = new QVBoxLayout();
-        verticalLayout_18->setSpacing(6);
-        verticalLayout_18->setObjectName(QStringLiteral("verticalLayout_18"));
-        label_23 = new QLabel(tabAmslerCharts);
-        label_23->setObjectName(QStringLiteral("label_23"));
-
-        verticalLayout_18->addWidget(label_23);
-
-        amslerLDistList = new QListWidget(tabAmslerCharts);
-        amslerLDistList->setObjectName(QStringLiteral("amslerLDistList"));
-        amslerLDistList->setMinimumSize(QSize(299, 90));
-
-        verticalLayout_18->addWidget(amslerLDistList);
-
-
-        gridLayout_6->addLayout(verticalLayout_18, 1, 4, 1, 1);
-
-        verticalLayout_16 = new QVBoxLayout();
-        verticalLayout_16->setSpacing(6);
-        verticalLayout_16->setObjectName(QStringLiteral("verticalLayout_16"));
-        label_18 = new QLabel(tabAmslerCharts);
-        label_18->setObjectName(QStringLiteral("label_18"));
-
-        verticalLayout_16->addWidget(label_18);
-
-        amslerRCommentTEdit = new QTextEdit(tabAmslerCharts);
-        amslerRCommentTEdit->setObjectName(QStringLiteral("amslerRCommentTEdit"));
-        amslerRCommentTEdit->setMinimumSize(QSize(299, 90));
-
-        verticalLayout_16->addWidget(amslerRCommentTEdit);
-
-
-        gridLayout_6->addLayout(verticalLayout_16, 2, 0, 1, 1);
-
-        verticalLayout_17 = new QVBoxLayout();
-        verticalLayout_17->setSpacing(6);
-        verticalLayout_17->setObjectName(QStringLiteral("verticalLayout_17"));
-        label_24 = new QLabel(tabAmslerCharts);
-        label_24->setObjectName(QStringLiteral("label_24"));
-
-        verticalLayout_17->addWidget(label_24);
-
-        amslerLCommentTEdit = new QTextEdit(tabAmslerCharts);
-        amslerLCommentTEdit->setObjectName(QStringLiteral("amslerLCommentTEdit"));
-        amslerLCommentTEdit->setMinimumSize(QSize(299, 90));
-
-        verticalLayout_17->addWidget(amslerLCommentTEdit);
-
-
-        gridLayout_6->addLayout(verticalLayout_17, 2, 4, 1, 1);
-
-        tabWidget->addTab(tabAmslerCharts, QString());
         tabOCTExam = new QWidget();
         tabOCTExam->setObjectName(QStringLiteral("tabOCTExam"));
         horizontalLayout_16 = new QHBoxLayout(tabOCTExam);
@@ -2155,20 +1928,6 @@ public:
         bscanHLabel->setText(QApplication::translate("OCTAnnotate", "Bscan Horizontal", 0));
         bscanVLabel->setText(QApplication::translate("OCTAnnotate", "Bscan Vertical", 0));
         tabWidget->setTabText(tabWidget->indexOf(tabDatabase), QApplication::translate("OCTAnnotate", "Lista pacjent\303\263w", 0));
-        label_19->setText(QApplication::translate("OCTAnnotate", "Prawe oko", 0));
-        amslerRImageLabel->setText(QString());
-        penButton->setText(QApplication::translate("OCTAnnotate", "Pisak", 0));
-        sprayLightButton->setText(QApplication::translate("OCTAnnotate", "Bia\305\202a plama", 0));
-        sprayDarkButton->setText(QApplication::translate("OCTAnnotate", "Czarna plama", 0));
-        lineButton->setText(QApplication::translate("OCTAnnotate", "Wykrzywienie linii", 0));
-        label_20->setText(QApplication::translate("OCTAnnotate", "Lewe oko", 0));
-        amslerLImageLabel->setText(QString());
-        label_22->setText(QApplication::translate("OCTAnnotate", "Lista oznacze\305\204 dla prawego oka:", 0));
-        eraseAmslerButton->setText(QApplication::translate("OCTAnnotate", "Usu\305\204 wybrane oznaczenie", 0));
-        label_23->setText(QApplication::translate("OCTAnnotate", "Lista oznacze\305\204 dla lewego oka:", 0));
-        label_18->setText(QApplication::translate("OCTAnnotate", "Uwagi do oznacze\305\204 dla prawego oka:", 0));
-        label_24->setText(QApplication::translate("OCTAnnotate", "Uwagi do oznacze\305\204 dla lewego oka:", 0));
-        tabWidget->setTabText(tabWidget->indexOf(tabAmslerCharts), QApplication::translate("OCTAnnotate", "Badanie Amslera", 0));
         label_2->setText(QApplication::translate("OCTAnnotate", "Obraz:", 0));
         imageNumberLabel->setText(QString());
         zoomOutButton->setText(QApplication::translate("OCTAnnotate", "-", 0));

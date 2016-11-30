@@ -12,6 +12,7 @@
 #include "qcustomplot.h"
 #include <QtSql>
 #include "dbmanager.h"
+#include "settingsdialog.h"
 
 namespace Ui {
 class OCTAnnotate;
@@ -55,8 +56,6 @@ private slots:
     void on_visOLLEdit_textEdited();
     void on_snOPLEdit_textEdited();
     void on_snOLLEdit_textEdited();
-    void on_amslerRCommentTEdit_textChanged();
-    void on_amslerLCommentTEdit_textChanged();
 
     void on_mcVOPLEdit_textChanged();
     void on_mcHOPLEdit_textChanged();
@@ -100,17 +99,6 @@ private slots:
     void on_actionChangeLayerColor_triggered();
     void on_actionSetScanCenter_toggled(bool checked);
     void on_actionShowCenterOnBscan_toggled(bool checked);
-
-// Amsler
-    void on_penButton_toggled(bool checked);
-    void on_sprayLightButton_toggled(bool checked);
-    void on_sprayDarkButton_toggled(bool checked);
-    void on_lineButton_toggled(bool checked);
-    void on_distShapeCBox_currentIndexChanged(int index);
-
-    void on_eraseAmslerButton_clicked();
-    void on_amslerRDistList_itemClicked();
-    void on_amslerLDistList_itemClicked();
 
 // Virtual map
     void on_computeVirtualMapButton_clicked();
@@ -156,6 +144,8 @@ private slots:
 
     void on_batchProcessingButton_clicked();
 
+    void on_currNormalImageNumberLEdit_returnPressed();
+
 public slots:
     void on_errorOccured(QString);
     void on_processingData(double, QString msg = "");
@@ -176,6 +166,7 @@ protected:
 
 private:
     Ui::OCTAnnotate *ui;
+    void loadConfigurations(SettingsDialog *sDialog);
     void initializeModelPatients();
     void initializeModelScans();
 
@@ -184,13 +175,9 @@ private:
     void readGeneralExamData();
     void readOctExamData();
     void readFileManualSegmentation(QFile *dataFile);
-    void listAmslerDistortions();
     void setScanCenter();
 
 // Read Xml Auto Annotations
-    //QList<int> parseXmlVoxelSize(QXmlStreamReader& xml);
-    //void parseXmlSurfaceLines(QXmlStreamReader& xml);
-    //void parseUndefinedRegion(QXmlStreamReader& xml);
     QList<QList<int> > convertSurfaceLines(QXmlStreamReader& xml, QList<QList<int> > lineMap);
 
 // display OCT exam
@@ -210,17 +197,6 @@ private:
     void saveLayer(QPoint endPoint, QString action, QPoint prevPoint=QPoint(-1,-1));
     void saveLayerNormal(QPoint endPoint, QString action, QPoint prevPoint=QPoint(-1,-1));
     QList<QPoint> computeLinePoints(QPoint p0, QPoint p1);
-
-// paint on Amsler
-    QPixmap drawAmslerGrid(QPixmap *pixmap);
-    QPixmap drawAmslerAnnotations(QPixmap *pixmap, QString eye);
-    QPixmap drawAmslerAnnotation(QPixmap *pixmap, QString eye, int id);
-    void drawOnAmsler(QPoint endPoint);
-    QPoint findNearestCross(QPoint point);
-    float computeDistance(QLine line, QPoint point);
-    void eraseAmslerArea(QPoint startPoint, QPainter *painter);
-    void drawAmslerStraightLines(QPoint startPoint, int i, QPainter *painter);
-    void drawAmslerCurvedLines(QPoint startPoint, int i, QPainter *painter, DistType type);
 
 // draw Virtual map
     void setupVirtualMapPlot(QCustomPlot *customPlot);
@@ -244,6 +220,7 @@ private:
     void delay( int secondsToWait );
 
     bool quit;
+    QString databasePath;
     QDir currentDir;
     QDir patientDir;
     QDir octDir;
@@ -252,6 +229,7 @@ private:
     QDir autoDir;
     QDir tmpDir;
     QString errorFilePath;
+    static const QString settingsFilePath;
 
     DbManager *patientsDB;
     QSqlRelationalTableModel *modelPatients;
@@ -270,9 +248,7 @@ private:
     bool blockPCV;
     bool flattenImage;
     bool editAnnotations;
-    QString openBscanNumber;
     QString dataSaveStructure;
-    QString databasePath;
 
     QLabel *bscanLabel;
     QLabel *bscan2Label;
@@ -280,16 +256,11 @@ private:
     QScrollArea *scrollArea2;
     QSize orgImageSize;
     int scaleFactor;
-//    double scaleFactorX;
-//    double scaleFactorY;
-//    double flatFactor;
     QList<double> scales;
-//    QList<double> flats;
     QCPRange bscanRange;
     float contrast;
     int brightness;
 
-    QPixmap myPix;
     int myPenWidth;
     QColor myPenColor;
     QPoint lastPoint;
@@ -299,8 +270,6 @@ private:
     bool isControlPressed;
     bool drawing;
     bool erasing;
-    //bool displayAnnotations;
-    //bool displayNormalAnnotations;
     bool eraseAnnotations;
     bool fundusAnnotate;
     QColor pcvColor;
@@ -324,26 +293,6 @@ private:
 
     QList<double> thresholds;
     double contactThreshold;
-
-    bool drawGrid;
-    bool drawAmsler;
-    bool repaintAmsler;
-    int amsLinesNumber;
-    int amsLinePixDist;
-    int maxDistWidth;
-    QList<QLine> gridVLines;
-    QList<QLine> gridHLines;
-    QPen amsGridPen;
-    QPen amsPen;
-    QPen amsSprayLight;
-    QPen amsSprayDark;
-    QPoint lastAPoint;
-    QList<QLine> amsLinesTemp;
-    QPoint amsPointTemp;
-    int amsWidthTemp;
-    DistType currDistType;
-    int amsDistIdSelected;
-    QString amsDistEyeSelected;
 
     QCPBars *histBars;
 

@@ -86,11 +86,11 @@
    <item>
     <widget class="QGroupBox" name="groupBox">
      <property name="title">
-      <string>Folder zawierający badania OCT:</string>
+      <string>Folder zawierający surowe dane OCT:</string>
      </property>
      <layout class="QHBoxLayout" name="horizontalLayout">
       <item>
-       <widget class="QLineEdit" name="pathOctExamLEdit">
+       <widget class="QLineEdit" name="pathOctDataLEdit">
         <property name="minimumSize">
          <size>
           <width>450</width>
@@ -100,7 +100,7 @@
        </widget>
       </item>
       <item>
-       <widget class="QPushButton" name="selectPathOctExamButton">
+       <widget class="QPushButton" name="selectPathOctDataButton">
         <property name="minimumSize">
          <size>
           <width>75</width>
@@ -119,7 +119,7 @@
        </widget>
       </item>
       <item>
-       <widget class="QPushButton" name="resetPathOctExamButton">
+       <widget class="QPushButton" name="resetPathOctDataButton">
         <property name="minimumSize">
          <size>
           <width>50</width>
@@ -143,11 +143,11 @@
    <item>
     <widget class="QGroupBox" name="groupBox_2">
      <property name="title">
-      <string>Folder zawierający ręczną segmentację:</string>
+      <string>Folder zawierający dane badania:</string>
      </property>
      <layout class="QHBoxLayout" name="horizontalLayout_2">
       <item>
-       <widget class="QLineEdit" name="pathManualSegmLEdit">
+       <widget class="QLineEdit" name="pathExamDataLEdit">
         <property name="minimumSize">
          <size>
           <width>450</width>
@@ -157,7 +157,7 @@
        </widget>
       </item>
       <item>
-       <widget class="QPushButton" name="selectPathManualSegmButton">
+       <widget class="QPushButton" name="selectPathExamDataButton">
         <property name="minimumSize">
          <size>
           <width>75</width>
@@ -176,7 +176,7 @@
        </widget>
       </item>
       <item>
-       <widget class="QPushButton" name="resetPathManualSegmButton">
+       <widget class="QPushButton" name="resetPathExamDataButton">
         <property name="minimumSize">
          <size>
           <width>50</width>
@@ -205,6 +205,9 @@
      <layout class="QHBoxLayout" name="horizontalLayout_3">
       <item>
        <widget class="QLineEdit" name="pathAutoSegmLEdit">
+        <property name="enabled">
+         <bool>false</bool>
+        </property>
         <property name="minimumSize">
          <size>
           <width>450</width>
@@ -215,6 +218,9 @@
       </item>
       <item>
        <widget class="QPushButton" name="selectPathAutoSegmButton">
+        <property name="enabled">
+         <bool>false</bool>
+        </property>
         <property name="minimumSize">
          <size>
           <width>75</width>
@@ -234,6 +240,9 @@
       </item>
       <item>
        <widget class="QPushButton" name="resetPathAutoSegmButton">
+        <property name="enabled">
+         <bool>false</bool>
+        </property>
         <property name="minimumSize">
          <size>
           <width>50</width>
@@ -273,82 +282,25 @@
        <property name="title">
         <string>Wyświetlanie</string>
        </property>
-       <widget class="QCheckBox" name="showCenterOnBscanCBox">
-        <property name="geometry">
-         <rect>
-          <x>10</x>
-          <y>40</y>
-          <width>181</width>
-          <height>17</height>
-         </rect>
-        </property>
-        <property name="text">
-         <string>Pokaż środek skanu na B-skanie</string>
-        </property>
-       </widget>
-       <widget class="QCheckBox" name="showETDRSGridCBox">
-        <property name="geometry">
-         <rect>
-          <x>10</x>
-          <y>20</y>
-          <width>131</width>
-          <height>21</height>
-         </rect>
-        </property>
-        <property name="text">
-         <string>Pokaż siatkę ETDRS</string>
-        </property>
-       </widget>
-       <widget class="QCheckBox" name="showBscanOnErrorPlotCBox">
-        <property name="geometry">
-         <rect>
-          <x>10</x>
-          <y>60</y>
-          <width>191</width>
-          <height>17</height>
-         </rect>
-        </property>
-        <property name="text">
-         <string>Pokaż B-skan na wykresie błędu</string>
-        </property>
-       </widget>
-      </widget>
-     </item>
-     <item>
-      <widget class="QGroupBox" name="groupBox_4">
-       <property name="minimumSize">
-        <size>
-         <width>161</width>
-         <height>91</height>
-        </size>
-       </property>
-       <property name="maximumSize">
-        <size>
-         <width>161</width>
-         <height>91</height>
-        </size>
-       </property>
-       <property name="title">
-        <string>Otwieraj badania na skanie:</string>
-       </property>
-       <layout class="QVBoxLayout" name="verticalLayout">
+       <layout class="QVBoxLayout" name="verticalLayout_4">
         <item>
-         <widget class="QRadioButton" name="openBskanFirstRButton">
-          <property name="minimumSize">
-           <size>
-            <width>100</width>
-            <height>0</height>
-           </size>
-          </property>
+         <widget class="QCheckBox" name="showETDRSGridCBox">
           <property name="text">
-           <string>pierwszym</string>
+           <string>Pokaż siatkę ETDRS</string>
           </property>
          </widget>
         </item>
         <item>
-         <widget class="QRadioButton" name="openBskanMiddleRButton">
+         <widget class="QCheckBox" name="showCenterOnBscanCBox">
           <property name="text">
-           <string>środkowym</string>
+           <string>Pokaż środek skanu na B-skanie</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QCheckBox" name="showBscanOnErrorPlotCBox">
+          <property name="text">
+           <string>Pokaż B-skan na wykresie błędu</string>
           </property>
          </widget>
         </item>

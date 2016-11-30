@@ -5,41 +5,34 @@
 #include <QDir>
 #include <QTextStream>
 #include <QFileDialog>
+#include <QSettings>
 
-const QString SettingsDialog::pathOctExamDef = "octData"; //QDir::currentPath().append("/octData");
-const QString SettingsDialog::pathManualSegmDef = "examData/mvri"; //QDir::currentPath().append("/examData/mvri");
-const QString SettingsDialog::pathAutoSegmDef = "examData/avri"; //QDir::currentPath().append("/examData/avri");
-const QString SettingsDialog::openBskanDef = "m";
+const QString SettingsDialog::pathDatabaseDef = "../database/patients.db";
+const QString SettingsDialog::pathOctDataDef = "../octData/";
+const QString SettingsDialog::pathExamDataDef = "../examData/";
 const QString SettingsDialog::dataSaveStructureDef = "xml";
-const QString SettingsDialog::databasePathDef = "database/patients.db"; //QDir::currentPath().append("/database/patients.db");
+
 const bool SettingsDialog::showETDRSGridDef = true;
 const bool SettingsDialog::showCenterOnBscanDef = true;
 const bool SettingsDialog::showBscanOnErrorPlotDef = true;
 const bool SettingsDialog::blockPCVDef = true;
 
-SettingsDialog::SettingsDialog(QWidget *parent) : QDialog(parent), ui(new Ui::SettingsDialog)
+SettingsDialog::SettingsDialog(QString configFilePath, QWidget *parent) : QDialog(parent), ui(new Ui::SettingsDialog)
 {
     ui->setupUi(this);
-    setDefaultValues();
 
-    configFileName = QDir::currentPath().append("/config.txt");
+    configFileName = configFilePath;
     readSettingsFromFile();
 
-    if(!QDir(pathOctExam).exists())
-        QDir(pathOctExam).mkpath(pathOctExam);
-    if(!QDir(pathManualSegm).exists())
-        QDir(pathManualSegm).mkpath(pathManualSegm);
-    if(!QDir(pathAutoSegm).exists())
-        QDir(pathAutoSegm).mkpath(pathAutoSegm);
+    if(!QDir(pathOctData).exists())
+        QDir(pathOctData).mkpath(pathOctData);
+    if(!QDir(pathExamData).exists())
+        QDir(pathExamData).mkpath(pathOctData);
 
-    ui->pathOctExamLEdit->setText(pathOctExam);
-    ui->pathManualSegmLEdit->setText(pathManualSegm);
-    ui->pathAutoSegmLEdit->setText(pathAutoSegm);
-    ui->pathDatabaseLEdit->setText(databasePath);
-    if (openBskan == "m")
-        ui->openBskanMiddleRButton->setChecked(true);
-    else  if (openBskan == "1")
-        ui->openBskanFirstRButton->setChecked(true);
+    ui->pathDatabaseLEdit->setText(pathDatabase);
+    ui->pathOctDataLEdit->setText(pathOctData);
+    ui->pathExamDataLEdit->setText(pathExamData);
+
     ui->showETDRSGridCBox->setChecked(showETDRSGrid);
     ui->showCenterOnBscanCBox->setChecked(showCenterOnBscan);
     ui->showBscanOnErrorPlotCBox->setChecked(showBscanOnErrorPlot);
@@ -59,14 +52,13 @@ void SettingsDialog::on_acceptButton_clicked()
 {
     // check if data in form not empty
     bool ready = true;
-    if (ui->pathOctExamLEdit->text() == "")
-        ready = false;
-    if (ui->pathManualSegmLEdit->text() == "")
-        ready = false;
-    if (ui->pathAutoSegmLEdit->text() == "")
-        ready = false;
     if (ui->pathDatabaseLEdit->text() == "")
         ready = false;
+    if (ui->pathOctDataLEdit->text() == "")
+        ready = false;
+    if (ui->pathExamDataLEdit->text() == "")
+        ready = false;
+
     if (!ready){
         QMessageBox msg;
         msg.setText("Ścieżki do plików nie mogą pozostać puste!");
@@ -76,15 +68,9 @@ void SettingsDialog::on_acceptButton_clicked()
         msg.exec();
     } else {
         // save data
-        this->pathOctExam = ui->pathOctExamLEdit->text();
-        this->pathManualSegm = ui->pathManualSegmLEdit->text();
-        this->pathAutoSegm = ui->pathAutoSegmLEdit->text();
-        this->databasePath = ui->pathDatabaseLEdit->text();
-
-        if (ui->openBskanFirstRButton->isChecked())
-            this->openBskan = "1";
-        else if (ui->openBskanMiddleRButton->isChecked())
-            this->openBskan = "m";
+        this->pathOctData = ui->pathOctDataLEdit->text();
+        this->pathExamData = ui->pathExamDataLEdit->text();
+        this->pathDatabase = ui->pathDatabaseLEdit->text();
 
         this->showETDRSGrid = ui->showETDRSGridCBox->isChecked();
         this->showCenterOnBscan = ui->showCenterOnBscanCBox->isChecked();
@@ -107,193 +93,67 @@ void SettingsDialog::on_cancelButton_clicked()
 }
 
 void SettingsDialog::readSettingsFromFile(){
-    QString line;
-    QFile configFile(configFileName);
-    if (!configFile.open(QIODevice::ReadOnly)){
-        QMessageBox::critical(this, tr("Error"), tr("Could not open config file"));
-        return;
-    }
 
-    QTextStream configText(&configFile);
-    do {
-        line = configText.readLine();
-        if (line.contains("=")){
-            QStringList data = line.split("=");
-            if (data.at(0) == "bscanNr"){
-                openBskan = data.at(1);
-            }
-            if (data.at(0) == "pathAuto"){
-                if (QDir(data.at(1)).exists())
-                    pathAutoSegm = data.at(1);
-            }
-            if (data.at(0) == "pathManual"){
-                if (QDir(data.at(1)).exists())
-                    pathManualSegm = data.at(1);
-            }
-            if (data.at(0) == "pathOctExam"){
-                if (QDir(data.at(1)).exists())
-                    pathOctExam = data.at(1);
-            }
-            if (data.at(0) == "pathDatabase"){
-                if (QFile(data.at(1)).exists())
-                    databasePath = data.at(1);
-            }
-            if (data.at(0) == "showETDRSGrid"){
-                if (data.at(1) == "1"){
-                    showETDRSGrid = true;
-                } else {
-                    showETDRSGrid = false;
-                }
-            }
-            if (data.at(0) == "showCenterOnBscan"){
-                if (data.at(1) == "1"){
-                    showCenterOnBscan = true;
-                } else {
-                    showCenterOnBscan = false;
-                }
-            }
-            if (data.at(0) == "showBscanOnErrorPlot"){
-                if (data.at(1) == "1"){
-                    showBscanOnErrorPlot = true;
-                } else {
-                    showBscanOnErrorPlot = false;
-                }
-            }
-            if (data.at(0) == "blockPCV"){
-                if (data.at(1) == "1"){
-                    blockPCV = true;
-                } else {
-                    blockPCV = false;
-                }
-            }
-            if (data.at(0) == "dataSaveStructure"){
-                dataSaveStructure = data.at(1);
-            }
-        }
-    } while(!line.isNull());
-    if (configFile.isOpen())
-        configFile.close();
+    QSettings appSettings(configFileName,QSettings::IniFormat);
+
+    pathDatabase = appSettings.value("Paths/path_database",pathDatabaseDef).toString();
+    pathOctData = appSettings.value("Paths/path_OCT_data",pathOctDataDef).toString();
+    pathExamData = appSettings.value("Paths/path_exam_data",pathExamDataDef).toString();
+
+    showETDRSGrid = appSettings.value("Display/show_ETDRS_grid",showETDRSGridDef).toBool();
+    showCenterOnBscan = appSettings.value("Display/show_center_on_Bscan",showCenterOnBscanDef).toBool();
+    showBscanOnErrorPlot = appSettings.value("Display/show_Bscan_on_error_plot",showBscanOnErrorPlotDef).toBool();
+
+    blockPCV = appSettings.value("block_PCV",blockPCVDef).toBool();
+    dataSaveStructure = appSettings.value("data_save_structure",dataSaveStructureDef).toString();
 }
 
 bool SettingsDialog::saveSettingsToFile(){
 
-    QFile configFile(configFileName);
-    if (!configFile.open(QIODevice::WriteOnly | QIODevice::Text | QIODevice::Truncate)){
-        QMessageBox::critical(this, tr("Error"), tr("Could not write to config file"));
-        return false;
-    } else {
-        QTextStream stream(&configFile);
-        stream << "bscanNr=" + openBskan << endl;
-        stream << "pathOctExam=" + pathOctExam << endl;
-        stream << "pathManual=" + pathManualSegm << endl;
-        stream << "pathAuto=" + pathAutoSegm << endl;
-        stream << "pathDatabase=" + databasePath << endl;
-        if (showETDRSGrid)
-            stream << "showETDRSGrid=1" << endl;
-        else
-            stream << "showETDRSGrid=0" << endl;
-        if (blockPCV)
-            stream << "blockPCV=1" << endl;
-        else
-            stream << "blockPCV=0" << endl;
-        if (showCenterOnBscan)
-            stream << "showCenterOnBscan=1" << endl;
-        else
-            stream << "showCenterOnBscan=0" << endl;
-        if (showBscanOnErrorPlot)
-            stream << "showBscanOnErrorPlot=1" << endl;
-        else
-            stream << "showBscanOnErrorPlot=0" << endl;
-        stream << "dataSaveStructure=" + dataSaveStructure << endl;
-    }
-    if (configFile.isOpen())
-        configFile.close();
+    QSettings appSettings(configFileName,QSettings::IniFormat);
+
+    appSettings.setValue("Paths/path_database",pathDatabase);
+    appSettings.setValue("Paths/path_OCT_data",pathOctData);
+    appSettings.setValue("Paths/path_exam_data",pathExamData);
+
+    appSettings.setValue("Display/showETDRSGrid",showETDRSGrid);
+    appSettings.setValue("Display/showCenterOnBscan",showCenterOnBscan);
+    appSettings.setValue("Display/showBscanOnErrorPlot",showBscanOnErrorPlot);
+
+    appSettings.setValue("blockPCV",blockPCV);
+    appSettings.setValue("dataSaveStructure",dataSaveStructure);
+
     return true;
 }
 
-void SettingsDialog::setDefaultValues(){
-    pathOctExam = pathOctExamDef;
-    pathManualSegm = pathManualSegmDef;
-    pathAutoSegm = pathAutoSegmDef;
-    databasePath = databasePathDef;
+// get values -----------------------------------------------------------------------
+QString SettingsDialog::getDatabasePath(){
+    QString path = this->pathDatabase;
 
-    openBskan = openBskanDef;
-    showETDRSGrid = showETDRSGridDef;
-    showCenterOnBscan = showCenterOnBscanDef;
-    showBscanOnErrorPlot = showBscanOnErrorPlotDef;
-    blockPCV = blockPCVDef;
+    if (QDir(path).isRelative())
+        path = QDir::currentPath().append("/" + path);
 
-    dataSaveStructure = dataSaveStructureDef;
+    return path;
 }
 
-void SettingsDialog::on_resetPathOctExamButton_clicked()
-{
-    pathOctExam = pathOctExamDef;
-    ui->pathOctExamLEdit->setText(pathOctExamDef);
-}
-
-void SettingsDialog::on_resetPathManualSegmButton_clicked()
-{
-    pathManualSegm = pathManualSegmDef;
-    ui->pathManualSegmLEdit->setText(pathManualSegmDef);
-}
-
-void SettingsDialog::on_resetPathAutoSegmButton_clicked()
-{
-    pathAutoSegm = pathAutoSegmDef;
-    ui->pathAutoSegmLEdit->setText(pathAutoSegmDef);
-}
-
-void SettingsDialog::on_resetPathDatabaseButton_clicked()
-{
-    databasePath = databasePathDef;
-    ui->pathDatabaseLEdit->setText(databasePathDef);
-}
-
-QString SettingsDialog::getPathOctExam(){
-    QString path = this->pathOctExam;
+QString SettingsDialog::getPathOctData(){
+    QString path = this->pathOctData;
 
     if (QDir(path).isRelative())
         path = QDir::currentPath().append("/" + path);
     return path;
 }
 
-QString SettingsDialog::getPathManualSegm(){
-    QString path = this->pathManualSegm;
+QString SettingsDialog::getPathExamData(){
+    QString path = this->pathExamData;
 
     if (QDir(path).isRelative())
         path = QDir::currentPath().append("/" + path);
     return path;
-}
-
-QString SettingsDialog::getPathAutoSegm(){
-    QString path = this->pathAutoSegm;
-
-    if (QDir(path).isRelative())
-        path = QDir::currentPath().append("/" + path);
-    return path;
-}
-
-QString SettingsDialog::getOpenBskan(){
-    return this->openBskan;
 }
 
 QString SettingsDialog::getDataSaveStructure(){
     return this->dataSaveStructure;
-}
-
-QString SettingsDialog::getDatabasePath(){
-    QString path = this->databasePath;
-
-//    QDir d = QDir(path);
-
-//    if (d.makeAbsolute())
-//        path = d.path();
-
-    if (QDir(path).isRelative())
-        path = QDir::currentPath().append("/" + path);
-
-    return path;
 }
 
 bool SettingsDialog::getShowETDRSGrid(){
@@ -312,30 +172,51 @@ bool SettingsDialog::getBlockPCV(){
     return this->blockPCV;
 }
 
-void SettingsDialog::on_selectPathOctExamButton_clicked()
+
+// reset -----------------------------------------------------------------------------
+void SettingsDialog::on_resetPathOctDataButton_clicked()
 {
-    pathOctExam = QFileDialog::getExistingDirectory(this, tr("Open Directory"), pathOctExam, QFileDialog::ShowDirsOnly);
-    ui->pathOctExamLEdit->setText(pathOctExam);
+    pathOctData = pathOctDataDef;
+    ui->pathOctDataLEdit->setText(pathOctDataDef);
 }
 
-void SettingsDialog::on_selectPathManualSegmButton_clicked()
+void SettingsDialog::on_resetPathExamDataButton_clicked()
 {
-    pathManualSegm = QFileDialog::getExistingDirectory(this, tr("Open Directory"), pathManualSegm, QFileDialog::ShowDirsOnly);
-    ui->pathManualSegmLEdit->setText(pathManualSegm);
+    pathExamData = pathExamDataDef;
+    ui->pathExamDataLEdit->setText(pathExamDataDef);
 }
 
-void SettingsDialog::on_selectPathAutoSegmButton_clicked()
+void SettingsDialog::on_resetPathDatabaseButton_clicked()
 {
-    pathAutoSegm = QFileDialog::getExistingDirectory(this, tr("Open Directory"), pathAutoSegm, QFileDialog::ShowDirsOnly);
-    ui->pathAutoSegmLEdit->setText(pathAutoSegm);
+    pathDatabase = pathDatabaseDef;
+    ui->pathDatabaseLEdit->setText(pathDatabaseDef);
 }
 
+
+// select path ----------------------------------------------------------------------
 void SettingsDialog::on_selectPathDatabaseButton_clicked()
 {
-    databasePath = QFileDialog::getOpenFileName(this, tr("Open Database File"), databasePath, tr("SQLite database (*.db)"));
-    ui->pathDatabaseLEdit->setText(databasePath);
+    pathDatabase = QFileDialog::getOpenFileName(this, tr("Open Database File"), pathDatabase, tr("SQLite database (*.db)"));
+    if (pathDatabase != "")
+        ui->pathDatabaseLEdit->setText(pathDatabase);
 }
 
+void SettingsDialog::on_selectPathOctDataButton_clicked()
+{
+    pathOctData = QFileDialog::getExistingDirectory(this, tr("Open Directory"), pathOctData, QFileDialog::ShowDirsOnly);
+    if (pathOctData != "")
+        ui->pathOctDataLEdit->setText(pathOctData);
+}
+
+void SettingsDialog::on_selectPathExamDataButton_clicked()
+{
+    pathExamData = QFileDialog::getExistingDirectory(this, tr("Open Directory"), pathExamData, QFileDialog::ShowDirsOnly);
+    if (pathExamData != "")
+        ui->pathExamDataLEdit->setText(pathExamData);
+}
+
+
+// other -----------------------------------------------------------------------------
 void SettingsDialog::on_dataSaveStructureCBox_currentIndexChanged(int index)
 {
     if (index == 0)

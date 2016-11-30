@@ -869,7 +869,7 @@ PatientData::PatientData()
     this->contactAreaCF = 0.0;
     this->contactAreaIM = 0.0;
     this->contactAreaOM = 0.0;
-    this->contactThreshold = 50.0;
+    this->contactThreshold = 15.0;
 
     this->fundusImage = QImage();
 

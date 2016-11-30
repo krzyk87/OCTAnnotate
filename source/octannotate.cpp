@@ -239,6 +239,7 @@ OCTAnnotate::OCTAnnotate(QWidget *parent) : QMainWindow(parent),
     ui->layerErrorCBox->setCurrentIndex(2);
 
     thresholds.append(0);
+    thresholds.append(15);
     thresholds.append(50);
     foreach (double value, thresholds) {
         ui->contactThresholdCBox->addItem(QString::number(value) + " [um]");
@@ -4894,8 +4895,8 @@ void OCTAnnotate::on_actionComputeStatistics_triggered()
 
     Calculate *calc = new Calculate();
     calc->setFolderList(folderList);
-    calc->examDataDir = "D:/Egnyte/Private/agis/Qt/Deployment/OCTAnnotate/examData/"; //currentDir.path().append("/examData/");
-    calc->octDirPath = "D:/Egnyte/Private/agis/BADANIA/OCT exams/Avanti VMT_VMA/";
+    calc->examDataDir = "C:/DANE/Egnyte/Private/agis/Qt/Deployment/OCTAnnotate/examData/mvri/"; //currentDir.path().append("/examData/");
+    calc->octDirPath = "C:/DANE/Egnyte/Private/agis/BADANIA/OCT exams/Avanti VMT_VMA/";
 
     QList<Layers> allLayers;
     allLayers.append(PCV);

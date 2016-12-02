@@ -199,30 +199,28 @@ void DbManager::calculatePatientAge(int patientID, QDateTime examDate){
     }
 }
 
-bool DbManager::addNewScan(int patientID, QString eye, QDateTime scan_date, QString device, QString scan_type, QString scan_direction, QString scan_dimensions, double scan_qi, QString scan_file_path, QString scan_folder_path){
+bool DbManager::addNewScan(int patientID, QString eye, QDateTime scan_date, QString device, QString scan_type, QString scan_direction, QString scan_dimensions, double scan_qi, QString scan_name){
     bool success = false;
 
     QSqlQuery query;
-    query.prepare("INSERT INTO scans (patient_id, eye, date, device, series, scan_type, scan_direction, scan_dimensions, scan_qi, scan_file_path, scan_folder_path) VALUES (:patientID, :eye, :scan_date, :device, :series, :scan_type, :scan_direction, :scan_dimensions, :scan_qi, :scan_file_path, :scan_folder_path)");
+    query.prepare("INSERT INTO scans (patient_id, eye, date, device, series, scan_type, scan_direction, scan_dimensions, scan_qi, scan_name) VALUES (:patientID, :eye, :scan_date, :device, :series, :scan_type, :scan_direction, :scan_dimensions, :scan_qi, :scan_name)");
     query.bindValue(":patientID", patientID);
     query.bindValue(":eye", eye);
     query.bindValue(":scan_date", scan_date.toString("yyyy-MM-dd hh:mm:ss.000"));
     query.bindValue(":device", device);
-    query.bindValue(":series", "Seria 6");
+    query.bindValue(":series", "");
     query.bindValue(":scan_type", scan_type);
     query.bindValue(":scan_direction", scan_direction);
     query.bindValue(":scan_dimensions", scan_dimensions);
     query.bindValue(":scan_qi", scan_qi);
-    query.bindValue(":scan_file_path", scan_file_path);
-    query.bindValue(":scan_folder_path", scan_folder_path);
+    query.bindValue(":scan_name", scan_name);
 
     if (query.exec()){
-        success = true;
         qDebug() << "new scan added!";
+        success = true;
     } else {
         qDebug() << "addNewScan error: " << query.lastError();
     }
-
     return success;
 }
 
@@ -230,7 +228,7 @@ int DbManager::getScanID(QString examDirName){
     int scanID = -1;
 
     QSqlQuery query;
-    query.prepare("SELECT * FROM scans WHERE scan_folder_path = :examDirName");
+    query.prepare("SELECT * FROM scans WHERE scan_name = :examDirName");
     query.bindValue(":examDirName", examDirName);
 
     if (query.exec()){

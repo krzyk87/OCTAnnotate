@@ -304,11 +304,10 @@ void OCTAnnotate::initializeModelScans(){
     modelScans->setHeaderData(7, Qt::Horizontal, QObject::tr("Direction"));
     modelScans->setHeaderData(8, Qt::Horizontal, QObject::tr("Dimensions"));
     modelScans->setHeaderData(9, Qt::Horizontal, QObject::tr("QI"));
-    modelScans->setHeaderData(10, Qt::Horizontal, QObject::tr("File path"));
-    modelScans->setHeaderData(11, Qt::Horizontal, QObject::tr("Folder path"));
-    modelScans->setHeaderData(12, Qt::Horizontal, QObject::tr("Notes"));
-    modelScans->setHeaderData(13, Qt::Horizontal, QObject::tr("Default"));
-    modelScans->setHeaderData(14, Qt::Horizontal, QObject::tr("AutoExplorer"));
+    modelScans->setHeaderData(10, Qt::Horizontal, QObject::tr("Scan Name"));
+    modelScans->setHeaderData(11, Qt::Horizontal, QObject::tr("Notes"));
+    modelScans->setHeaderData(12, Qt::Horizontal, QObject::tr("Default"));
+    modelScans->setHeaderData(13, Qt::Horizontal, QObject::tr("AutoExplorer"));
 
     modelScans->select();
 
@@ -321,11 +320,10 @@ void OCTAnnotate::initializeModelScans(){
     ui->scansListTableView->setColumnHidden(7, true);
     ui->scansListTableView->setColumnHidden(8, true);
     ui->scansListTableView->setColumnHidden(9, true);
-    ui->scansListTableView->setColumnHidden(10, true);
     ui->scansListTableView->resizeColumnsToContents();
 //    ui->scansListTableView->horizontalHeader()->setStretchLastSection(true);
-    ui->scansListTableView->horizontalHeader()->moveSection(11,0);
-    ui->scansListTableView->sortByColumn(11,Qt::AscendingOrder);
+    ui->scansListTableView->horizontalHeader()->moveSection(10,0);
+    ui->scansListTableView->sortByColumn(10,Qt::AscendingOrder);
     ui->scansListTableView->setEditTriggers(QAbstractItemView::SelectedClicked); // SelectedClicked, EditKeyPressed, AnyKeyPressed
     ui->scansListTableView->setSelectionBehavior(QAbstractItemView::SelectRows);
 }
@@ -4387,72 +4385,70 @@ void OCTAnnotate::on_addScanFolderButton_clicked(QString folderPath)
 {
     QString pathOctExam;
     if (folderPath.isEmpty())
-        pathOctExam = QFileDialog::getExistingDirectory(this, tr("Open Directory"), examDir.absolutePath(), QFileDialog::ShowDirsOnly);
+        pathOctExam = QFileDialog::getExistingDirectory(this, tr("Open Directory"), octDir.absolutePath(), QFileDialog::ShowDirsOnly);
     else
         pathOctExam = folderPath;
 
     if (!pathOctExam.isEmpty()){
 //        QDir newExamDir = QDir(pathOctExam);
-
 //        QString examPath = newExamDir.dirName();//examDir.relativeFilePath(pathOctExam);
-
         addScanToDB(pathOctExam);
     } else {
-        QMessageBox::critical(this, tr("Error"), "Scan path is empty!");
+        QMessageBox::critical(this, tr("Error"), "Scan folder path is empty!");
     }
 }
 
-void OCTAnnotate::on_addScanFileButton_clicked()
+void OCTAnnotate::on_addScanFileButton_clicked(QString filePath)
 {
-    QString pathOctExam = QFileDialog::getOpenFileName(this, tr("Open OCT file"), examDir.absolutePath(), tr("Avanti RTvue raw OCT data file (*.OCT)"));
+    QString pathOctExam;
+    if (filePath.isEmpty())
+        pathOctExam = QFileDialog::getOpenFileName(this, tr("Open OCT file"), octDir.absolutePath(), tr("Avanti RTvue raw OCT data file (*.OCT)"));
+    else
+        pathOctExam = filePath;
 
     if (!pathOctExam.isEmpty()){
 //        QFile newExamDir(pathOctExam);
-
 //        QString examPath = newExamDir.fileName();
-
         addScanToDB(pathOctExam);//examPath);
-
     } else {
-        QMessageBox::critical(this, tr("Error"), "Nieprawidłowy plik! Nie można wczytać danych.");
+        QMessageBox::critical(this, tr("Error"), "Scan file path is empty");
     }
 }
 
-void OCTAnnotate::addScanToDB(QString examPath){
+void OCTAnnotate::addScanToDB(QString octPath){
 
-    QDir newExamDir = QDir(examPath);
+    qDebug() << "Adding scan to DB: " << octPath;
 
-    if (examPath.contains(".OCT")){
-        examPath.chop(4);
-        newExamDir = QDir(examPath);
+    QDir newExamDir = QDir(octPath);
+    bool isBinary = false;
 
-        // read binary .OCT file
-        QFile scanFile(examPath);
-
-    } else {
-        // read folder with images
+    if (octPath.contains(".OCT")){
+        octPath.chop(4);
+        newExamDir = QDir(octPath);
+        isBinary = true;
     }
+
     QString scanName = newExamDir.dirName();
 
     if (patientsDB->getScanID(scanName) != -1){
         QMessageBox::critical(this, tr("Error"), tr("Scan already exists in the database!"));
     } else {
-        QString infoFilePathAvanti = newExamDir.absolutePath().append("/" + newExamDir.dirName() + ".txt");
+        QString infoFilePathAvanti = newExamDir.absolutePath().append(".txt");
         QFile infoFileAvanti(infoFilePathAvanti);
         if (!infoFileAvanti.exists()){
-            infoFilePathAvanti = newExamDir.absolutePath().append(".txt");
+            infoFilePathAvanti = newExamDir.absolutePath().append("/" + newExamDir.dirName() + ".txt");
             infoFileAvanti.setFileName(infoFilePathAvanti);
         }
         // search for info file in another location...
         if (!infoFileAvanti.exists()){
-            QMessageBox::critical(this, tr("Error"), tr("Nie można otworzyć pliku z danymi badania (.txt)"));
+            QMessageBox::critical(this, tr("Error"), tr("Could not open scan info file (.txt)"));
         } else {
             QDate birth_date = QDate(1900,1,1);
             int gender = 3; // undefined
 
             QStringList fileName = newExamDir.dirName().split(",");
             if (fileName.count() < 2){   // zabezpieczenie przed nieodpowiednim katalogiem...
-                QMessageBox::critical(this, tr("Error"), "Nieprawidłowy katalog! Nie można wczytać danych.");
+                QMessageBox::critical(this, tr("Error"), "Incorrect folder name! Could not load data info.");
             } else {
                 QStringList fileName2 = fileName.at(1).split(" ");
 
@@ -4468,6 +4464,8 @@ void OCTAnnotate::addScanToDB(QString examPath){
 
                 int scanWidth = 0;
                 int scanHeight = 0;
+                int scansNumber = 0;
+                int scansNumberAll = 0;
                 QString device = "?";
 
                 QString line;
@@ -4486,8 +4484,14 @@ void OCTAnnotate::addScanToDB(QString examPath){
                                 scanLengthRead = true;
                             }
                             if (data.at(0) == "XY Scan Usage" && !scanUsageRead){
-                                scanHeight = data.at(1).toInt();
+                                scansNumber = data.at(1).toInt();
                                 scanUsageRead = true;
+                            }
+                            if (data.at(0) == "OCT Window Height"){
+                                scanHeight = data.at(1).toInt();
+                            }
+                            if (data.at(0) == "Frames Per Data Group"){
+                                scansNumberAll = data.at(1).toInt();
                             }
                             // brith date - not possible
                             // gender - not possible
@@ -4497,7 +4501,7 @@ void OCTAnnotate::addScanToDB(QString examPath){
                         infoFileAvanti.close();
                 }
 
-                QString examDimensions = QString::number(scanWidth) + " x " + QString::number(scanHeight);
+                QString examDimensions = QString::number(scanWidth) + " x " + QString::number(scansNumber);
                 double examQI = 0;
 
                 QString direction = "0";
@@ -4511,11 +4515,149 @@ void OCTAnnotate::addScanToDB(QString examPath){
                     modelPatients->select();
                 }
 
-                QString filePath = "";
-
                 // add scan to the database
-                patientsDB->addNewScan(patientID, eye, QDateTime(examDate, examTime), device, examType, direction, examDimensions, examQI, filePath, examPath);
-                modelScans->select();
+                bool success = patientsDB->addNewScan(patientID, eye, QDateTime(examDate, examTime), device, examType, direction, examDimensions, examQI, scanName);
+                if (success){
+                    modelScans->select();
+
+                    // check if exists Iowa analysis in ./examData/iowa/ folder
+                    QString iowaPath = examDir.absolutePath().append("/iowa/");
+                    QString iowaFundusPath = iowaPath.append(scanName + "_Proj_Iowa.tif");
+                    QFile iowaFundusFile(iowaFundusPath);
+                    if (iowaFundusFile.exists()){
+                        int scanID = patientsDB->getScanID(scanName);
+                        patientsDB->editScanHasAutoExplorer(scanID, true);
+                        modelScans->select();
+                    }
+
+                    // create previews
+                    QImage crossH(scanWidth,scanHeight,QImage::Format_Indexed8);
+                    QImage crossV(scanWidth,scanHeight,QImage::Format_Indexed8);
+                    QImage fundus(scanWidth,scansNumber,QImage::Format_Indexed8);
+                    QList< QList< QList<int> > > octData;
+                    QList< QList< QList<float> > > octDataTemp;
+                    QList<float> maxList;
+                    int maxAll = 0;
+
+                    if (isBinary){
+                        // TODO: read binary file
+                        QString octFileName = newExamDir.absolutePath().append(".OCT");
+                        QFile octFile(octFileName);
+                        if (!octFile.open(QIODevice::ReadOnly)){
+                            qDebug() << "Could not open file!";
+                            QMessageBox::critical(this,"Error","Could not open OCT binary file!");
+                        } else {
+                            qDebug() << "File opened!";
+                        }
+
+                        QDataStream in(&octFile);
+                        in.setFloatingPointPrecision(QDataStream::SinglePrecision);
+                        in.setByteOrder(QDataStream::LittleEndian);
+
+                        for (int p=0; p < scansNumberAll; p++){
+                            QList< QList<float> > img;
+                            float max = 0;
+
+                            for (int i=0; i < scanWidth; i++){
+                                QList<float> column;
+                                for (int j=0; j < scanHeight; j++){
+                                    float val = 0;
+                                    in >> val;
+                                    column.append(val);
+                                    if (val > max){
+                                        max = val;
+                                    }
+                                }
+                                img.append(column);
+                            }
+                            octDataTemp.append(img);
+                            maxList.append(max);
+                        }
+
+                        octFile.close();
+                        qDebug() << "File read sucessfully!";
+
+                        // normalize data
+                        float min = 800;
+                        for (int p=0; p < scansNumberAll; p++){
+                            QList< QList<int> > img;
+
+                            for (int c=0; c < scanWidth; c++){
+                                QList<int> column;
+
+                                for (int r=0; r < scanHeight; r++){
+                                    float tmp = octDataTemp[p][c][r];
+                                    tmp = (tmp-min)/(maxList[p]-min);
+                                    tmp = qBound(0,(int)(tmp*255),255);
+                                    column.append(tmp);
+                                    if (tmp > maxAll){
+                                        maxAll = tmp;
+                                    }
+                                }
+                                img.append(column);
+                            }
+                            octData.append(img);
+                        }
+
+                        // create projections
+                        QRgb rgbValue;
+                        for (int c=0; c < scanWidth; c++){
+                            for (int r=0; r < scanHeight; r++){
+                                int val = octData[(int)(scansNumber/2)][c][r];
+                                rgbValue = qRgb(val,val,val);
+                                crossH.setColor(val,rgbValue);
+                                crossH.setPixel(c,r,val);
+                            }
+                        }
+                        crossH = crossH.mirrored(false,true);
+
+                        for (int c=0; c < scanWidth; c++){
+                            for (int r=0; r < scanHeight; r++){
+                                int val = octData[(int)(scansNumberAll-2)][c][r];
+                                rgbValue = qRgb(val,val,val);
+                                crossV.setColor(val,rgbValue);
+                                crossV.setPixel(c,r,val);
+                            }
+                        }
+                        crossV = crossV.mirrored(false,true);
+
+                    } else {
+                        // read bmp files
+                        crossH = QImage(newExamDir.absolutePath().append("/Skan_nr_71.bmp"));
+                        crossV = QImage(newExamDir.absolutePath().append("/Skan_nr_143.bmp"));
+                    }
+                    crossH.save(examDir.absolutePath().append("/preview/" + scanName + "_crossH.tif"));
+                    crossV.save(examDir.absolutePath().append("/preview/" + scanName + "_crossV.tif"));
+
+                    if (iowaFundusFile.exists()){
+                        fundus = QImage(examDir.absolutePath().append("/iowa/" + scanName + "_Proj_Iowa.tif"));
+                    } else {
+                        if (!isBinary){
+                            fundus = QImage(newExamDir.absolutePath().append("/fnds_rec.bmp"));
+                        } else {
+                            // TODO: create fundus projection from binary data
+                            QRgb rgbValue;
+                            for (int y=0; y < scansNumber; y++){
+                                for (int x=0; x < scanWidth; x++){
+                                    int sum = 0;
+                                    for (int z=0; z < scanHeight; z++){
+                                        sum += octData[y][x][z];
+                                    }
+                                    sum = sum / maxAll;
+                                    sum = qBound(0,(int)sum,255);
+                                    rgbValue = qRgb(sum,sum,sum);
+                                    fundus.setColor(sum,rgbValue);
+                                    fundus.setPixel(y,x,sum);
+                                }
+                            }
+                        }
+                    }
+                    fundus.save(examDir.absolutePath().append("/preview/" + scanName + "_fundus.tif"));
+                } else {
+                    QMessageBox::critical(this,"Error","Error while adding new scan!");
+                }
+
+                qDebug() << "All done!";
             }
         }
     }
@@ -4526,13 +4668,15 @@ void OCTAnnotate::on_searchForScansButton_clicked()
     // TODO:
     // 1. zaladuj liste katalogow ze wskazanego katalogu
     QString folderSearchPath = QFileDialog::getExistingDirectory(this, tr("Open Directory"), examDir.absolutePath(), QFileDialog::ShowDirsOnly);
-    QDir folderSearchDir = QDir(folderSearchPath);
-    QStringList folderList = folderSearchDir.entryList(QDir::Dirs | QDir::NoDotAndDotDot);
+    if (!folderSearchPath.isEmpty()){
+        QDir folderSearchDir = QDir(folderSearchPath);
+        QStringList folderList = folderSearchDir.entryList(QDir::Dirs | QDir::NoDotAndDotDot);
 
-    // 2. dla kazdego katalogu dodaj skan do bazy
-    foreach(QString folderName, folderList){
-        qDebug() << folderSearchPath + "/" + folderName;
-        on_addScanFolderButton_clicked(folderSearchPath + "/" + folderName);
+        // 2. dla kazdego katalogu dodaj skan do bazy
+        foreach(QString folderName, folderList){
+            qDebug() << folderSearchPath + "/" + folderName;
+            on_addScanFolderButton_clicked(folderSearchPath + "/" + folderName);
+        }
     }
 }
 
@@ -4559,7 +4703,7 @@ void OCTAnnotate::on_batchProcessingButton_clicked()
         // 3. import cross-sections, calculate cross, save and display
 
         // 4. check if OCTExplorer annotations are present in the folder
-        QString folderName = record.value("scan_folder_path").toString();
+        QString folderName = record.value("scan_name").toString();
         QString subfolder = record.value("device").toString() + " " + record.value("series").toString();
 //        QString temp = "/" + subfolder + "/" + folderName + "/" + folderName + "_Proj_Iowa.tif";
 //        QString fundusPath = examDir.absolutePath().append(temp);
@@ -4794,31 +4938,24 @@ void OCTAnnotate::on_scansListTableView_clicked(const QModelIndex &index)
 {
     int currentRow = index.row();
     QSqlRecord selectedRecord = modelScans->record(currentRow);
-    QString folderName = selectedRecord.value("scan_folder_path").toString();
-    QString subfolder = selectedRecord.value("device").toString() + " " + selectedRecord.value("series").toString();
+    QString scanName = selectedRecord.value("scan_name").toString();
 
-//    QString temp = "/" + subfolder + "/" + folderName + "/" + folderName + "_Proj_Iowa.tif";
-    QString temp = "/" + folderName + "_Proj_Iowa.tif";
-    QString fundusPath = examDir.absolutePath().append(temp);
-
+    QString fundusPath = examDir.absolutePath().append("/preview/" + scanName + "_fundus.tif");
     if (QFile(fundusPath).exists()){
         QImage fundusImage(fundusPath);
         ui->fundusDBLabel->setPixmap(QPixmap::fromImage(fundusImage));
     } else {
-//        QString fundusPath2 = examDir.absolutePath().append("/" + subfolder + "/" + folderName + "/fnds_rec.bmp");
-        QString fundusPath2 = examDir.absolutePath().append("/" + folderName + "/fnds_rec.bmp");
-        if (QFile(fundusPath2).exists()){
-            QImage fundusImage(fundusPath2);
-            ui->fundusDBLabel->setPixmap(QPixmap::fromImage(fundusImage));
-        } else {
+//        QString fundusPath2 = examDir.absolutePath().append("/" + scanName + "/fnds_rec.bmp");
+//        if (QFile(fundusPath2).exists()){
+//            QImage fundusImage(fundusPath2);
+//            ui->fundusDBLabel->setPixmap(QPixmap::fromImage(fundusImage));
+//        } else {
             ui->fundusDBLabel->setPixmap(QPixmap());
-        }
+//        }
     }
 
-//    QString bscanHPath = examDir.absolutePath().append("/" + subfolder + "/" + folderName + "/" + "Skan_nr_71.bmp");
-//    QString bscanVPath = examDir.absolutePath().append("/" + subfolder + "/" + folderName + "/" + "Skan_nr_143.bmp");
-    QString bscanHPath = examDir.absolutePath().append("/" + folderName + "/" + "Skan_nr_71.bmp");
-    QString bscanVPath = examDir.absolutePath().append("/" + folderName + "/" + "Skan_nr_143.bmp");
+    QString bscanHPath = examDir.absolutePath().append("/preview/" + scanName + "_crossH.tif");
+    QString bscanVPath = examDir.absolutePath().append("/preview/" + scanName + "_crossV.tif");
 
     if (QFile(bscanHPath).exists()){
         QImage imageH(bscanHPath);
@@ -4862,7 +4999,6 @@ void OCTAnnotate::on_scansListTableView_doubleClicked(const QModelIndex &current
 {
     int row = currentIndex.row();
     QSqlRecord record = modelScans->record(row);
-//    QString scanFolder = examDir.absolutePath() + "/" + record.value("device").toString() + " " + record.value("series").toString() + "/" + record.value("scan_folder_path").toString();
-    QString scanFolder = examDir.absolutePath() + "/" + record.value("scan_folder_path").toString();
+    QString scanFolder = examDir.absolutePath() + "/" + record.value("scan_name").toString();
     on_actionLoadPatientOCT_triggered(scanFolder);
 }

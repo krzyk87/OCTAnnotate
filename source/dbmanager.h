@@ -20,7 +20,7 @@ public:
     int getPatientAge(int patientID);
     int getPatientGender(int patientID);
     void calculatePatientAge(int patientID, QDateTime examDate);
-    bool addNewScan(int patientID, QString eye, QDateTime scan_date, QString device, QString scan_type, QString scan_direction, QString scan_dimensions, double scan_qi, QString scan_file_path, QString scan_folder_path);
+    bool addNewScan(int patientID, QString eye, QDateTime scan_date, QString device, QString scan_type, QString scan_direction, QString scan_dimensions, double scan_qi, QString scan_name);
     int getScanID(QString examDirName);
     bool editScanHasAutoExplorer(int scanID, bool hasAutoExplorer);
 

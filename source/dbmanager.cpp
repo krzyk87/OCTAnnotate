@@ -208,7 +208,7 @@ bool DbManager::addNewScan(int patientID, QString eye, QDateTime scan_date, QStr
     query.bindValue(":eye", eye);
     query.bindValue(":scan_date", scan_date.toString("yyyy-MM-dd hh:mm:ss.000"));
     query.bindValue(":device", device);
-    query.bindValue(":series", "");
+    query.bindValue(":series", "Seria 7");
     query.bindValue(":scan_type", scan_type);
     query.bindValue(":scan_direction", scan_direction);
     query.bindValue(":scan_dimensions", scan_dimensions);

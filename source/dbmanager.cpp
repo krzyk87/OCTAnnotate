@@ -168,6 +168,27 @@ int DbManager::getPatientGender(int patientID){
     return patientGender;
 }
 
+QDateTime DbManager::getPatientOldestScan(int patientID){
+    QDateTime patientOldestScan = QDateTime();
+
+    QSqlQuery query;
+    query.prepare("SELECT date FROM scans WHERE patient_id = :patientID ORDER BY date ASC");
+    query.bindValue(":patientID", patientID);
+
+    if (query.exec()){
+        if (query.next()){
+            patientOldestScan = query.value("date").toDateTime();
+            qDebug() << "patient's oldest scan date fetched...";
+        } else {
+            qDebug() << "no oldest scan for patient...";
+        }
+    } else {
+        qDebug() << "Error while geting patient's oldest scan!";
+    }
+
+    return patientOldestScan;
+}
+
 void DbManager::calculatePatientAge(int patientID, QDateTime examDate){
     int patientAge = 0;
     QDate patientBirthDate;
@@ -187,15 +208,15 @@ void DbManager::calculatePatientAge(int patientID, QDateTime examDate){
             query.bindValue(":age", patientAge);
             query.bindValue(":patient_id", patientID);
             if (query.exec()){
-                qDebug() << QString::number(patientID) + ": Age calculated.";
+                qDebug() << "Patient " + QString::number(patientID) + ": Age calculated.";
             } else {
-                qDebug() << QString::number(patientID) + ": Error while updating patient age!";
+                qDebug() << "Patient " + QString::number(patientID) + ": Error while updating patient age!";
             }
         } else {
-            qDebug() << QString::number(patientID) + ": no birth date for patient...";
+            qDebug() << "Patient " + QString::number(patientID) + ": no birth date for patient...";
         }
     } else {
-        qDebug() << QString::number(patientID) + ": Error while geting patient age!";
+        qDebug() << "Patient " + QString::number(patientID) + ": Error while geting patient age!";
     }
 }
 

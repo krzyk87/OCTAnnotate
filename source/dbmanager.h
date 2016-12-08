@@ -19,6 +19,7 @@ public:
     int getPatientID(QString last_name, QString first_name);
     int getPatientAge(int patientID);
     int getPatientGender(int patientID);
+    QDateTime getPatientOldestScan(int patientID);
     void calculatePatientAge(int patientID, QDateTime examDate);
     bool addNewScan(int patientID, QString eye, QDateTime scan_date, QString device, QString scan_type, QString scan_direction, QString scan_dimensions, double scan_qi, QString scan_name);
     int getScanID(QString examDirName);

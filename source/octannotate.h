@@ -48,7 +48,8 @@ private slots:
 
     //void on_actionAddPatientNew_triggered();
     //void on_actionLoadPatientGeneral_triggered();
-    void on_actionLoadPatientOCT_triggered(QString scanFolderPath = "");
+    void on_actionLoadOCTSequence_triggered(QString scanFolderPath = "");
+    void on_actionLoadOCTFile_triggered();
     void on_actionReadManualAnnotations_triggered();
 
 // General exam
@@ -146,6 +147,8 @@ private slots:
     void on_batchProcessingButton_clicked();
 
     void on_currNormalImageNumberLEdit_returnPressed();
+
+
 
 public slots:
     void on_errorOccured(QString);

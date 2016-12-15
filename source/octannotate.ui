@@ -3517,7 +3517,8 @@
      <addaction name="actionReadManualAnnotations"/>
      <addaction name="actionSetAutoSegmentationAsManual"/>
     </widget>
-    <addaction name="actionLoadPatientOCT"/>
+    <addaction name="actionLoadOCTFile"/>
+    <addaction name="actionLoadOCTSequence"/>
     <addaction name="actionSaveOCTExam"/>
     <addaction name="actionSaveGeneralExam"/>
     <addaction name="separator"/>
@@ -3589,9 +3590,9 @@
     <string>Zapisz badanie OCT</string>
    </property>
   </action>
-  <action name="actionLoadPatientOCT">
+  <action name="actionLoadOCTSequence">
    <property name="text">
-    <string>Wczytaj badanie OCT</string>
+    <string>Wczytaj badanie OCT (katalog)</string>
    </property>
   </action>
   <action name="actionChangeLayerColor">
@@ -3723,6 +3724,11 @@
   <action name="actionInfo">
    <property name="text">
     <string>Info</string>
+   </property>
+  </action>
+  <action name="actionLoadOCTFile">
+   <property name="text">
+    <string>Wczytaj badanie OCT (.oct)</string>
    </property>
   </action>
  </widget>

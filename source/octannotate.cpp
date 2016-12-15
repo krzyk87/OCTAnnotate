@@ -401,7 +401,7 @@ void OCTAnnotate::on_actionInfo_triggered()
 }
 
 // select OCT exam --------------------------------------------------------------------------------
-void OCTAnnotate::on_actionLoadPatientOCT_triggered(QString scanFolderPath)
+void OCTAnnotate::on_actionLoadOCTSequence_triggered(QString scanFolderPath)
 {
     QMessageBox msgBox;
     QPushButton *saveButton = msgBox.addButton(" Zapisz i wczytaj nowe badanie ", QMessageBox::YesRole);
@@ -454,6 +454,77 @@ void OCTAnnotate::on_actionLoadPatientOCT_triggered(QString scanFolderPath)
             rwData->addDirective("readPatientData");
             rwData->addDirective("readGeneralExamData");
             rwData->addDirective("readOctExamData");
+
+            QThread *thread = new QThread;
+            rwData->moveToThread(thread);
+            connect(thread, SIGNAL(started()), rwData, SLOT(process()));
+            connect(rwData, SIGNAL(errorOccured(QString)), this, SLOT(on_errorOccured(QString)));
+            connect(rwData, SIGNAL(processingData(double,QString)), this, SLOT(on_processingData(double,QString)));
+            //connect(rwData, SIGNAL(returnNewDirectory(QDir)), this, SLOT(on_returnNewDirectory(QDir)));
+            connect(rwData, SIGNAL(readingDataFinished(QString)), this, SLOT(on_readingDataFinished(QString)));
+            connect(rwData, SIGNAL(finished()), thread, SLOT(quit()));
+            connect(rwData, SIGNAL(finished()), rwData, SLOT(deleteLater()));
+            connect(thread, SIGNAL(finished()), thread, SLOT(deleteLater()));
+            thread->start();
+        }
+
+        ui->fundusDBLabel->setPixmap(QPixmap());
+        ui->bscanHLabel->setPixmap(QPixmap());
+        ui->bscanVLabel->setPixmap(QPixmap());
+    }
+}
+
+void OCTAnnotate::on_actionLoadOCTFile_triggered()
+{
+    QMessageBox msgBox;
+    QPushButton *saveButton = msgBox.addButton(" Zapisz i wczytaj nowe badanie ", QMessageBox::YesRole);
+    QPushButton *cancelButton = msgBox.addButton(" Anuluj ", QMessageBox::RejectRole);
+    msgBox.addButton(" Wczytaj nowe badanie bez zapisywania ", QMessageBox::NoRole);
+    bool selectNew = true;
+
+    if (generalDataModified){
+        msgBox.setText("Informacje o badaniu okulistycznym zostały zmienione. Czy chcesz zapisać zmiany przed otwarciem nowego badania?");
+        msgBox.exec();
+        if (msgBox.clickedButton() == saveButton){  // save data before quit
+            on_actionSaveGeneralExam_triggered();
+        } else if (msgBox.clickedButton() == cancelButton) {   // quit without saving
+            selectNew = false;
+        }
+    }
+    if (octDataModified){
+        msgBox.setText("Anotacje badania OCT zostały zmienione. Czy zapisać zmiany przed wczytaniem nowego badania?");
+        msgBox.exec();
+        if (msgBox.clickedButton() == saveButton){
+            on_actionSaveOCTExam_triggered();
+        } else if (msgBox.clickedButton() == cancelButton) {
+            selectNew = false;
+        }
+    }
+
+    if (selectNew){
+        QString fileName = QFileDialog::getOpenFileName(this, tr("Open OCT file"), octDir.absolutePath(), tr("Avanti RTvue raw OCT data file (*.OCT)"));
+
+        qDebug() << "Opening scan: " << fileName;
+
+        if (!fileName.isEmpty()){
+            QFile scanFile(fileName);
+
+            patientData = PatientData();
+
+            ui->statusBar->showMessage("Trwa odczyt danych badania OCT...");
+            progressBar->setMaximum(100);
+            progressBar->setVisible(true);
+            progressBar->setValue(0);
+
+            ReadWriteData *rwData = new ReadWriteData();
+            rwData->setDataObject(&patientData);
+            rwData->setOctFile(&scanFile);
+            rwData->setDirectoryManual(&manualDir);
+            rwData->setDirectoryAuto(&autoDir);
+            rwData->setDataSaveStrucure(dataSaveStructure);
+            rwData->addDirective("readPatientData");
+            rwData->addDirective("readGeneralExamData");
+            rwData->addDirective("readOctExamFile");
 
             QThread *thread = new QThread;
             rwData->moveToThread(thread);
@@ -5020,5 +5091,5 @@ void OCTAnnotate::on_scansListTableView_doubleClicked(const QModelIndex &current
     int row = currentIndex.row();
     QSqlRecord record = modelScans->record(row);
     QString scanFolder = examDir.absolutePath() + "/" + record.value("scan_name").toString();
-    on_actionLoadPatientOCT_triggered(scanFolder);
+    on_actionLoadOCTSequence_triggered(scanFolder);
 }

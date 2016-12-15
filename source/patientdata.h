@@ -219,6 +219,8 @@ public:
     void setImageFileList(QStringList newList);
     int getBscansNumber();
     void setBscansNumber(int number);
+    int getBscansNumberAll();
+    void setBscansNumberAll(int number);
     int getBscanWidth();
     void setBscanWidth(int width);
     int getBscanHeight();
@@ -375,6 +377,7 @@ private:
     // oct exam
     QStringList imageFileList;
     int bscansNumber;
+    int bscansNumberAll;
     int bscanWidth;
     int bscanHeight;
     double voxelWidth;

@@ -820,6 +820,7 @@ PatientData::PatientData()
     this->imageFileList = QStringList();
 
 //    this->bscansNumber = 100;
+//    this->bscansNumberAll = 100;
 //    this->bscanWidth = 800;
 //    this->bscanHeight = 1010;
 //    this->voxelWidth = 8.0;
@@ -828,6 +829,7 @@ PatientData::PatientData()
 //    this->octDevice = COPERNICUS;
 
     this->bscansNumber = 141;
+    this->bscansNumberAll = 144;
     this->bscanWidth = 385;
     this->bscanHeight = 640;
     this->voxelWidth = 7.0;
@@ -1959,6 +1961,16 @@ int PatientData::getBscansNumber(){
 
 void PatientData::setBscansNumber(int number){
     this->bscansNumber = number;
+}
+
+int PatientData::getBscansNumberAll()
+{
+    return this->bscansNumberAll;
+}
+
+void PatientData::setBscansNumberAll(int number)
+{
+    this->bscansNumberAll = number;
 }
 
 double PatientData::getVoxelWidth(){

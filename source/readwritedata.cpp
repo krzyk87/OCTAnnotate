@@ -5,6 +5,7 @@
 #include <QDir>
 #include <QColor>
 #include <QDebug>
+#include <QMessageBox>
 //#include <QtXml>
 
 ReadWriteData::ReadWriteData(QObject *parent) : QObject(parent)
@@ -40,6 +41,10 @@ void ReadWriteData::process(){
         }
         if (dir == "readOctExamData"){
             this->readOctExamData();
+            emit readingDataFinished("");
+        }
+        if (dir == "readOctExamFile"){
+            this->readOctExamFile();
             emit readingDataFinished("");
         }
         if (dir == "readManualSegmentationData"){
@@ -98,6 +103,10 @@ void ReadWriteData::setDirectoryOct(QDir *dataDir){
     octDir = dataDir;
 }
 
+void ReadWriteData::setOctFile(QFile *dataFile){
+    octFile = dataFile;
+}
+
 void ReadWriteData::setDirectoryManual(QDir *mDir){
     manualDir = mDir;
 }
@@ -118,7 +127,7 @@ void ReadWriteData::setAutoFilePath(QString afPath){
 bool ReadWriteData::readPatientData(){
     QString line;
     bool fileOpened = false;
-    double tasks = 13;
+    double tasks = 14;
     double count = 0;
 
     // read info.ini file
@@ -233,6 +242,10 @@ bool ReadWriteData::readPatientData(){
                     if (data.at(0) == "XY Scan Usage" && !scanUsageRead){
                         pData->setBscansNumber(data.at(1).toInt());
                         scanUsageRead = true;
+                        emit processingData((++count)/tasks*100,"");
+                    }
+                    if (data.at(0) == "Frames Per Data Group"){
+                        pData->setBscansNumberAll(data.at(1).toInt());
                         emit processingData((++count)/tasks*100,"");
                     }
                     if (data.at(0) == "OCT Window Height"){
@@ -368,7 +381,7 @@ void ReadWriteData::readGeneralExamData(){
 
 void ReadWriteData::readOctExamData(){
     emit processingData(0, "Trwa pobieranie listy skanów...");
-    double tasks = pData->getBscansNumber()*3; // gdy contrast enhancement to 3
+    double tasks = pData->getBscansNumber()*3 + 1; // gdy contrast enhancement to 4 zamiast 3
     double count = 0;
     OCTDevice device = pData->getOCTDevice();
 
@@ -437,6 +450,147 @@ void ReadWriteData::readOctExamData(){
     QString octExamFilePath = manualDir->path().append("/" + octDir->dirName() + ".mvri");
     QFile octExamFile(octExamFilePath);
     readFileManualSegmentation(&octExamFile);
+}
+
+void ReadWriteData::readOctExamFile(){
+    emit processingData(0, "Trwa pobieranie listy skanów...");
+    double tasks = pData->getBscansNumber()*3 + 1; // gdy contrast enhancement to 4 zamiast 3
+    double count = 0;
+    OCTDevice device = pData->getOCTDevice();
+
+    QString scanName = octFile->fileName();
+    QFileInfo octFileInfo(*octFile);
+    scanName.chop(4);
+
+    // read exam images list    // this is not necessary, but based on existing imageFileList other functions in this application work
+    QStringList imageList;
+    for (int i=0; i < pData->getBscansNumber(); i++){
+        if (device == COPERNICUS)
+            imageList.append(scanName.append("/skan") + QString::number(i) + ".bmp");
+        else if (device == AVANTI)
+            imageList.append(scanName.append("/Skan_nr_") + QString::number(i+1) + ".bmp");
+        emit processingData((++count)/tasks*100,"");
+    }
+    pData->setImageFileList(imageList);
+    pData->resetBscansData();  // Bscans memory reset
+
+    // read OCT file
+    emit processingData((count)/tasks*100,"Trwa odczyt danych OCT...");
+    int imageNumber = 0;
+    readBinaryFile(octFile, &count, &tasks);
+
+    // image flattening
+//    Calculate *calc = new Calculate();
+//    emit processingData((count)/tasks*100,"Trwa wyprostowywanie skanów...");
+//    imageNumber = 0;
+//    foreach (QString imagePath, imageList) {
+//        QImage img(imagePath);
+//        pData->setFlatDifferences(imageNumber,calc->calculateFlatteningDifferences(&img));
+//        imageNumber++;
+//        emit processingData((++count)/tasks*100,"");
+//    }
+
+    // read fundus image
+//    emit processingData(++count, "Trwa odczyt obrazu fundus...");
+//    QImage fundus = QImage(pData->getBscanWidth(), pData->getBscansNumber(), QImage::Format_Indexed8);
+//    fundus.fill(0);
+
+//    QString fundusFilePathExpl = octDir->absolutePath().append("/" + octDir->dirName() + "_Proj_Iowa.tif");
+//    QString fundusFilePath = octDir->absolutePath().append("/fnds_rec.bmp");
+//    if (QFile(fundusFilePathExpl).exists()){
+//        fundus = QImage(fundusFilePathExpl);
+//    } else if (QFile(fundusFilePath).exists()){
+//        fundus = QImage(fundusFilePath);
+//    }
+
+//    if (device == COPERNICUS){
+//        fundus = fundus.mirrored(false,true);
+//    } else if (device == AVANTI){
+//        // contrast enhancement
+//            for (int j=0; j<fundus.height(); j++){
+//                for (int i=0; i<fundus.width(); i++){
+//                    int value = QColor::fromRgb(fundus.pixel(i,j)).red();
+//                    value = value * 8;
+//                    value = qBound(0,value,255);
+//                    fundus.setPixel(i,j,value);
+//                }
+//                emit processingData((++count)/tasks*100,"");
+//            }
+//    }
+//    pData->setFundusImage(fundus);
+
+    // read oct exam data if exists
+
+    QString octExamFilePath = manualDir->path().append("/" + scanName + ".mvri");
+    QFile octExamFile(octExamFilePath);
+    readFileManualSegmentation(&octExamFile);
+}
+
+void ReadWriteData::readBinaryFile(QFile *dataFile, double *count, double *tasks){
+    double c = *count;
+    double t = *tasks;
+
+    QList< QList< QList<float> > > octDataTemp;
+    QList<float> maxList;
+//    int maxAll = 0;
+
+    if (!dataFile->open(QIODevice::ReadOnly)){
+        qDebug() << "Could not open file!";
+        emit errorOccured(tr("Could not open OCT binary file!"));
+    } else {
+        qDebug() << "File opened!";
+    }
+
+    QDataStream in(dataFile);
+    in.setFloatingPointPrecision(QDataStream::SinglePrecision);
+    in.setByteOrder(QDataStream::LittleEndian);
+
+    for (int p=0; p < pData->getBscansNumber(); p++){
+        QList< QList<float> > img;
+        float max = 0;
+
+        for (int i=0; i < pData->getBscanWidth(); i++){
+            QList<float> column;
+            for (int j=0; j < pData->getBscanHeight(); j++){
+                float val = 0;
+                in >> val;
+                column.append(val);
+                if (val > max){
+                    max = val;
+                }
+            }
+            img.append(column);
+        }
+        octDataTemp.append(img);
+        maxList.append(max);
+        emit processingData((++c)/t*100,"");
+    }
+
+    dataFile->close();
+    qDebug() << "File read sucessfully!";
+
+    // normalize data
+    float min = 800;
+    for (int p=0; p < pData->getBscansNumber(); p++){
+        QImage img = QImage(pData->getBscanWidth(), pData->getBscanHeight(), QImage::Format_Indexed8);
+        img.fill(0);
+        uint value = 0;
+
+        for (int c=0; c < pData->getBscanWidth(); c++){
+            for (int r=0; r < pData->getBscanHeight(); r++){
+                float tmp = octDataTemp[p][c][r];
+                tmp = (tmp-min)/(maxList[p]-min);
+                tmp = qBound(0,(int)(tmp*255),255);
+                value = tmp;
+                img.setColor(value, qRgb(value,value,value));
+                img.setPixel(c, r, value);
+            }
+        }
+        pData->setOCTdata(img, p);
+    }
+
+    *count = c;
+    *tasks = t;
 }
 
 void ReadWriteData::readFileManualSegmentation(QFile *dataFile){

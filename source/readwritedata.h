@@ -30,7 +30,8 @@ public slots:
     void process();
 
     void setDataObject(PatientData *patientData);
-    void setDirectoryOct(QDir *octDir);
+    void setDirectoryOct(QDir *dataDir);
+    void setOctFile(QFile *dataFile);
     void setDirectoryManual(QDir *mDir);
     void setDirectoryAuto(QDir *aDir);
     void setManualFilePath(QString mfPath);
@@ -41,6 +42,8 @@ public slots:
 
 private:
     void readOctExamData();
+    void readOctExamFile();
+    void readBinaryFile(QFile *dataFile, double *count, double *tasks);
     void readFileAutoSegmentation(QFile *dataFile);
 
     void saveGeneralExamData();
@@ -54,6 +57,7 @@ private:
     void copyAutoAsManual(QList<Layers> layersList);
 
     QDir *octDir;
+    QFile *octFile;
     QDir *manualDir;
     QDir *autoDir;
     QString manualFilePath;

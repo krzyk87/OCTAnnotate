@@ -240,6 +240,8 @@ public:
     void setExamTime(QTime newExamTime);
     QTime getExamTime();
     void setOCTdata(QImage bscan, int bscanNumber);
+    void setOCTdata(QList<QList<int> > bscan, int bscanNumber);
+    QList<QList<int> > getOCTdata(int bscanNumber);
     QImage getNormalImage(int normalImageNumber);
     void resetFlatDifferences();
     void setFlatDifferences(int bscanNumber, QList<int> flatDiff);

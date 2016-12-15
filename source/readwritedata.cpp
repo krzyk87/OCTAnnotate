@@ -476,37 +476,35 @@ void ReadWriteData::readOctExamFile(){
 
     // read OCT file
     emit processingData((count)/tasks*100,"Trwa odczyt danych OCT...");
-    int imageNumber = 0;
     readBinaryFile(octFile, &count, &tasks);
 
     // image flattening
-//    Calculate *calc = new Calculate();
-//    emit processingData((count)/tasks*100,"Trwa wyprostowywanie skanów...");
-//    imageNumber = 0;
-//    foreach (QString imagePath, imageList) {
-//        QImage img(imagePath);
-//        pData->setFlatDifferences(imageNumber,calc->calculateFlatteningDifferences(&img));
-//        imageNumber++;
-//        emit processingData((++count)/tasks*100,"");
-//    }
+    Calculate *calc = new Calculate();
+    emit processingData((count)/tasks*100,"Trwa wyprostowywanie skanów...");
+    for (int i=0; i < pData->getBscansNumber(); i++){
+        pData->setFlatDifferences(i,calc->calculateFlatteningDifferences(pData->getOCTdata(i)));
+        emit processingData((++count)/tasks*100,"");
+    }
 
     // read fundus image
-//    emit processingData(++count, "Trwa odczyt obrazu fundus...");
-//    QImage fundus = QImage(pData->getBscanWidth(), pData->getBscansNumber(), QImage::Format_Indexed8);
-//    fundus.fill(0);
+    emit processingData(++count, "Trwa odczyt obrazu fundus...");
+    QImage fundus = QImage(pData->getBscanWidth(), pData->getBscansNumber(), QImage::Format_Indexed8);
+    fundus.fill(0);
 
-//    QString fundusFilePathExpl = octDir->absolutePath().append("/" + octDir->dirName() + "_Proj_Iowa.tif");
-//    QString fundusFilePath = octDir->absolutePath().append("/fnds_rec.bmp");
-//    if (QFile(fundusFilePathExpl).exists()){
-//        fundus = QImage(fundusFilePathExpl);
-//    } else if (QFile(fundusFilePath).exists()){
-//        fundus = QImage(fundusFilePath);
-//    }
+    QDir previewDir = QDir(manualDir->absolutePath());
+    previewDir.cdUp();
+    QString fundusFilePathExpl = previewDir.absolutePath().append("/iowa/" + scanName + "_Proj_Iowa.tif");
+    QString fundusFilePathPreview = previewDir.absolutePath().append("/preview/" + scanName + "_fundus.tif");
+    if (QFile(fundusFilePathExpl).exists()){
+        fundus = QImage(fundusFilePathExpl);
+    } else if (QFile(fundusFilePathPreview).exists()){
+        fundus = QImage(fundusFilePathPreview);
+    }
 
-//    if (device == COPERNICUS){
-//        fundus = fundus.mirrored(false,true);
-//    } else if (device == AVANTI){
-//        // contrast enhancement
+    if (device == COPERNICUS){
+        fundus = fundus.mirrored(false,true);
+    } else if (device == AVANTI){
+        // contrast enhancement
 //            for (int j=0; j<fundus.height(); j++){
 //                for (int i=0; i<fundus.width(); i++){
 //                    int value = QColor::fromRgb(fundus.pixel(i,j)).red();
@@ -516,11 +514,10 @@ void ReadWriteData::readOctExamFile(){
 //                }
 //                emit processingData((++count)/tasks*100,"");
 //            }
-//    }
-//    pData->setFundusImage(fundus);
+    }
+    pData->setFundusImage(fundus);
 
     // read oct exam data if exists
-
     QString octExamFilePath = manualDir->path().append("/" + scanName + ".mvri");
     QFile octExamFile(octExamFilePath);
     readFileManualSegmentation(&octExamFile);
@@ -572,19 +569,18 @@ void ReadWriteData::readBinaryFile(QFile *dataFile, double *count, double *tasks
     // normalize data
     float min = 800;
     for (int p=0; p < pData->getBscansNumber(); p++){
-        QImage img = QImage(pData->getBscanWidth(), pData->getBscanHeight(), QImage::Format_Indexed8);
-        img.fill(0);
-        uint value = 0;
+        QList< QList<int> > img;
 
         for (int c=0; c < pData->getBscanWidth(); c++){
+            QList<int> column;
+
             for (int r=0; r < pData->getBscanHeight(); r++){
                 float tmp = octDataTemp[p][c][r];
                 tmp = (tmp-min)/(maxList[p]-min);
                 tmp = qBound(0,(int)(tmp*255),255);
-                value = tmp;
-                img.setColor(value, qRgb(value,value,value));
-                img.setPixel(c, r, value);
+                column.append(tmp);
             }
+            img.append(column);
         }
         pData->setOCTdata(img, p);
     }

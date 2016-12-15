@@ -1,7 +1,7 @@
 /********************************************************************************
 ** Form generated from reading UI file 'octannotate.ui'
 **
-** Created by: Qt User Interface Compiler version 5.4.2
+** Created by: Qt User Interface Compiler version 5.4.1
 **
 ** WARNING! All changes made in this file will be lost when recompiling UI file!
 ********************************************************************************/
@@ -44,7 +44,7 @@ class Ui_OCTAnnotate
 public:
     QAction *actionSaveGeneralExam;
     QAction *actionSaveOCTExam;
-    QAction *actionLoadPatientOCT;
+    QAction *actionLoadOCTSequence;
     QAction *actionChangeLayerColor;
     QAction *actionSetScanCenter;
     QAction *actionClose;
@@ -64,6 +64,7 @@ public:
     QAction *actionImageFlattening;
     QAction *actionEditAnnotations;
     QAction *actionInfo;
+    QAction *actionLoadOCTFile;
     QWidget *centralWidget;
     QHBoxLayout *horizontalLayout_11;
     QTabWidget *tabWidget;
@@ -348,8 +349,8 @@ public:
         actionSaveOCTExam = new QAction(OCTAnnotate);
         actionSaveOCTExam->setObjectName(QStringLiteral("actionSaveOCTExam"));
         actionSaveOCTExam->setEnabled(true);
-        actionLoadPatientOCT = new QAction(OCTAnnotate);
-        actionLoadPatientOCT->setObjectName(QStringLiteral("actionLoadPatientOCT"));
+        actionLoadOCTSequence = new QAction(OCTAnnotate);
+        actionLoadOCTSequence->setObjectName(QStringLiteral("actionLoadOCTSequence"));
         actionChangeLayerColor = new QAction(OCTAnnotate);
         actionChangeLayerColor->setObjectName(QStringLiteral("actionChangeLayerColor"));
         actionSetScanCenter = new QAction(OCTAnnotate);
@@ -398,6 +399,8 @@ public:
         actionEditAnnotations->setCheckable(true);
         actionInfo = new QAction(OCTAnnotate);
         actionInfo->setObjectName(QStringLiteral("actionInfo"));
+        actionLoadOCTFile = new QAction(OCTAnnotate);
+        actionLoadOCTFile->setObjectName(QStringLiteral("actionLoadOCTFile"));
         centralWidget = new QWidget(OCTAnnotate);
         centralWidget->setObjectName(QStringLiteral("centralWidget"));
         centralWidget->setMaximumSize(QSize(6000, 3000));
@@ -1803,7 +1806,8 @@ public:
         menuBar->addAction(menuPatient->menuAction());
         menuBar->addAction(menuCompute->menuAction());
         menuBar->addAction(menuInfo->menuAction());
-        menuPatient->addAction(actionLoadPatientOCT);
+        menuPatient->addAction(actionLoadOCTFile);
+        menuPatient->addAction(actionLoadOCTSequence);
         menuPatient->addAction(actionSaveOCTExam);
         menuPatient->addAction(actionSaveGeneralExam);
         menuPatient->addSeparator();
@@ -1845,7 +1849,7 @@ public:
         OCTAnnotate->setWindowTitle(QApplication::translate("OCTAnnotate", "OCTAnnotate", 0));
         actionSaveGeneralExam->setText(QApplication::translate("OCTAnnotate", "Zapisz badanie og\303\263lne", 0));
         actionSaveOCTExam->setText(QApplication::translate("OCTAnnotate", "Zapisz badanie OCT", 0));
-        actionLoadPatientOCT->setText(QApplication::translate("OCTAnnotate", "Wczytaj badanie OCT", 0));
+        actionLoadOCTSequence->setText(QApplication::translate("OCTAnnotate", "Wczytaj badanie OCT (katalog)", 0));
         actionChangeLayerColor->setText(QApplication::translate("OCTAnnotate", "Zmie\305\204 kolor warstwy", 0));
         actionSetScanCenter->setText(QApplication::translate("OCTAnnotate", "Ustaw \305\233rodek skanu", 0));
         actionClose->setText(QApplication::translate("OCTAnnotate", "Zamknij", 0));
@@ -1871,6 +1875,7 @@ public:
         actionEditAnnotations->setToolTip(QApplication::translate("OCTAnnotate", "Edit Annotations", 0));
 #endif // QT_NO_TOOLTIP
         actionInfo->setText(QApplication::translate("OCTAnnotate", "Info", 0));
+        actionLoadOCTFile->setText(QApplication::translate("OCTAnnotate", "Wczytaj badanie OCT (.oct)", 0));
         addPatientDBButton->setText(QApplication::translate("OCTAnnotate", "Dodaj pacjenta", 0));
         editPatientDBButton->setText(QApplication::translate("OCTAnnotate", "Edytuj pacjenta", 0));
         deletePatientDBButton->setText(QApplication::translate("OCTAnnotate", "Usu\305\204 pacjenta", 0));

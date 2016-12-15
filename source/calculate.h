@@ -28,6 +28,7 @@ public slots:
     void processStatistics();
     void imageEnhancement(QImage *img, float contrast, int brightness);
     QList<int> calculateFlatteningDifferences(QImage *img);
+    QList<int> calculateFlatteningDifferences(QList<QList<int> > img);
     QImage flattenImage(QImage *img, QList<int> flatDiff);
 
     void setFolderList(QList<QString> list);

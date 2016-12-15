@@ -2013,7 +2013,24 @@ void PatientData::setOCTdata(QImage bscan, int bscanNumber){
             this->octdata[bscanNumber][y][x] = value;
         }
     }
+}
 
+void PatientData::setOCTdata(QList<QList<int> > bscan, int bscanNumber){
+    int value = 0;
+    for (int x=0; x < bscan.count(); x++){
+        QList<int> column = bscan.at(x);
+
+        for (int y=0; y < column.count(); y++){
+            value = column.at(y);
+            this->octdata[bscanNumber][y][x] = value;
+        }
+    }
+}
+
+QList<QList<int> > PatientData::getOCTdata(int bscanNumber)
+{
+    QList<QList<int> > img = this->octdata[bscanNumber];
+    return img;
 }
 
 void PatientData::resetFlatDifferences(){

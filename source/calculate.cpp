@@ -659,14 +659,32 @@ void Calculate::imageEnhancement(QImage *img, float contrast, int brightness){
 }
 
 QList<int> Calculate::calculateFlatteningDifferences(QImage *img){
+    QList<int> differences;
 
-    // finding most hyperreflective line
-    QList<int> maxValueIndex;
+    QList<QList<int> > imgList;
     for (int c=0; c < img->width(); c++){
-        int max = 0;
-        maxValueIndex.append(0);
+        QList<int> column;
         for (int r=0; r < img->height(); r++){
             int value = QColor::fromRgb(img->pixel(c,r)).red();
+            column.append(value);
+        }
+        imgList.append(column);
+    }
+
+    differences = calculateFlatteningDifferences(imgList);
+
+    return differences;
+}
+
+QList<int> Calculate::calculateFlatteningDifferences(QList<QList<int> > img){
+    // finding most hyperreflective line
+    QList<int> maxValueIndex;
+    for (int c=0; c < img.count(); c++){
+        QList<int> column = img.at(c);
+        int max = 0;
+        maxValueIndex.append(0);
+        for (int r=0; r < img.count(); r++){
+            int value = column.at(r);
             if (value > max){
                 max = value;
                 maxValueIndex[c] = r;
@@ -674,8 +692,8 @@ QList<int> Calculate::calculateFlatteningDifferences(QImage *img){
         }
     }
 
-    int half = img->width()/2;
-    int quater = img->width()/4;
+    int half = img.count()/2;
+    int quater = img.count()/4;
     int sum1 = 0;
     int sum2 = 0;
     int sum3 = 0;
@@ -687,7 +705,7 @@ QList<int> Calculate::calculateFlatteningDifferences(QImage *img){
         sum2 += maxValueIndex[c];
     for (int c=half; c < (half+quater); c++)
         sum3 += maxValueIndex[c];
-    for (int c=(half+quater); c < img->width(); c++)
+    for (int c=(half+quater); c < img.count(); c++)
         sum4 += maxValueIndex[c];
     double mean1 = sum1/quater;
     double mean2 = sum2/quater;
@@ -714,7 +732,7 @@ QList<int> Calculate::calculateFlatteningDifferences(QImage *img){
             y.append(maxValueIndex[c]);
         }
     }
-    for (int c=(half+quater); c < img->width(); c++){
+    for (int c=(half+quater); c < img.count(); c++){
         if (qAbs(maxValueIndex[c] - mean4) <= threshold){
             x.append(c);
             y.append(maxValueIndex[c]);
@@ -723,7 +741,7 @@ QList<int> Calculate::calculateFlatteningDifferences(QImage *img){
 
     // calculating polynomial
     QList<int> x_full, y_full;
-    for (int c=0; c < img->width(); c++)
+    for (int c=0; c < img.count(); c++)
         x_full.append(c);
     int poly_deg = 2;
     int points_num = x.count();
@@ -791,7 +809,7 @@ QList<int> Calculate::calculateFlatteningDifferences(QImage *img){
         coeff[i] = coeff[i] / Normal_matrix[i][i];
     }
 
-    for (int c=0; c < img->width(); c++){
+    for (int c=0; c < img.count(); c++){
         double temp = 0;
         for (int i=0; i < poly_deg; i++){
             temp = temp + coeff[i]*qPow(x_full[c],i);
@@ -806,10 +824,9 @@ QList<int> Calculate::calculateFlatteningDifferences(QImage *img){
     //    if (y_full[c] > bottom_val)
     //        bottom_val = y_full[c];
     //}
-    for (int c=0; c < img->width(); c++){
+    for (int c=0; c < img.count(); c++){
         differences.append(bottom_val - y_full[c]);
     }
-
 
     return differences;
 }

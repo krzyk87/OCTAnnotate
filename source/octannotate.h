@@ -228,6 +228,7 @@ private:
     QDir currentDir;
     QDir patientDir;
     QDir octDir;
+    QFile octFile;
     QDir examDir;
     QDir manualDir;
     QDir autoDir;

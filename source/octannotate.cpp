@@ -507,7 +507,7 @@ void OCTAnnotate::on_actionLoadOCTFile_triggered()
         qDebug() << "Opening scan: " << fileName;
 
         if (!fileName.isEmpty()){
-            QFile scanFile(fileName);
+            octFile.setFileName(fileName);
 
             patientData = PatientData();
 
@@ -518,7 +518,7 @@ void OCTAnnotate::on_actionLoadOCTFile_triggered()
 
             ReadWriteData *rwData = new ReadWriteData();
             rwData->setDataObject(&patientData);
-            rwData->setOctFile(&scanFile);
+            rwData->setOctFile(&octFile);
             rwData->setDirectoryManual(&manualDir);
             rwData->setDirectoryAuto(&autoDir);
             rwData->setDataSaveStrucure(dataSaveStructure);

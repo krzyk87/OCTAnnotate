@@ -130,6 +130,8 @@ bool ReadWriteData::readPatientData(){
     double tasks = 14;
     double count = 0;
 
+    QString scanName;
+
     // read info.ini file
     QString iniFilePath = octDir->absolutePath().append("/info.ini");
     QFile iniFile(iniFilePath);
@@ -201,19 +203,33 @@ bool ReadWriteData::readPatientData(){
             iniFile.close();
 
     } else {
-        QString infoFilePath = octDir->absolutePath().append("/" + octDir->dirName() + ".txt");
-        QFile infoFile(infoFilePath);
-        if (!infoFile.exists()){
-            infoFilePath = octDir->absolutePath().append(".txt");
+        QString infoFilePath;
+        QFile infoFile;
+        if (!octFile->exists()){
+            infoFilePath = octDir->absolutePath().append("/" + octDir->dirName() + ".txt");
+            infoFile.setFileName(infoFilePath);
+            if (!infoFile.exists()){
+                infoFilePath = octDir->absolutePath().append(".txt");
+                infoFile.setFileName(infoFilePath);
+            }
+            scanName = octDir->dirName();
+        } else {
+            infoFilePath = octFile->fileName();
+            infoFilePath.chop(4);
+            QFileInfo fileInfo(octFile->fileName());
+            scanName = fileInfo.fileName();
+            scanName.chop(4);
+            infoFilePath = infoFilePath.append(".txt");
             infoFile.setFileName(infoFilePath);
         }
+
         if (infoFile.open(QIODevice::ReadOnly)){    // AVANTI <<-------------------------------
             fileOpened = true;
             pData->setOCTDevice(AVANTI);
             emit processingData((++count)/tasks*100,"");
 
             // Nazwisko, Imie _27_3D Retina_OS_2014-09-12_10.21.36_1
-            QStringList fileName = octDir->dirName().split(",");
+            QStringList fileName = scanName.split(",");
             QStringList fileName2 = fileName.at(1).split(" ");
             pData->setLastName(fileName.at(0).toUpper());
             emit processingData((++count)/tasks*100,"");
@@ -474,6 +490,8 @@ void ReadWriteData::readOctExamFile(){
     pData->setImageFileList(imageList);
     pData->resetBscansData();  // Bscans memory reset
 
+    // BUGS: can't find linker symbol for virtual table for 'QImage' value
+
     // read OCT file
     emit processingData((count)/tasks*100,"Trwa odczyt danych OCT...");
     readBinaryFile(octFile, &count, &tasks);
@@ -482,6 +500,9 @@ void ReadWriteData::readOctExamFile(){
     Calculate *calc = new Calculate();
     emit processingData((count)/tasks*100,"Trwa wyprostowywanie skanów...");
     for (int i=0; i < pData->getBscansNumber(); i++){
+
+        // BUGS: ASSERT failure in QList<T>::at: "index out of range"
+
         pData->setFlatDifferences(i,calc->calculateFlatteningDifferences(pData->getOCTdata(i)));
         emit processingData((++count)/tasks*100,"");
     }

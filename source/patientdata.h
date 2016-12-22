@@ -214,6 +214,10 @@ public:
     void setAmslerComment(QString comment, QString eye);
 
     // oct exam
+    bool getIsLoaded() const;
+    void setIsLoaded(bool value);
+    bool getIsBinary() const;
+    void setIsBinary(bool value);
     void resetBscansData();
     QStringList getImageFileList();
     void setImageFileList(QStringList newList);
@@ -242,6 +246,7 @@ public:
     void setOCTdata(QImage bscan, int bscanNumber);
     void setOCTdata(QList<QList<int> > bscan, int bscanNumber);
     QList<QList<int> > getOCTdata(int bscanNumber);
+    QImage getImage(int bscanNumber);
     QImage getNormalImage(int normalImageNumber);
     void resetFlatDifferences();
     void setFlatDifferences(int bscanNumber, QList<int> flatDiff);
@@ -393,6 +398,8 @@ private:
     QList< QList< QList<int> > > octdata;
     QList< QList<int> > flatDifferences;
     QList< QList<int> > flatDifferencesRPE;
+    bool isLoaded;
+    bool isBinary;
 
     // ratios
     double areaUnit;

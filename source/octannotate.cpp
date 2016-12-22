@@ -436,9 +436,10 @@ void OCTAnnotate::on_actionLoadOCTSequence_triggered(QString scanFolderPath)
         qDebug() << "Opening scan: " << dirName;
 
         if (!dirName.isEmpty()){
-            QDir scanDir = QDir(dirName);
+            tmpDir = QDir(dirName);
 
             patientData = PatientData();
+            patientData.setIsBinary(false);
 
             ui->statusBar->showMessage("Trwa odczyt danych badania OCT...");
             progressBar->setMaximum(100);
@@ -447,7 +448,7 @@ void OCTAnnotate::on_actionLoadOCTSequence_triggered(QString scanFolderPath)
 
             ReadWriteData *rwData = new ReadWriteData();
             rwData->setDataObject(&patientData);
-            rwData->setDirectoryOct(&scanDir);
+            rwData->setDirectoryOct(&tmpDir);
             rwData->setDirectoryManual(&manualDir);
             rwData->setDirectoryAuto(&autoDir);
             rwData->setDataSaveStrucure(dataSaveStructure);
@@ -510,6 +511,7 @@ void OCTAnnotate::on_actionLoadOCTFile_triggered()
             octFile.setFileName(fileName);
 
             patientData = PatientData();
+            patientData.setIsBinary(true);
 
             ui->statusBar->showMessage("Trwa odczyt danych badania OCT...");
             progressBar->setMaximum(100);
@@ -547,10 +549,17 @@ void OCTAnnotate::on_actionLoadOCTFile_triggered()
 
 // load image -------------------------------------------------------------------------------------
 void OCTAnnotate::loadImage(int imageNumber){
-    QFileInfo imageFileInfo(patientData.getImageFileList().at(imageNumber));
+    QFileInfo imageFileInfo;
+    QImage image;
 
     // load image
-    QImage image(patientData.getImageFileList().at(imageNumber));
+    if (patientData.getIsBinary()){ // isBinary
+        image = patientData.getImage(imageNumber);
+    } else {
+        imageFileInfo.setFile(patientData.getImageFileList().at(imageNumber));
+        image = QImage(patientData.getImageFileList().at(imageNumber));
+    }
+
     if (!image.isNull()){
         orgImageSize = image.size();
 
@@ -4023,6 +4032,8 @@ void OCTAnnotate::on_mseErrorCalculated(double value){
 }
 
 void OCTAnnotate::on_readingDataFinished(QString data){
+
+    patientData.setIsLoaded(true);
 
     if ((data != "manualOnly") && (data != "autoOnly")){
         // display patients data

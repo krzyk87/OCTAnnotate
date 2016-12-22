@@ -205,7 +205,7 @@ bool ReadWriteData::readPatientData(){
     } else {
         QString infoFilePath;
         QFile infoFile;
-        if (!octFile->exists()){
+        if (!pData->getIsBinary()){    // isBinary
             infoFilePath = octDir->absolutePath().append("/" + octDir->dirName() + ".txt");
             infoFile.setFileName(infoFilePath);
             if (!infoFile.exists()){
@@ -213,7 +213,7 @@ bool ReadWriteData::readPatientData(){
                 infoFile.setFileName(infoFilePath);
             }
             scanName = octDir->dirName();
-        } else {
+        } else {    // !isBinary
             infoFilePath = octFile->fileName();
             infoFilePath.chop(4);
             QFileInfo fileInfo(octFile->fileName());
@@ -470,12 +470,12 @@ void ReadWriteData::readOctExamData(){
 
 void ReadWriteData::readOctExamFile(){
     emit processingData(0, "Trwa pobieranie listy skanów...");
-    double tasks = pData->getBscansNumber()*3 + 1; // gdy contrast enhancement to 4 zamiast 3
+    double tasks = pData->getBscansNumber()*4 + 1; // gdy contrast enhancement to 5 zamiast 4
     double count = 0;
     OCTDevice device = pData->getOCTDevice();
 
     QString scanName = octFile->fileName();
-    QFileInfo octFileInfo(*octFile);
+//    QFileInfo octFileInfo(*octFile);
     scanName.chop(4);
 
     // read exam images list    // this is not necessary, but based on existing imageFileList other functions in this application work
@@ -501,10 +501,10 @@ void ReadWriteData::readOctExamFile(){
     emit processingData((count)/tasks*100,"Trwa wyprostowywanie skanów...");
     for (int i=0; i < pData->getBscansNumber(); i++){
 
-        // BUGS: ASSERT failure in QList<T>::at: "index out of range"
-
-        pData->setFlatDifferences(i,calc->calculateFlatteningDifferences(pData->getOCTdata(i)));
-        emit processingData((++count)/tasks*100,"");
+        QList<QList<int> > temp = pData->getOCTdata(i);
+        QList<int> diff = calc->calculateFlatteningDifferences(temp);
+        pData->setFlatDifferences(i,diff);
+        emit processingData((++count)/tasks*100,"Flattening of images...");
     }
 
     // read fundus image
@@ -581,7 +581,7 @@ void ReadWriteData::readBinaryFile(QFile *dataFile, double *count, double *tasks
         }
         octDataTemp.append(img);
         maxList.append(max);
-        emit processingData((++c)/t*100,"");
+        emit processingData((++c)/t*100,"Reading in binary data...");
     }
 
     dataFile->close();
@@ -595,7 +595,7 @@ void ReadWriteData::readBinaryFile(QFile *dataFile, double *count, double *tasks
         for (int c=0; c < pData->getBscanWidth(); c++){
             QList<int> column;
 
-            for (int r=0; r < pData->getBscanHeight(); r++){
+            for (int r=pData->getBscanHeight()-1; r >= 0; r--){
                 float tmp = octDataTemp[p][c][r];
                 tmp = (tmp-min)/(maxList[p]-min);
                 tmp = qBound(0,(int)(tmp*255),255);
@@ -604,6 +604,7 @@ void ReadWriteData::readBinaryFile(QFile *dataFile, double *count, double *tasks
             img.append(column);
         }
         pData->setOCTdata(img, p);
+        emit processingData((++c)/t*100,"Reading in binary data... (normalization)");
     }
 
     *count = c;

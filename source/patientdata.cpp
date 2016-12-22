@@ -818,6 +818,8 @@ PatientData::PatientData()
     this->pathologyOL = UNDEFINED;
 
     this->imageFileList = QStringList();
+    this->isLoaded = false;
+    this->isBinary = false;
 
 //    this->bscansNumber = 100;
 //    this->bscansNumberAll = 100;
@@ -1906,6 +1908,7 @@ void PatientData::resetBscansData(){
         this->Bscans.append(b);
     }
 
+    // reset octData
     QList<int> row;
     row.reserve(this->bscanWidth);
     for (int x=0; x<this->bscanWidth; x++){
@@ -1937,6 +1940,26 @@ void PatientData::resetBscansData(){
 
     this->manualAnnotations = false;
     this->autoAnnotations = false;
+}
+
+bool PatientData::getIsLoaded() const
+{
+    return isLoaded;
+}
+
+void PatientData::setIsLoaded(bool value)
+{
+    isLoaded = value;
+}
+
+bool PatientData::getIsBinary() const
+{
+    return isBinary;
+}
+
+void PatientData::setIsBinary(bool value)
+{
+    isBinary = value;
 }
 
 int PatientData::getBscanHeight(){
@@ -2029,8 +2052,26 @@ void PatientData::setOCTdata(QList<QList<int> > bscan, int bscanNumber){
 
 QList<QList<int> > PatientData::getOCTdata(int bscanNumber)
 {
-    QList<QList<int> > img = this->octdata[bscanNumber];
+    QList<QList<int> > img = this->octdata.at(bscanNumber);
     return img;
+}
+
+QImage PatientData::getImage(int bscanNumber)
+{
+    QImage image(this->bscanWidth,this->bscanHeight,QImage::Format_Indexed8);
+    QRgb value;
+    int pixel_val;
+
+    for (int b=0; b < this->bscanWidth; b++){
+        for (int y=0; y < this->bscanHeight; y++){
+            pixel_val = this->octdata[bscanNumber][y][b];
+            value = qRgb(pixel_val,pixel_val,pixel_val);
+            image.setColor(pixel_val,value);
+            image.setPixel(b,y,pixel_val);
+        }
+    }
+
+    return image;
 }
 
 void PatientData::resetFlatDifferences(){

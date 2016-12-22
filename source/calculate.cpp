@@ -677,13 +677,14 @@ QList<int> Calculate::calculateFlatteningDifferences(QImage *img){
 }
 
 QList<int> Calculate::calculateFlatteningDifferences(QList<QList<int> > img){
+
     // finding most hyperreflective line
     QList<int> maxValueIndex;
     for (int c=0; c < img.count(); c++){
         QList<int> column = img.at(c);
         int max = 0;
         maxValueIndex.append(0);
-        for (int r=0; r < img.count(); r++){
+        for (int r=0; r < column.count(); r++){
             int value = column.at(r);
             if (value > max){
                 max = value;

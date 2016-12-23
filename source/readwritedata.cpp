@@ -474,8 +474,8 @@ void ReadWriteData::readOctExamFile(){
     double count = 0;
     OCTDevice device = pData->getOCTDevice();
 
-    QString scanName = octFile->fileName();
-//    QFileInfo octFileInfo(*octFile);
+    QFileInfo octFileInfo(*octFile);
+    QString scanName = octFileInfo.fileName();
     scanName.chop(4);
 
     // read exam images list    // this is not necessary, but based on existing imageFileList other functions in this application work
@@ -489,8 +489,6 @@ void ReadWriteData::readOctExamFile(){
     }
     pData->setImageFileList(imageList);
     pData->resetBscansData();  // Bscans memory reset
-
-    // BUGS: can't find linker symbol for virtual table for 'QImage' value
 
     // read OCT file
     emit processingData((count)/tasks*100,"Trwa odczyt danych OCT...");
@@ -592,11 +590,11 @@ void ReadWriteData::readBinaryFile(QFile *dataFile, double *count, double *tasks
     for (int p=0; p < pData->getBscansNumber(); p++){
         QList< QList<int> > img;
 
-        for (int c=0; c < pData->getBscanWidth(); c++){
+        for (int w=0; w < pData->getBscanWidth(); w++){
             QList<int> column;
 
             for (int r=pData->getBscanHeight()-1; r >= 0; r--){
-                float tmp = octDataTemp[p][c][r];
+                float tmp = octDataTemp[p][w][r];
                 tmp = (tmp-min)/(maxList[p]-min);
                 tmp = qBound(0,(int)(tmp*255),255);
                 column.append(tmp);

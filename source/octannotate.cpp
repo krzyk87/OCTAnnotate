@@ -225,8 +225,8 @@ void OCTAnnotate::loadConfigurations(SettingsDialog *sDialog){
     databasePath = sDialog->getDatabasePath();
     octDir = QDir(sDialog->getPathOctData());
     examDir = QDir(sDialog->getPathExamData());
-    manualDir = QDir(sDialog->getPathExamData().append("mvri/"));
-    autoDir = QDir(sDialog->getPathExamData().append("avri/"));
+    manualDir = QDir(sDialog->getPathExamData().append("/mvri/"));
+    autoDir = QDir(sDialog->getPathExamData().append("/avri/"));
 //    manualDir = QDir(settingsDialog->getPathManualSegm());
 //    autoDir = QDir(settingsDialog->getPathAutoSegm());
     tmpDir = examDir;

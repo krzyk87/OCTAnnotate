@@ -49,7 +49,7 @@ private slots:
     //void on_actionAddPatientNew_triggered();
     //void on_actionLoadPatientGeneral_triggered();
     void on_actionLoadOCTSequence_triggered(QString scanFolderPath = "");
-    void on_actionLoadOCTFile_triggered();
+    void on_actionLoadOCTFile_triggered(QString scanFilePath = "");
     void on_actionReadManualAnnotations_triggered();
 
 // General exam
@@ -211,7 +211,7 @@ private:
     void setupVolumeGridPlot();
     void resetImageLayersLabels();
     void displayVirtualMap(QCustomPlot *customPlot, bool isAuto = false);
-    void displayImageLayersPlot(int bscanNumber, Layers selectedLayer);
+    void displayImageLayersPlot(int bscanNumber);
     void displayCircProfile();
     void displayHistogram();
     void displayVolumes();
@@ -225,7 +225,6 @@ private:
 
     bool quit;
     QString databasePath;
-    QDir currentDir;
     QDir patientDir;
     QDir octDir;
     QFile octFile;

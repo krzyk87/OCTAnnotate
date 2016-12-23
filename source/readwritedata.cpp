@@ -438,7 +438,7 @@ void ReadWriteData::readOctExamData(){
     QImage fundus = QImage(pData->getBscanWidth(), pData->getBscansNumber(), QImage::Format_Indexed8);
     fundus.fill(0);
 
-    QString fundusFilePathExpl = octDir->absolutePath().append("/" + octDir->dirName() + "_Proj_Iowa.tif");
+    QString fundusFilePathExpl = manualDir->absolutePath().append("/../iowa/" + octDir->dirName() + "_Proj_Iowa.tif");
     QString fundusFilePath = octDir->absolutePath().append("/fnds_rec.bmp");
     if (QFile(fundusFilePathExpl).exists()){
         fundus = QImage(fundusFilePathExpl);
@@ -482,9 +482,9 @@ void ReadWriteData::readOctExamFile(){
     QStringList imageList;
     for (int i=0; i < pData->getBscansNumber(); i++){
         if (device == COPERNICUS)
-            imageList.append(scanName.append("/skan") + QString::number(i) + ".bmp");
+            imageList.append(scanName + "/skan" + QString::number(i) + ".bmp");
         else if (device == AVANTI)
-            imageList.append(scanName.append("/Skan_nr_") + QString::number(i+1) + ".bmp");
+            imageList.append(scanName + "/Skan_nr_" + QString::number(i+1) + ".bmp");
         emit processingData((++count)/tasks*100,"");
     }
     pData->setImageFileList(imageList);
@@ -510,10 +510,10 @@ void ReadWriteData::readOctExamFile(){
     QImage fundus = QImage(pData->getBscanWidth(), pData->getBscansNumber(), QImage::Format_Indexed8);
     fundus.fill(0);
 
-    QDir previewDir = QDir(manualDir->absolutePath());
-    previewDir.cdUp();
-    QString fundusFilePathExpl = previewDir.absolutePath().append("/iowa/" + scanName + "_Proj_Iowa.tif");
-    QString fundusFilePathPreview = previewDir.absolutePath().append("/preview/" + scanName + "_fundus.tif");
+    QDir examDir = QDir(manualDir->absolutePath());
+    examDir.cdUp();
+    QString fundusFilePathExpl = examDir.absolutePath().append("/iowa/" + scanName + "_Proj_Iowa.tif");
+    QString fundusFilePathPreview = examDir.absolutePath().append("/preview/" + scanName + "_fundus.tif");
     if (QFile(fundusFilePathExpl).exists()){
         fundus = QImage(fundusFilePathExpl);
     } else if (QFile(fundusFilePathPreview).exists()){

@@ -32,7 +32,10 @@ OCTAnnotate::OCTAnnotate(QWidget *parent) : QMainWindow(parent),
     font.setPixelSize(11);
     this->setFont(font);
     quit = false;
-    ui->actionEditAnnotations->setChecked(true);
+    flattenImage = false;
+    editAnnotations = false;
+    ui->actionImageFlattening->setChecked(flattenImage);
+    ui->actionEditAnnotations->setChecked(editAnnotations);
     ui->actionSaveGeneralExam->setEnabled(false);
     ui->actionSaveOCTExam->setEnabled(false);
 
@@ -239,9 +242,7 @@ void OCTAnnotate::loadConfigurations(SettingsDialog *sDialog){
 //    showETDRSGrid = sDialog->getShowETDRSGrid();
 //    showCenterOnBscan = sDialog->getShowCenterOnBscan();
     showBscanOnErrorPlot = sDialog->getShowBscanOnErrorPlot();
-    displayImageLayersPlot(currentImageLayersNumber,selectedErrorLayer);
-
-    currentDir = QDir::current();
+    displayImageLayersPlot(currentImageLayersNumber); // ,selectedErrorLayer);
 }
 
 void OCTAnnotate::on_actionSettings_triggered()
@@ -381,7 +382,7 @@ void OCTAnnotate::on_actionSetScanCenter_toggled(bool checked)
 void OCTAnnotate::on_actionShowCenterOnBscan_toggled(bool checked)
 {
     showCenterOnBscan = checked;
-    if (!patientData.getImageFileList().isEmpty())
+    if (patientData.getIsLoaded()) // !patientData.getImageFileList().isEmpty())
         loadImage(currentImageNumber);
 }
 
@@ -475,7 +476,7 @@ void OCTAnnotate::on_actionLoadOCTSequence_triggered(QString scanFolderPath)
     }
 }
 
-void OCTAnnotate::on_actionLoadOCTFile_triggered()
+void OCTAnnotate::on_actionLoadOCTFile_triggered(QString scanFilePath)
 {
     QMessageBox msgBox;
     QPushButton *saveButton = msgBox.addButton(" Zapisz i wczytaj nowe badanie ", QMessageBox::YesRole);
@@ -503,7 +504,9 @@ void OCTAnnotate::on_actionLoadOCTFile_triggered()
     }
 
     if (selectNew){
-        QString fileName = QFileDialog::getOpenFileName(this, tr("Open OCT file"), octDir.absolutePath(), tr("Avanti RTvue raw OCT data file (*.OCT)"));
+        QString fileName = scanFilePath;
+        if (fileName == "")
+            fileName = QFileDialog::getOpenFileName(this, tr("Open OCT file"), octDir.absolutePath(), tr("Avanti RTvue raw OCT data file (*.OCT)"));
 
         qDebug() << "Opening scan: " << fileName;
 
@@ -656,7 +659,7 @@ void OCTAnnotate::loadNormalImage(int normalImageNumber){
 
 void OCTAnnotate::on_nextImageButton_clicked()
 {
-    if (!patientData.getImageFileList().isEmpty()){
+    if (patientData.getIsLoaded()){ // !patientData.getImageFileList().isEmpty()){
         if (currentImageNumber < (patientData.getBscansNumber() - 1)){
             loadImage(currentImageNumber + 1);
             loadNormalImage(currentNormalImageNumber);
@@ -667,7 +670,7 @@ void OCTAnnotate::on_nextImageButton_clicked()
 }
 
 void OCTAnnotate::on_prevImageButton_clicked(){
-    if (!patientData.getImageFileList().isEmpty()){
+    if (patientData.getIsLoaded()){ // !patientData.getImageFileList().isEmpty()){
         if (currentImageNumber > 0){
             loadImage(currentImageNumber - 1);
             loadNormalImage(currentNormalImageNumber);
@@ -679,7 +682,7 @@ void OCTAnnotate::on_prevImageButton_clicked(){
 
 void OCTAnnotate::on_nextNormalImageButton_clicked()
 {
-    if (!patientData.getImageFileList().isEmpty()){
+    if (patientData.getIsLoaded()){ // !patientData.getImageFileList().isEmpty()){
         if (currentNormalImageNumber < (patientData.getBscanWidth() - 1)){
             loadNormalImage(currentNormalImageNumber + 1);
             loadImage(currentImageNumber);
@@ -690,7 +693,7 @@ void OCTAnnotate::on_nextNormalImageButton_clicked()
 
 void OCTAnnotate::on_prevNormalImageButton_clicked()
 {
-    if (!patientData.getImageFileList().isEmpty()){
+    if (patientData.getIsLoaded()){ // !patientData.getImageFileList().isEmpty()){
         if (currentNormalImageNumber > 0){
             loadNormalImage(currentNormalImageNumber - 1);
             loadImage(currentImageNumber);
@@ -701,7 +704,7 @@ void OCTAnnotate::on_prevNormalImageButton_clicked()
 
 void OCTAnnotate::on_currImageNumberLEdit_returnPressed()
 {
-    if (!patientData.getImageFileList().isEmpty()){
+    if (patientData.getIsLoaded()){ // !patientData.getImageFileList().isEmpty()){
         int value = ui->currImageNumberLEdit->text().toInt();
         if (value < 0)
             value = 0;
@@ -717,7 +720,7 @@ void OCTAnnotate::on_currImageNumberLEdit_returnPressed()
 
 void OCTAnnotate::on_currNormalImageNumberLEdit_returnPressed()
 {
-    if (!patientData.getImageFileList().isEmpty()){
+    if (patientData.getIsLoaded()){ // !patientData.getImageFileList().isEmpty()){
         int value = ui->currNormalImageNumberLEdit->text().toInt();
         if (value < 0)
             value = 0;
@@ -732,10 +735,10 @@ void OCTAnnotate::on_currNormalImageNumberLEdit_returnPressed()
 
 void OCTAnnotate::on_nextImageLayersButton_clicked()
 {
-    if (!patientData.getImageFileList().isEmpty()){
+    if (patientData.getIsLoaded()){ // !patientData.getImageFileList().isEmpty()){
         if (currentImageLayersNumber < (patientData.getBscansNumber() - 1)){
             currentImageLayersNumber++;
-            displayImageLayersPlot(currentImageLayersNumber,selectedErrorLayer);
+            displayImageLayersPlot(currentImageLayersNumber); // ,selectedErrorLayer);
             displayVirtualMap(ui->virtualMapAutoImageCPlot, true);
             displayVirtualMap(ui->virtualMapImageCPlot);
             loadImage(currentImageLayersNumber);
@@ -761,10 +764,10 @@ void OCTAnnotate::on_nextImageLayersButton_clicked()
 
 void OCTAnnotate::on_prevImageLayersButton_clicked()
 {
-    if (!patientData.getImageFileList().isEmpty()){
+    if (patientData.getIsLoaded()){ // !patientData.getImageFileList().isEmpty()){
         if (currentImageLayersNumber > 0){
             currentImageLayersNumber--;
-            displayImageLayersPlot(currentImageLayersNumber,selectedErrorLayer);
+            displayImageLayersPlot(currentImageLayersNumber); // ,selectedErrorLayer);
             displayVirtualMap(ui->virtualMapAutoImageCPlot, true);
             displayVirtualMap(ui->virtualMapImageCPlot);
             loadImage(currentImageLayersNumber);
@@ -790,7 +793,7 @@ void OCTAnnotate::on_prevImageLayersButton_clicked()
 
 void OCTAnnotate::on_currImageNumberLayersLEdit_returnPressed()
 {
-    if (!patientData.getImageFileList().isEmpty()){
+    if (patientData.getIsLoaded()){ // !patientData.getImageFileList().isEmpty()){
         int value = ui->currImageNumberLayersLEdit->text().toInt();
         if (value < 0)
             value = 0;
@@ -798,7 +801,7 @@ void OCTAnnotate::on_currImageNumberLayersLEdit_returnPressed()
             value = patientData.getBscansNumber()-1;
 
         currentImageLayersNumber = value;
-        displayImageLayersPlot(currentImageLayersNumber,selectedErrorLayer);
+        displayImageLayersPlot(currentImageLayersNumber); // ,selectedErrorLayer);
         loadImage(currentImageLayersNumber);
         fundusAnnotate = true;
         displayVirtualMap(ui->virtualMapImageCPlot);
@@ -820,10 +823,11 @@ void OCTAnnotate::on_currImageNumberLayersLEdit_returnPressed()
 void OCTAnnotate::on_actionImageFlattening_toggled(bool state)
 {
     flattenImage = state;
-    if (!patientData.getImageFileList().isEmpty()){
+    if (patientData.getIsLoaded()){
+        // !patientData.getImageFileList().isEmpty()){
         loadImage(currentImageNumber);
         loadNormalImage(currentNormalImageNumber);
-        displayImageLayersPlot(currentImageLayersNumber,ILM);
+        displayImageLayersPlot(currentImageLayersNumber); // ,ILM);
     }
 }
 
@@ -832,7 +836,7 @@ void OCTAnnotate::on_actionImageFlattening_toggled(bool state)
 void OCTAnnotate::on_contrastSlider_valueChanged(int value)
 {
     contrast = (float)value / 10.0;
-    if (!patientData.getImageFileList().isEmpty()){
+    if (patientData.getIsLoaded()){ // !patientData.getImageFileList().isEmpty()){
         loadImage(currentImageNumber);
         loadNormalImage(currentNormalImageNumber);
     }
@@ -841,7 +845,7 @@ void OCTAnnotate::on_contrastSlider_valueChanged(int value)
 void OCTAnnotate::on_brightnessSlider_valueChanged(int value)
 {
     brightness = value;
-    if (!patientData.getImageFileList().isEmpty()){
+    if (patientData.getIsLoaded()){ // !patientData.getImageFileList().isEmpty()){
         loadImage(currentImageNumber);
         loadNormalImage(currentNormalImageNumber);
     }
@@ -864,7 +868,7 @@ void OCTAnnotate::on_tabWidget_currentChanged()
     QWidget *currWidget = ui->tabWidget->currentWidget();
 
     if (currWidget == ui->tabOCTExam){    // OCT Exam Tab
-        if (!patientData.getImageFileList().isEmpty()){
+        if (patientData.getIsLoaded()){ // !patientData.getImageFileList().isEmpty()){
             loadImage(currentImageNumber);
             loadNormalImage(currentNormalImageNumber);
             ui->fundusImageLabel->setPixmap(QPixmap::fromImage(patientData.getFundusImage())); // fundus
@@ -898,7 +902,7 @@ void OCTAnnotate::on_tabWidget_currentChanged()
             ui->chrAnnotCountLabel->setText("(" + QString::number(chrAnnotatedCount) + " / " + BscansNumber + ")");
         }
     } else if (currWidget == ui->tabVirtualMap){
-        if (!patientData.getImageFileList().isEmpty()){
+        if (patientData.getIsLoaded()){ //  !patientData.getImageFileList().isEmpty()){
             //on_computeVirtualMapButton_clicked();
             displayVirtualMap(ui->virtualMapImageCPlot);
             displayCircProfile();
@@ -921,10 +925,10 @@ void OCTAnnotate::on_tabWidget_currentChanged()
             ui->retinaDepthLEdit->setText(QString::number(patientData.getRetinaDepth()));
         }
     } else if (currWidget == ui->tabErrorAnalysis){
-        if (!patientData.getImageFileList().isEmpty()){
+        if (patientData.getIsLoaded()){ // !patientData.getImageFileList().isEmpty()){
             //on_computeVirtualMapButton_clicked();
             displayVirtualMap(ui->virtualMapAutoImageCPlot, true);
-            displayImageLayersPlot(currentImageLayersNumber,selectedErrorLayer);
+            displayImageLayersPlot(currentImageLayersNumber); // ,selectedErrorLayer);
 
             ui->layerErrorAvgLEdit->setText(QString::number(patientData.getLayerErrorMSE(selectedErrorLayer)) + " px");
             ui->layerErrorDevLEdit->setText(QString::number(patientData.getLayerErrorDev(selectedErrorLayer)) + " px");
@@ -953,9 +957,6 @@ void OCTAnnotate::on_tabWidget_currentChanged()
             ui->layerErrorAvgAllLEdit->setText(QString::number(patientData.getErrorAvg()));
         }
     } else if (currWidget == ui->tabRetinaAnalysis){
-        if (!patientData.getImageFileList().isEmpty()){
-
-        }
     }
 }
 
@@ -1020,7 +1021,7 @@ void OCTAnnotate::on_actionEditAnnotations_toggled(bool state)
 }
 
 bool OCTAnnotate::eventFilter(QObject *target, QEvent *event){
-    if (!patientData.getImageFileList().isEmpty()){
+    if (patientData.getIsLoaded()){ // !patientData.getImageFileList().isEmpty()){
         QPoint currPoint;
 
         if (target == ui->bScanHCPlot) {
@@ -1245,7 +1246,7 @@ bool OCTAnnotate::eventFilter(QObject *target, QEvent *event){
                 displayVirtualMap(ui->virtualMapImageCPlot);
                 displayVirtualMap(ui->virtualMapAutoImageCPlot, true);
                 currentImageLayersNumber = currentImageNumber;
-                displayImageLayersPlot(currentImageLayersNumber,selectedErrorLayer);
+                displayImageLayersPlot(currentImageLayersNumber); // ,selectedErrorLayer);
             }
         } else if (target == ui->virtualMapImageCPlot){
             if (event->type() == QEvent::MouseButtonPress){
@@ -1257,7 +1258,7 @@ bool OCTAnnotate::eventFilter(QObject *target, QEvent *event){
                         loadImage(BscanNumber);
                         displayVirtualMap(ui->virtualMapImageCPlot);
                         displayVirtualMap(ui->virtualMapAutoImageCPlot, true);
-                        displayImageLayersPlot(currentImageLayersNumber,selectedErrorLayer);
+                        displayImageLayersPlot(currentImageLayersNumber); // ,selectedErrorLayer);
                     }
                 }
                 if (mouseEvent->button() == Qt::RightButton){   // copy to clipboard
@@ -1284,7 +1285,7 @@ bool OCTAnnotate::eventFilter(QObject *target, QEvent *event){
                     if ((BscanNumber >=0) && (BscanNumber < patientData.getBscansNumber())){
                         currentImageLayersNumber = BscanNumber;
                         loadImage(BscanNumber);
-                        displayImageLayersPlot(currentImageLayersNumber,selectedErrorLayer);
+                        displayImageLayersPlot(currentImageLayersNumber); // ,selectedErrorLayer);
                         displayVirtualMap(ui->virtualMapImageCPlot);
                         displayVirtualMap(ui->virtualMapAutoImageCPlot, true);
                     }
@@ -1429,7 +1430,7 @@ void OCTAnnotate::keyReleaseEvent(QKeyEvent *keyEvent){
 
 void OCTAnnotate::paintEvent(QPaintEvent *){
     if (fundusAnnotate){ // display annotation of fundus image (current B-skan line)
-        if (!patientData.getImageFileList().isEmpty()){
+        if (patientData.getIsLoaded()){ // !patientData.getImageFileList().isEmpty()){
             QPixmap fundusPixMap = QPixmap::fromImage(patientData.getFundusImage());
             QPainter painter(&fundusPixMap);
 
@@ -1476,7 +1477,7 @@ void OCTAnnotate::paintEvent(QPaintEvent *){
 }
 
 void OCTAnnotate::displayAnnotations(QList<int> flatDiff){
-    if (!patientData.getImageFileList().isEmpty()){
+    if (patientData.getIsLoaded()){ // !patientData.getImageFileList().isEmpty()){
 
         QList<Layers> dispLayers = getLayersToDisplay();
         QList<Layers> allLayers = getAllLayers();
@@ -1522,7 +1523,7 @@ void OCTAnnotate::displayAnnotations(QList<int> flatDiff){
 }
 
 void OCTAnnotate::displayNormalAnnotations(QList<int> flatDiffNormal){
-    if (!patientData.getImageFileList().isEmpty()){
+    if (patientData.getIsLoaded()){ // !patientData.getImageFileList().isEmpty()){
         QList<Layers> dispLayers = getLayersToDisplay();
         QList<Layers> allLayers = getAllLayers();
         int height = patientData.getBscanHeight();
@@ -2518,7 +2519,7 @@ void OCTAnnotate::on_chrLayerRButton_clicked()
 // bscan scale / zoom -----------------------------------------------------------------------------
 void OCTAnnotate::on_zoomInButton_clicked()
 {
-    if (!patientData.getImageFileList().isEmpty()){
+    if (patientData.getIsLoaded()){ // !patientData.getImageFileList().isEmpty()){
         scaleFactor++;
         rescaleImage();
     }
@@ -2526,7 +2527,7 @@ void OCTAnnotate::on_zoomInButton_clicked()
 
 void OCTAnnotate::on_zoomOutButton_clicked()
 {
-    if (!patientData.getImageFileList().isEmpty()){
+    if (patientData.getIsLoaded()){ // !patientData.getImageFileList().isEmpty()){
         scaleFactor--;
         rescaleImage();
     }
@@ -2729,7 +2730,7 @@ void OCTAnnotate::setupVirtualMapPlot(QCustomPlot *customPlot){
     //customPlot->yAxis2->setLabel("Numer obazu B-skan");
     customPlot->xAxis2->setLabelFont(QFont("Arial",16));
     customPlot->yAxis2->setLabelFont(QFont("Arial",16));
-    if (!patientData.getImageFileList().isEmpty()){
+    if (patientData.getIsLoaded()){ // !patientData.getImageFileList().isEmpty()){
         customPlot->xAxis2->setRange(0,patientData.getBscanWidth());
         customPlot->yAxis2->setRange(-patientData.getBscansNumber(),0);
     } else {
@@ -2752,7 +2753,7 @@ void OCTAnnotate::setupImageLayersPlot(){
     // configure axis
     ui->imageLayersCPlot->xAxis->setLabel("B-scan pixel (horizontal direction)");
     ui->imageLayersCPlot->yAxis->setLabel("B-scan pixel (vertical direction)");
-    if (!patientData.getImageFileList().isEmpty()){
+    if (patientData.getIsLoaded()){ // !patientData.getImageFileList().isEmpty()){
         ui->imageLayersCPlot->xAxis->setRange(0,patientData.getBscanWidth());
         ui->imageLayersCPlot->yAxis->setRange(0,patientData.getBscanHeight());
     } else {
@@ -2842,7 +2843,7 @@ void OCTAnnotate::setupBScanPlots(){
     // configure axis
     ui->bScanHCPlot->xAxis->setLabel("B-scan pixel (horizontal direction)");
     ui->bScanHCPlot->yAxis->setLabel("B-scan pixel (vertical direction)");
-    if (!patientData.getImageFileList().isEmpty()){
+    if (patientData.getIsLoaded()){ // !patientData.getImageFileList().isEmpty()){
         ui->bScanHCPlot->xAxis->setRange(0,patientData.getBscanWidth());
         ui->bScanHCPlot->yAxis->setRange(0,patientData.getBscanHeight());
     } else {
@@ -2869,7 +2870,7 @@ void OCTAnnotate::setupBScanPlots(){
 
     ui->bScanVCPlot->xAxis->setLabel("B-scan cross-section");
     ui->bScanVCPlot->yAxis->setLabel("B-scan pixel (vertical direction)");
-    if (!patientData.getImageFileList().isEmpty()){
+    if (patientData.getIsLoaded()){ // !patientData.getImageFileList().isEmpty()){
         ui->bScanVCPlot->xAxis->setRange(0,patientData.getBscansNumber());
         ui->bScanVCPlot->yAxis->setRange(0,patientData.getBscanHeight());
     } else {
@@ -3088,7 +3089,7 @@ void OCTAnnotate::on_computeVirtualMapButton_clicked()
 void OCTAnnotate::displayVirtualMap(QCustomPlot *customPlot, bool isAuto){
     customPlot->clearPlottables();
 
-    if (!patientData.getImageFileList().isEmpty()){
+    if (patientData.getIsLoaded()){ // !patientData.getImageFileList().isEmpty()){
         // display virtual map
         QCPColorMap *colorMap = new QCPColorMap(customPlot->xAxis, customPlot->yAxis);
         customPlot->addPlottable(colorMap);
@@ -3213,18 +3214,24 @@ void OCTAnnotate::displayVirtualMap(QCustomPlot *customPlot, bool isAuto){
     }
 }
 
-void OCTAnnotate::displayImageLayersPlot(int bscanNumber, Layers selectedLayer){
+void OCTAnnotate::displayImageLayersPlot(int bscanNumber){
 
     setupImageLayersPlot();
     QList<int> flatDiff;
 
-    if (!patientData.getImageFileList().isEmpty()){
+    if (patientData.getIsLoaded()){ // !patientData.getImageFileList().isEmpty()){
         for (int col=0; col < patientData.getBscanWidth(); col++){
             flatDiff.append(0);
         }
 
         if (showBscanOnErrorPlot){
-            QImage image(patientData.getImageFileList().at(bscanNumber));
+            QImage image;
+
+            if (patientData.getIsBinary()){
+                image = patientData.getImage(bscanNumber);
+            } else {
+                image = QImage(patientData.getImageFileList().at(bscanNumber));
+            }
 
             // contrast enhancement
             Calculate *calc = new Calculate();
@@ -3351,7 +3358,7 @@ void OCTAnnotate::on_actionShowETDRSGrid_toggled(bool checked)
 void OCTAnnotate::displayCircProfile(){
     setupCircProfilePlot();
 
-    if (!patientData.getImageFileList().isEmpty()){
+    if (patientData.getIsLoaded()){ // !patientData.getImageFileList().isEmpty()){
         QList<double> c1 = patientData.getCircProfileCF();
         QList<double> c3 = patientData.getCircProfileIM();
         QList<double> c6 = patientData.getCircProfileOM();
@@ -3378,7 +3385,7 @@ void OCTAnnotate::displayCircProfile(){
 void OCTAnnotate::displayHistogram(){
     setupHistPlot();
 
-    if (!patientData.getImageFileList().isEmpty()){
+    if (patientData.getIsLoaded()){ // !patientData.getImageFileList().isEmpty()){
         QList<double> histVal = patientData.getVirtualMapHistogram();
         QVector<double> hist(8);
         double max = 0;
@@ -3399,7 +3406,7 @@ void OCTAnnotate::displayHistogram(){
 void OCTAnnotate::displayVolumes(){
     setupVolumeGridPlot();
 
-    if (!patientData.getImageFileList().isEmpty()){
+    if (patientData.getIsLoaded()){ // !patientData.getImageFileList().isEmpty()){
         QList<double> volumes = patientData.getVolumeGrid();
 
         QCPItemText *volumeLabelCF = new QCPItemText(ui->ETDRSgridCPlot);
@@ -3506,7 +3513,7 @@ void OCTAnnotate::on_layer1CBox_currentIndexChanged(int index)
         ui->layer2CBox->setCurrentIndex((int)vMapLayer2);
     }
 
-    if (!patientData.getImageFileList().isEmpty()){
+    if (patientData.getIsLoaded()){ // !patientData.getImageFileList().isEmpty()){
         // oblicz i przerysuj mape
         on_computeVirtualMapButton_clicked();
     }
@@ -3525,7 +3532,7 @@ void OCTAnnotate::on_layer2CBox_currentIndexChanged(int index)
         ui->layer2CBox->setCurrentIndex((int)vMapLayer2);
     }
 
-    if (!patientData.getImageFileList().isEmpty()){
+    if (patientData.getIsLoaded()){ // !patientData.getImageFileList().isEmpty()){
         // oblicz i przerysuj mape
         on_computeVirtualMapButton_clicked();
     }
@@ -3534,7 +3541,7 @@ void OCTAnnotate::on_layer2CBox_currentIndexChanged(int index)
 void OCTAnnotate::on_contactThresholdCBox_currentIndexChanged(int index)
 {
     contactThreshold = thresholds[index];
-    if (!patientData.getImageFileList().isEmpty()){
+    if (patientData.getIsLoaded()){ // !patientData.getImageFileList().isEmpty()){
         patientData.setContactThreshold(contactThreshold);
         patientData.calculateContactArea(1.0);
         patientData.calculateContactArea(3.0);
@@ -3555,7 +3562,7 @@ void OCTAnnotate::on_contactThresholdCBox_currentIndexChanged(int index)
 // auto annotations -------------------------------------------------------------------------------
 void OCTAnnotate::on_actionReadAutoSegmentation_triggered(QString pathAutoSegment)
 {
-    if (!patientData.getImageFileList().isEmpty()){
+    if (patientData.getIsLoaded()){ // !patientData.getImageFileList().isEmpty()){
         // read data from file
         QString autoSegmentFilePath = pathAutoSegment;
         if (autoSegmentFilePath.isEmpty())
@@ -3670,7 +3677,7 @@ void OCTAnnotate::on_actionCloseAutoSegmentation_triggered()
 
 void OCTAnnotate::on_actionSaveAutoAnnotationsAs_triggered()
 {
-    if (!patientData.getImageFileList().isEmpty()){
+    if (patientData.getIsLoaded()){ // !patientData.getImageFileList().isEmpty()){
         QString autoSegmentFilePath = QFileDialog::getSaveFileName(this, tr("Zapisz automatyczne oznaczenia jako..."), autoDir.path(), tr("Plik tekstowy (*.txt)"));
         if (!autoSegmentFilePath.isEmpty()){
 
@@ -3804,7 +3811,7 @@ QList<QList<int> > OCTAnnotate::convertSurfaceLines(QXmlStreamReader &xml, QList
 // read manual annotations from selected file -----------------------------------------------------
 void OCTAnnotate::on_actionReadManualAnnotations_triggered()
 {
-    if (!patientData.getImageFileList().isEmpty()){
+    if (patientData.getIsLoaded()){ // !patientData.getImageFileList().isEmpty()){
         QMessageBox msgBox;
         QPushButton *saveButton = msgBox.addButton(" Zapisz i wczytaj nowe badanie ", QMessageBox::YesRole);
         QPushButton *cancelButton = msgBox.addButton(" Anuluj ", QMessageBox::RejectRole);
@@ -3851,7 +3858,7 @@ void OCTAnnotate::on_actionReadManualAnnotations_triggered()
 // other ------------------------------------------------------------------------------------------
 void OCTAnnotate::on_actionFillFromILM_triggered()
 {
-    if (!patientData.getImageFileList().isEmpty()){
+    if (patientData.getIsLoaded()){ // !patientData.getImageFileList().isEmpty()){
         patientData.fillLayerFromILM(PCV, currentImageNumber);
         loadImage(currentImageNumber);
     }
@@ -3860,7 +3867,7 @@ void OCTAnnotate::on_actionFillFromILM_triggered()
 void OCTAnnotate::on_actionFillStraight_triggered()
 {
     // TODO: tylko aktywna warstwa?
-    if (!patientData.getImageFileList().isEmpty()){
+    if (patientData.getIsLoaded()){ // !patientData.getImageFileList().isEmpty()){
         QList<Layers> layers = getAllLayers();
         foreach (Layers layer, layers) {
             patientData.fillLayerStraight(layer,currentImageNumber);
@@ -3873,7 +3880,7 @@ void OCTAnnotate::on_layerErrorCBox_currentIndexChanged(int index)
 {
     selectedErrorLayer = (Layers)index;
 
-    if (!patientData.getImageFileList().isEmpty()){
+    if (patientData.getIsLoaded()){ // !patientData.getImageFileList().isEmpty()){
         // oblicz blad
         //patientData.computeLayerError(selectedErrorLayer);
         ui->layerErrorAvgLEdit->setText(QString::number(patientData.getLayerErrorMSE(selectedErrorLayer)) + " px");
@@ -3882,7 +3889,7 @@ void OCTAnnotate::on_layerErrorCBox_currentIndexChanged(int index)
         ui->layerErrorDevLEdit_um->setText(QString::number(patientData.getLayerErrorDev(selectedErrorLayer, "um")) + " um");
         ui->layerErrorProcLEdit->setText(QString::number(patientData.getLayerErrorProc(selectedErrorLayer)) + " %");
 
-        displayImageLayersPlot(currentImageLayersNumber,selectedErrorLayer);
+        displayImageLayersPlot(currentImageLayersNumber); // ,selectedErrorLayer);
     }
 }
 
@@ -4212,7 +4219,7 @@ void OCTAnnotate::on_plotLayersButton_clicked()
     ui->layerCPlot->yAxis->setLabel("B-scan pixel (vertical direction)");
 //    ui->layerCPlot->xAxis->setLabel("B-scan pixel (horizontal direction)");
 //    ui->layerCPlot->yAxis->setLabel("Retina depth [um]");
-    if (!patientData.getImageFileList().isEmpty()){
+    if (patientData.getIsLoaded()){ // !patientData.getImageFileList().isEmpty()){
 //        ui->layerCPlot->xAxis->setRange(0,patientData.getBscanWidth());
 //        ui->layerCPlot->yAxis->setRange(0,patientData.getBscanHeight()-470);
         ui->layerCPlot->xAxis->setRange(0,patientData.getBscanWidth());
@@ -4306,7 +4313,7 @@ void OCTAnnotate::on_plotLayersButton_clicked()
     // configure axis
     ui->errorVirtualMapCPlot->xAxis->setLabel("B-scan pixel (horizontal direction)");
     ui->errorVirtualMapCPlot->yAxis->setLabel("B-scan pixel (vertical direction)");
-    if (!patientData.getImageFileList().isEmpty()){
+    if (patientData.getIsLoaded()){ // !patientData.getImageFileList().isEmpty()){
         ui->errorVirtualMapCPlot->xAxis->setRange(0,patientData.getBscanWidth());
         ui->errorVirtualMapCPlot->yAxis->setRange(0,patientData.getBscanHeight());
     } else {
@@ -5101,6 +5108,12 @@ void OCTAnnotate::on_scansListTableView_doubleClicked(const QModelIndex &current
 {
     int row = currentIndex.row();
     QSqlRecord record = modelScans->record(row);
-    QString scanFolder = examDir.absolutePath() + "/" + record.value("scan_name").toString();
-    on_actionLoadOCTSequence_triggered(scanFolder);
+    QString scanName = record.value("scan_name").toString();
+    QString scanFolder = octDir.absolutePath() + "/" + scanName;
+    if (QDir(scanFolder).exists()){
+        on_actionLoadOCTSequence_triggered(scanFolder);
+    } else {
+        QString scanFile = octDir.absolutePath() + "/" + scanName + ".oct";
+        on_actionLoadOCTFile_triggered(scanFile);
+    }
 }

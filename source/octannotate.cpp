@@ -59,6 +59,7 @@ OCTAnnotate::OCTAnnotate(QWidget *parent) : QMainWindow(parent),
     }  
 
     patientData = PatientData();
+    scanName = "";
 
     currentImageNumber = 0;
     currentNormalImageNumber = 0;
@@ -226,13 +227,12 @@ OCTAnnotate::~OCTAnnotate()
 void OCTAnnotate::loadConfigurations(SettingsDialog *sDialog){
 
     databasePath = sDialog->getDatabasePath();
-    octDir = QDir(sDialog->getPathOctData());
+    octBaseDir = QDir(sDialog->getPathOctData());
     examDir = QDir(sDialog->getPathExamData());
     manualDir = QDir(sDialog->getPathExamData().append("/mvri/"));
     autoDir = QDir(sDialog->getPathExamData().append("/avri/"));
 //    manualDir = QDir(settingsDialog->getPathManualSegm());
 //    autoDir = QDir(settingsDialog->getPathAutoSegm());
-    tmpDir = examDir;
 
     dataSaveStructure = sDialog->getDataSaveStructure();
     blockPCV = sDialog->getBlockPCV();
@@ -404,40 +404,44 @@ void OCTAnnotate::on_actionInfo_triggered()
 // select OCT exam --------------------------------------------------------------------------------
 void OCTAnnotate::on_actionLoadOCTSequence_triggered(QString scanFolderPath)
 {
-    QMessageBox msgBox;
-    QPushButton *saveButton = msgBox.addButton(" Zapisz i wczytaj nowe badanie ", QMessageBox::YesRole);
-    QPushButton *cancelButton = msgBox.addButton(" Anuluj ", QMessageBox::RejectRole);
-    msgBox.addButton(" Wczytaj nowe badanie bez zapisywania ", QMessageBox::NoRole);
     bool selectNew = true;
 
-    if (generalDataModified){
-        msgBox.setText("Informacje o badaniu okulistycznym zostały zmienione. Czy chcesz zapisać zmiany przed otwarciem nowego badania?");
-        msgBox.exec();
-        if (msgBox.clickedButton() == saveButton){  // save data before quit
-            on_actionSaveGeneralExam_triggered();
-        } else if (msgBox.clickedButton() == cancelButton) {   // quit without saving
-            selectNew = false;
+    if (patientData.getIsLoaded()){
+        QMessageBox msgBox;
+        QPushButton *saveButton = msgBox.addButton(" Zapisz i wczytaj nowe badanie ", QMessageBox::YesRole);
+        QPushButton *cancelButton = msgBox.addButton(" Anuluj ", QMessageBox::RejectRole);
+        msgBox.addButton(" Wczytaj nowe badanie bez zapisywania ", QMessageBox::NoRole);
+
+        if (generalDataModified){
+            msgBox.setText("Informacje o badaniu okulistycznym zostały zmienione. Czy chcesz zapisać zmiany przed otwarciem nowego badania?");
+            msgBox.exec();
+            if (msgBox.clickedButton() == saveButton){  // save data before quit
+                on_actionSaveGeneralExam_triggered();
+            } else if (msgBox.clickedButton() == cancelButton) {   // quit without saving
+                selectNew = false;
+            }
         }
-    }
-    if (octDataModified){
-        msgBox.setText("Anotacje badania OCT zostały zmienione. Czy zapisać zmiany przed wczytaniem nowego badania?");
-        msgBox.exec();
-        if (msgBox.clickedButton() == saveButton){
-            on_actionSaveOCTExam_triggered();
-        } else if (msgBox.clickedButton() == cancelButton) {
-            selectNew = false;
+        if (octDataModified){
+            msgBox.setText("Anotacje badania OCT zostały zmienione. Czy zapisać zmiany przed wczytaniem nowego badania?");
+            msgBox.exec();
+            if (msgBox.clickedButton() == saveButton){
+                on_actionSaveOCTExam_triggered();
+            } else if (msgBox.clickedButton() == cancelButton) {
+                selectNew = false;
+            }
         }
     }
 
     if (selectNew){
         QString dirName = scanFolderPath;
         if (dirName == "")
-            dirName = QFileDialog::getExistingDirectory(this, tr("Open Directory"), octDir.path(), QFileDialog::ShowDirsOnly);
+            dirName = QFileDialog::getExistingDirectory(this, tr("Open Directory"), octBaseDir.path(), QFileDialog::ShowDirsOnly);
 
         qDebug() << "Opening scan: " << dirName;
 
         if (!dirName.isEmpty()){
-            tmpDir = QDir(dirName);
+            octDir = QDir(dirName);
+            scanName = octDir.dirName();
 
             patientData = PatientData();
             patientData.setIsBinary(false);
@@ -449,7 +453,7 @@ void OCTAnnotate::on_actionLoadOCTSequence_triggered(QString scanFolderPath)
 
             ReadWriteData *rwData = new ReadWriteData();
             rwData->setDataObject(&patientData);
-            rwData->setDirectoryOct(&tmpDir);
+            rwData->setDirectoryOct(&octDir);
             rwData->setDirectoryManual(&manualDir);
             rwData->setDirectoryAuto(&autoDir);
             rwData->setDataSaveStrucure(dataSaveStructure);
@@ -462,7 +466,6 @@ void OCTAnnotate::on_actionLoadOCTSequence_triggered(QString scanFolderPath)
             connect(thread, SIGNAL(started()), rwData, SLOT(process()));
             connect(rwData, SIGNAL(errorOccured(QString)), this, SLOT(on_errorOccured(QString)));
             connect(rwData, SIGNAL(processingData(double,QString)), this, SLOT(on_processingData(double,QString)));
-            //connect(rwData, SIGNAL(returnNewDirectory(QDir)), this, SLOT(on_returnNewDirectory(QDir)));
             connect(rwData, SIGNAL(readingDataFinished(QString)), this, SLOT(on_readingDataFinished(QString)));
             connect(rwData, SIGNAL(finished()), thread, SLOT(quit()));
             connect(rwData, SIGNAL(finished()), rwData, SLOT(deleteLater()));
@@ -478,40 +481,45 @@ void OCTAnnotate::on_actionLoadOCTSequence_triggered(QString scanFolderPath)
 
 void OCTAnnotate::on_actionLoadOCTFile_triggered(QString scanFilePath)
 {
-    QMessageBox msgBox;
-    QPushButton *saveButton = msgBox.addButton(" Zapisz i wczytaj nowe badanie ", QMessageBox::YesRole);
-    QPushButton *cancelButton = msgBox.addButton(" Anuluj ", QMessageBox::RejectRole);
-    msgBox.addButton(" Wczytaj nowe badanie bez zapisywania ", QMessageBox::NoRole);
     bool selectNew = true;
 
-    if (generalDataModified){
-        msgBox.setText("Informacje o badaniu okulistycznym zostały zmienione. Czy chcesz zapisać zmiany przed otwarciem nowego badania?");
-        msgBox.exec();
-        if (msgBox.clickedButton() == saveButton){  // save data before quit
-            on_actionSaveGeneralExam_triggered();
-        } else if (msgBox.clickedButton() == cancelButton) {   // quit without saving
-            selectNew = false;
+    if (patientData.getIsLoaded()){
+        QMessageBox msgBox;
+        QPushButton *saveButton = msgBox.addButton(" Zapisz i wczytaj nowe badanie ", QMessageBox::YesRole);
+        QPushButton *cancelButton = msgBox.addButton(" Anuluj ", QMessageBox::RejectRole);
+        msgBox.addButton(" Wczytaj nowe badanie bez zapisywania ", QMessageBox::NoRole);
+
+        if (generalDataModified){
+            msgBox.setText("Informacje o badaniu okulistycznym zostały zmienione. Czy chcesz zapisać zmiany przed otwarciem nowego badania?");
+            msgBox.exec();
+            if (msgBox.clickedButton() == saveButton){  // save data before quit
+                on_actionSaveGeneralExam_triggered();
+            } else if (msgBox.clickedButton() == cancelButton) {   // quit without saving
+                selectNew = false;
+            }
         }
-    }
-    if (octDataModified){
-        msgBox.setText("Anotacje badania OCT zostały zmienione. Czy zapisać zmiany przed wczytaniem nowego badania?");
-        msgBox.exec();
-        if (msgBox.clickedButton() == saveButton){
-            on_actionSaveOCTExam_triggered();
-        } else if (msgBox.clickedButton() == cancelButton) {
-            selectNew = false;
+        if (octDataModified){
+            msgBox.setText("Anotacje badania OCT zostały zmienione. Czy zapisać zmiany przed wczytaniem nowego badania?");
+            msgBox.exec();
+            if (msgBox.clickedButton() == saveButton){
+                on_actionSaveOCTExam_triggered();
+            } else if (msgBox.clickedButton() == cancelButton) {
+                selectNew = false;
+            }
         }
     }
 
     if (selectNew){
         QString fileName = scanFilePath;
         if (fileName == "")
-            fileName = QFileDialog::getOpenFileName(this, tr("Open OCT file"), octDir.absolutePath(), tr("Avanti RTvue raw OCT data file (*.OCT)"));
+            fileName = QFileDialog::getOpenFileName(this, tr("Open OCT file"), octBaseDir.absolutePath(), tr("Avanti RTvue raw OCT data file (*.OCT)"));
 
         qDebug() << "Opening scan: " << fileName;
 
         if (!fileName.isEmpty()){
             octFile.setFileName(fileName);
+            QFileInfo fileInfo(octFile);
+            scanName = fileInfo.fileName();
 
             patientData = PatientData();
             patientData.setIsBinary(true);
@@ -536,7 +544,6 @@ void OCTAnnotate::on_actionLoadOCTFile_triggered(QString scanFilePath)
             connect(thread, SIGNAL(started()), rwData, SLOT(process()));
             connect(rwData, SIGNAL(errorOccured(QString)), this, SLOT(on_errorOccured(QString)));
             connect(rwData, SIGNAL(processingData(double,QString)), this, SLOT(on_processingData(double,QString)));
-            //connect(rwData, SIGNAL(returnNewDirectory(QDir)), this, SLOT(on_returnNewDirectory(QDir)));
             connect(rwData, SIGNAL(readingDataFinished(QString)), this, SLOT(on_readingDataFinished(QString)));
             connect(rwData, SIGNAL(finished()), thread, SLOT(quit()));
             connect(rwData, SIGNAL(finished()), rwData, SLOT(deleteLater()));
@@ -559,8 +566,9 @@ void OCTAnnotate::loadImage(int imageNumber){
     if (patientData.getIsBinary()){ // isBinary
         image = patientData.getImage(imageNumber);
     } else {
-        imageFileInfo.setFile(patientData.getImageFileList().at(imageNumber));
         image = QImage(patientData.getImageFileList().at(imageNumber));
+        imageFileInfo.setFile(patientData.getImageFileList().at(imageNumber));
+        ui->imageNumberLabel->setText(imageFileInfo.fileName());
     }
 
     if (!image.isNull()){
@@ -604,8 +612,6 @@ void OCTAnnotate::loadImage(int imageNumber){
         // display annotations
         displayAnnotations(flatDiff);
 
-        // display image name
-        ui->imageNumberLabel->setText(imageFileInfo.fileName());
         ui->currImageNumberLEdit->setText(QString::number(currentImageNumber));
     } else {
         qDebug() << "Image is null!";
@@ -998,6 +1004,7 @@ void OCTAnnotate::on_actionSaveOCTExam_triggered()
     rwData->setDataObject(&patientData);
     rwData->setDirectoryManual(&manualDir);
     rwData->setDirectoryOct(&octDir);
+    rwData->setOctFile(&octFile);
     rwData->addDirective("saveManualSegmentationData");
     rwData->setDataSaveStrucure(dataSaveStructure);
 
@@ -1382,7 +1389,7 @@ bool OCTAnnotate::eventFilter(QObject *target, QEvent *event){
                 if (mouseEvent->button() == Qt::RightButton){
                     QClipboard *clipboard = QApplication::clipboard();
                     clipboard->setPixmap(ui->ETDRSgridCPlot->toPixmap());
-                    QString ETDRSgridCPlotPath = octDir.absolutePath();
+                    QString ETDRSgridCPlotPath = manualDir.absolutePath();
 //                    ETDRSgridCPlotPath.chop(10);
 //                    ETDRSgridCPlotPath += ".pdf";
                     ui->ETDRSgridCPlot->savePdf(ETDRSgridCPlotPath + "ETDRS.pdf", true, 400, 400);
@@ -4055,7 +4062,7 @@ void OCTAnnotate::on_readingDataFinished(QString data){
         generalDataModified = false;
 
         // display information
-        this->setWindowTitle("OCTAnnotate " + appVersion + " - " + octDir.dirName());
+        this->setWindowTitle("OCTAnnotate " + appVersion + " - " + scanName);
     }
 
     ui->statusBar->clearMessage();
@@ -4138,10 +4145,6 @@ void OCTAnnotate::on_savingDataFinished(QString data){
     if (data == "autoData"){
         QMessageBox::information(this, tr("Zapisz"), tr("Dane automatycznej segmentacji zostały zapisane"));
     }
-}
-
-void OCTAnnotate::on_returnNewDirectory(QString newDir){
-    octDir = QDir(newDir);
 }
 
 // calculate statistics for CAVRI analysis -------------------------------------------------------
@@ -4481,7 +4484,7 @@ void OCTAnnotate::on_addScanFolderButton_clicked(QString folderPath)
 {
     QString pathOctExam;
     if (folderPath.isEmpty())
-        pathOctExam = QFileDialog::getExistingDirectory(this, tr("Open Directory"), octDir.absolutePath(), QFileDialog::ShowDirsOnly);
+        pathOctExam = QFileDialog::getExistingDirectory(this, tr("Open Directory"), octBaseDir.absolutePath(), QFileDialog::ShowDirsOnly);
     else
         pathOctExam = folderPath;
 
@@ -4498,7 +4501,7 @@ void OCTAnnotate::on_addScanFileButton_clicked(QString filePath)
 {
     QString pathOctExam;
     if (filePath.isEmpty())
-        pathOctExam = QFileDialog::getOpenFileName(this, tr("Open OCT file"), octDir.absolutePath(), tr("Avanti RTvue raw OCT data file (*.OCT)"));
+        pathOctExam = QFileDialog::getOpenFileName(this, tr("Open OCT file"), octBaseDir.absolutePath(), tr("Avanti RTvue raw OCT data file (*.OCT)"));
     else
         pathOctExam = filePath;
 
@@ -4653,7 +4656,7 @@ void OCTAnnotate::createPreview(QString scanName, int scanWidth, int scanHeight,
 
     if (isBinary){
         // read binary file
-        QString octFileName = octDir.absolutePath().append("/" + scanName + ".OCT");
+        QString octFileName = octBaseDir.absolutePath().append("/" + scanName + ".OCT");
         QFile octFile(octFileName);
         if (!octFile.open(QIODevice::ReadOnly)){
             qDebug() << "Could not open file!";
@@ -4735,8 +4738,8 @@ void OCTAnnotate::createPreview(QString scanName, int scanWidth, int scanHeight,
 
     } else {
         // read bmp files
-        crossH = QImage(octDir.absolutePath().append("/" + scanName + "/Skan_nr_71.bmp"));
-        crossV = QImage(octDir.absolutePath().append("/" + scanName + "/Skan_nr_143.bmp"));
+        crossH = QImage(octBaseDir.absolutePath().append("/" + scanName + "/Skan_nr_71.bmp"));
+        crossV = QImage(octBaseDir.absolutePath().append("/" + scanName + "/Skan_nr_143.bmp"));
     }
     crossH.save(examDir.absolutePath().append("/preview/" + scanName + "_crossH.tif"));
     crossV.save(examDir.absolutePath().append("/preview/" + scanName + "_crossV.tif"));
@@ -4793,42 +4796,15 @@ void OCTAnnotate::on_batchProcessingButton_clicked()
 {
     QList<QString> folderList;
 
-    // foreach scan in the database
+    // foreach scan in the selected group from database
     for (int r = 0; r < modelScans->rowCount(); r++){
         QSqlRecord record = modelScans->record(r);
+        QString scanName = record.value("scan_name").toString();
 
-        // 1. calculate age, if less than existing -> update
-//        int patientID = record.value("patient_id").toInt();
-//        QDateTime examDate = record.value("date").toDateTime();
-
-//        int patientAge = patientsDB->getPatientAge(patientID);
-//        if (patientAge == 0){
-//            patientsDB->calculatePatientAge(patientID, examDate);
-//        }
-
-        // 2. find 1 of 2 fundus images, save and display
-
-        // 3. import cross-sections, calculate cross, save and display
-
-        // 4. check if OCTExplorer annotations are present in the folder
-        QString folderName = record.value("scan_name").toString();
-        QString subfolder = record.value("device").toString() + " " + record.value("series").toString();
-//        QString temp = "/" + subfolder + "/" + folderName + "/" + folderName + "_Proj_Iowa.tif";
-//        QString fundusPath = examDir.absolutePath().append(temp);
-//        bool hasAutoExplorer = record.value("has_autoExplorer").toBool();
-//        if (!hasAutoExplorer){
-//            if (QFile(fundusPath).exists()){
-//                qDebug() << "Found analysis for: " + folderName;
-//                patientsDB->editScanHasAutoExplorer(patientsDB->getScanID(folderName),true);
-//            } else {
-//                qDebug() << "No OCTExplorer analysis for scan: " + temp;
-//            }
-//        }
-
-        folderList.append(examDir.absolutePath() + "/" + subfolder + "/" + folderName);
+        folderList.append(scanName); // examDir.absolutePath() + "/" +
     }
 
-    BatchProcessingDialog *batchDialog = new BatchProcessingDialog(folderList, manualDir);
+    BatchProcessingDialog *batchDialog = new BatchProcessingDialog(folderList, examDir, octBaseDir);
     batchDialog->setModal(true);
     batchDialog->show();
 
@@ -5054,7 +5030,7 @@ void OCTAnnotate::on_scansListTableView_clicked(const QModelIndex &index)
         ui->fundusDBLabel->setPixmap(QPixmap::fromImage(fundusImage));
     } else {
         // if preview does not exist but the .oct scan does, then create the preview
-        QString scanPath = octDir.absolutePath().append("/" + scanName + ".oct");
+        QString scanPath = octBaseDir.absolutePath().append("/" + scanName + ".oct");
         if (QFile(scanPath).exists()){
             createPreview(scanName, 385, 640, 141, 144, true);
             ui->fundusDBLabel->setPixmap(QPixmap::fromImage(QImage(fundusPath)));
@@ -5109,11 +5085,11 @@ void OCTAnnotate::on_scansListTableView_doubleClicked(const QModelIndex &current
     int row = currentIndex.row();
     QSqlRecord record = modelScans->record(row);
     QString scanName = record.value("scan_name").toString();
-    QString scanFolder = octDir.absolutePath() + "/" + scanName;
+    QString scanFolder = octBaseDir.absolutePath() + "/" + scanName;
     if (QDir(scanFolder).exists()){
         on_actionLoadOCTSequence_triggered(scanFolder);
     } else {
-        QString scanFile = octDir.absolutePath() + "/" + scanName + ".oct";
+        QString scanFile = octBaseDir.absolutePath() + "/" + scanName + ".oct";
         on_actionLoadOCTFile_triggered(scanFile);
     }
 }

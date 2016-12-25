@@ -14,7 +14,7 @@ class BatchProcessingDialog : public QDialog
     Q_OBJECT
 
 public:
-    explicit BatchProcessingDialog(QList<QString> list, QDir mDir, QWidget *parent = 0);
+    explicit BatchProcessingDialog(QList<QString> list, QDir mDir, QDir oDir, QWidget *parent = 0);
     ~BatchProcessingDialog();
 
 private slots:
@@ -40,7 +40,8 @@ private:
     int tasksNumber;
 
     QString sufix;
-    QDir manualDir;
+    QDir examDir;
+    QDir octBaseDir;
 
     QTimer *myTimer;
     PatientData pData;

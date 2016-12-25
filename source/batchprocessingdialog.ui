@@ -51,19 +51,6 @@
     <string>0</string>
    </property>
   </widget>
-  <widget class="QCheckBox" name="calculateAgeCBox">
-   <property name="geometry">
-    <rect>
-     <x>20</x>
-     <y>40</y>
-     <width>111</width>
-     <height>21</height>
-    </rect>
-   </property>
-   <property name="text">
-    <string>Oblicz wiek</string>
-   </property>
-  </widget>
   <widget class="QCheckBox" name="searchAutoSegmentationsCBox">
    <property name="geometry">
     <rect>
@@ -198,7 +185,7 @@
     <string/>
    </property>
   </widget>
-  <widget class="QWidget" name="">
+  <widget class="QWidget" name="layoutWidget">
    <property name="geometry">
     <rect>
      <x>50</x>

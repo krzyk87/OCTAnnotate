@@ -22,7 +22,6 @@ signals:
     void finished();
     void errorOccured(QString err);
     void processingData(double,QString);
-    void returnNewDirectory(QString);
     void readingDataFinished(QString);
     void savingDataFinished(QString);
 

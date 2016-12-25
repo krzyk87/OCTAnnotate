@@ -157,7 +157,6 @@ public slots:
     void on_averageErrorCalculated(double);
     void on_mseErrorCalculated(double);
 
-    void on_returnNewDirectory(QString newDir);
     void on_readingDataFinished(QString data);
     void on_savingDataFinished(QString data);
 
@@ -225,13 +224,13 @@ private:
 
     bool quit;
     QString databasePath;
-    QDir patientDir;
+    QString scanName;
+    QDir octBaseDir;
     QDir octDir;
     QFile octFile;
     QDir examDir;
     QDir manualDir;
     QDir autoDir;
-    QDir tmpDir;
     QString errorFilePath;
     static const QString settingsFilePath;
 

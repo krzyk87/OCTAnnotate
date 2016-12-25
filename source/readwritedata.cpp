@@ -32,8 +32,6 @@ void ReadWriteData::process(){
             if(!this->readPatientData()){
                 emit errorOccured("Nie można odczytać katalogu z badaniem OCT");
                 break;
-            } else {
-                emit returnNewDirectory(octDir->absolutePath());
             }
         }
         if (dir == "readGeneralExamData"){
@@ -1046,7 +1044,15 @@ void ReadWriteData::saveManualSegmentationData(){
     }
 
     // save to file
-    QString octExamFilePath = manualDir->path().append("/" + octDir->dirName() + ".mvri");
+    QString scanName = "";
+    if (pData->getIsBinary()){
+        QFileInfo fileInfo(octFile->fileName());
+        scanName = fileInfo.fileName();
+        scanName.chop(4);
+    } else {
+        scanName = octDir->dirName();
+    }
+    QString octExamFilePath = manualDir->path().append("/" + scanName + ".mvri");
     QFile octExamFile(octExamFilePath);
     if (!octExamFile.open(QIODevice::WriteOnly | QIODevice::Text | QIODevice::Truncate)){
         emit errorOccured(tr("Brak dostępu do pliku z ręczną segmentacją warstw"));

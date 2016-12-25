@@ -7,7 +7,7 @@
 #include <QDir>
 #include <QMessageBox>
 
-BatchProcessingDialog::BatchProcessingDialog(QList<QString> list, QDir mDir, QWidget *parent) :
+BatchProcessingDialog::BatchProcessingDialog(QList<QString> list, QDir mDir, QDir oDir, QWidget *parent) :
     QDialog(parent),
     ui(new Ui::BatchProcessingDialog)
 {
@@ -25,7 +25,8 @@ BatchProcessingDialog::BatchProcessingDialog(QList<QString> list, QDir mDir, QWi
     finished = false;
 
     sufix = "";
-    manualDir = mDir;
+    examDir = mDir;
+    octBaseDir = oDir;
 
     myTimer = new QTimer(this);
     connect(myTimer, SIGNAL(timeout()), this, SLOT(process()));
@@ -40,7 +41,6 @@ BatchProcessingDialog::~BatchProcessingDialog()
 void BatchProcessingDialog::on_cancelButton_clicked()
 {
     canceled = true;
-
     this->close();
 }
 
@@ -57,8 +57,6 @@ void BatchProcessingDialog::on_acceptButton_clicked()
 
         // setting progress bar
         tasksNumber = 3;
-//        if (ui->calculateAgeCBox->isChecked())
-//            tasksNumber++;
         if (ui->searchAutoSegmentationsCBox->isChecked())
             tasksNumber++;
         if (ui->copyAutoAsManualCBox->isChecked())
@@ -80,24 +78,38 @@ void BatchProcessingDialog::process(){
     if (!canceled){
         currentFolder++;
 
-        QString folderPath = folderList[currentFolder-1];
-        QString scanName = QDir(folderPath).dirName();
+        QString scanName = folderList[currentFolder-1];
+//        QString scanName = QDir(folderPath).dirName();
         qDebug() << "Processing " << currentFolder << "/" << folderListCount << ": " << scanName;
 
-        QDir octDir = QDir(folderPath + "/");
-        QDir autoDir = QDir(folderPath + "/");
+        QDir manualDir = QDir(examDir.absolutePath() + "/mvri/");
+        QDir autoDir = QDir(examDir.absolutePath() + "/iowa/");
 
         pData = PatientData();
 
+        // check if binary
+        QDir octDir = QDir(octBaseDir.absolutePath() + "/" + scanName);
+        QFile octFile(octBaseDir.absolutePath() + "/" + scanName + ".oct");
+
         ReadWriteData *rwData = new ReadWriteData();
         rwData->setDataObject(&pData);
-        rwData->setDirectoryOct(&octDir);
+        if (octFile.exists()){
+            pData.setIsBinary(true);
+            rwData->setOctFile(&octFile);
+        } else {
+            pData.setIsBinary(false);
+            rwData->setDirectoryOct(&octDir);
+        }
         rwData->setDirectoryManual(&manualDir);
         rwData->setDirectoryAuto(&autoDir);
-        rwData->setAutoFilePath(folderPath + "/" + scanName + sufix);
+        rwData->setAutoFilePath(autoDir.absolutePath() + "/" + scanName + sufix);
 //        rwData->setDataSaveStrucure(dataSaveStructure);
         rwData->addDirective("readPatientData");
-        rwData->addDirective("readOctExamData");
+        if (octFile.exists()){
+            rwData->addDirective("readOctExamFile");
+        } else {
+            rwData->addDirective("readOctExamData");
+        }
 
         if (ui->searchAutoSegmentationsCBox->isChecked()){
             rwData->addDirective("readAutoSegmentationData");

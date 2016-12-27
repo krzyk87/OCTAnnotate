@@ -346,6 +346,14 @@ public:
     void calculateRetinaDepth();
     double getRetinaDepth();
 
+    // retina volume
+    void calculateRetinaVolume();
+    double getRetinaVolume();
+    void calculatePreretinalVolume();
+    double getPreretinalVolume();
+    void calculateFoveaPitVolume();
+    double getFoveaPitVolume();
+
     // fundus image
     QImage getFundusImage();
     void setFundusImage(QImage newImage);
@@ -448,6 +456,9 @@ private:
     QList<double> virtualMapHistogram;
     QList<double> volumeGrid;
     double retinaDepth;
+    double retinaVolume;
+    double preretinalVolume;
+    double foveaPitVolume;
 
     // fundus image
     QImage fundusImage;

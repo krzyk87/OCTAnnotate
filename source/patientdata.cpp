@@ -900,6 +900,9 @@ PatientData::PatientData()
     }
 
     this->retinaDepth = 0.0;
+    this->retinaVolume = 0.0;
+    this->preretinalVolume = 0.0;
+    this->foveaPitVolume = 0.0;
 }
 
 QImage PatientData::getNormalImage(int normalImageNumber){
@@ -1435,6 +1438,9 @@ void PatientData::computeVirtualMap(Layers layer1, Layers layer2){
 
     // calculate retina depth
     calculateRetinaDepth();
+    calculateRetinaVolume();
+    calculatePreretinalVolume();
+    calculateFoveaPitVolume();
 }
 
 void PatientData::computeVirtualMapAuto(Layers layer1, Layers layer2){
@@ -1888,6 +1894,112 @@ void PatientData::calculateRetinaDepth(){
 
 double PatientData::getRetinaDepth(){
     return this->retinaDepth;
+}
+
+void PatientData::calculateRetinaVolume(){
+    double volume = 0.0;
+    double radius = 1.5;
+
+    int gridAreaRadiusX = (this->bscanWidth - 1) * radius / this->voxelWidth;  // w [px]
+    int gridAreaRadiusY = (this->bscansNumber - 1) * radius / this->voxelHeight;   // w [px]
+    double deltaX = (double)(this->voxelWidth / (this->bscanWidth - 1));
+    double deltaY = (double)(this->voxelHeight / (this->bscansNumber - 1));
+
+    int xc = this->scanCenter.x();
+    int yc = this->scanCenter.y();
+
+    if (xc == -1)
+        xc = this->bscanWidth / 2;
+    if (yc == -1)
+        yc = this->bscansNumber / 2;
+
+    double distance = 0.0;
+    double angleR = 0.0;
+    double depth = 0.0;
+    double PI = 3.1415926535;
+
+    for (int x = (xc-gridAreaRadiusX-1); x <= (xc+gridAreaRadiusX); x++){
+        for (int y = (yc-gridAreaRadiusY-1); y <= (yc+gridAreaRadiusY); y++){
+            if ((x >= 0) && (x < this->bscanWidth - 1) && (y >= 0) && (y < this->bscansNumber - 1)){
+                double ilm = (double)this->Bscans[y].layers[(int)ILM].getPoint(x).y();
+                double rpe = (double)this->Bscans[y].layers[(int)CHR].getPoint(x).y();
+
+                if ((ilm != -1) && (rpe != -1)){
+                    distance = calculateDistance(QPoint(xc,yc),QPoint(x,y),deltaX,deltaY);
+                    angleR = qAtan2((y-yc)*deltaY, (x-xc)*deltaX) / PI * 180;
+                    depth = rpe-ilm;
+                    if (angleR < 0)
+                        angleR += 360.0;
+                    if (distance <= radius){
+                        volume += depth * depthCoeff / 1000 * this->areaUnit;
+                    }
+                }
+            }
+        }
+    }
+
+    this->retinaVolume = volume;
+}
+
+double PatientData::getRetinaVolume(){
+    return this->retinaVolume;
+}
+
+void PatientData::calculatePreretinalVolume(){
+    double volume = 0.0;
+    double radius = 1.5;
+
+    int gridAreaRadiusX = (this->bscanWidth - 1) * radius / this->voxelWidth;  // w [px]
+    int gridAreaRadiusY = (this->bscansNumber - 1) * radius / this->voxelHeight;   // w [px]
+    double deltaX = (double)(this->voxelWidth / (this->bscanWidth - 1));
+    double deltaY = (double)(this->voxelHeight / (this->bscansNumber - 1));
+
+    int xc = this->scanCenter.x();
+    int yc = this->scanCenter.y();
+
+    if (xc == -1)
+        xc = this->bscanWidth / 2;
+    if (yc == -1)
+        yc = this->bscansNumber / 2;
+
+    double distance = 0.0;
+    double angleR = 0.0;
+    double depth = 0.0;
+    double PI = 3.1415926535;
+
+    for (int x = (xc-gridAreaRadiusX-1); x <= (xc+gridAreaRadiusX); x++){
+        for (int y = (yc-gridAreaRadiusY-1); y <= (yc+gridAreaRadiusY); y++){
+            if ((x >= 0) && (x < this->bscanWidth - 1) && (y >= 0) && (y < this->bscansNumber - 1)){
+                double pcv = (double)this->Bscans[y].layers[(int)PCV].getPoint(x).y();
+                double ilm = (double)this->Bscans[y].layers[(int)ILM].getPoint(x).y();
+
+                if ((ilm != -1) && (pcv != -1)){
+                    distance = calculateDistance(QPoint(xc,yc),QPoint(x,y),deltaX,deltaY);
+                    angleR = qAtan2((y-yc)*deltaY, (x-xc)*deltaX) / PI * 180;
+                    depth = ilm-pcv;
+                    if (angleR < 0)
+                        angleR += 360.0;
+                    if (distance <= radius){
+                        volume += depth * depthCoeff / 1000 * this->areaUnit;
+                    }
+                }
+            }
+        }
+    }
+
+    this->preretinalVolume = volume;
+}
+
+double PatientData::getPreretinalVolume(){
+    return this->preretinalVolume;
+}
+
+void PatientData::calculateFoveaPitVolume(){
+    //
+}
+
+double PatientData::getFoveaPitVolume(){
+    return this->foveaPitVolume;
 }
 
 // OCT Exam Data --------------------------------------------------------------

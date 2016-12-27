@@ -259,6 +259,12 @@ public:
     QGroupBox *groupBox_4;
     QLabel *label_28;
     QLineEdit *retinaDepthLEdit;
+    QLabel *label_3;
+    QLineEdit *retinaVolumeLEdit;
+    QLabel *label_4;
+    QLineEdit *preretinalVolumeLEdit;
+    QLineEdit *foveaPitVolumeLEdit;
+    QLabel *label_5;
     QCustomPlot *virtualMapCircProfileCPlot;
     QLabel *label_44;
     QHBoxLayout *horizontalLayout_10;
@@ -1430,8 +1436,29 @@ public:
         label_28->setGeometry(QRect(10, 20, 121, 21));
         retinaDepthLEdit = new QLineEdit(groupBox_4);
         retinaDepthLEdit->setObjectName(QStringLiteral("retinaDepthLEdit"));
-        retinaDepthLEdit->setGeometry(QRect(130, 20, 71, 20));
+        retinaDepthLEdit->setGeometry(QRect(180, 20, 71, 20));
         retinaDepthLEdit->setReadOnly(true);
+        label_3 = new QLabel(groupBox_4);
+        label_3->setObjectName(QStringLiteral("label_3"));
+        label_3->setGeometry(QRect(10, 50, 171, 21));
+        retinaVolumeLEdit = new QLineEdit(groupBox_4);
+        retinaVolumeLEdit->setObjectName(QStringLiteral("retinaVolumeLEdit"));
+        retinaVolumeLEdit->setGeometry(QRect(180, 50, 71, 20));
+        retinaVolumeLEdit->setReadOnly(true);
+        label_4 = new QLabel(groupBox_4);
+        label_4->setObjectName(QStringLiteral("label_4"));
+        label_4->setGeometry(QRect(10, 70, 171, 21));
+        preretinalVolumeLEdit = new QLineEdit(groupBox_4);
+        preretinalVolumeLEdit->setObjectName(QStringLiteral("preretinalVolumeLEdit"));
+        preretinalVolumeLEdit->setGeometry(QRect(180, 70, 71, 20));
+        preretinalVolumeLEdit->setReadOnly(true);
+        foveaPitVolumeLEdit = new QLineEdit(groupBox_4);
+        foveaPitVolumeLEdit->setObjectName(QStringLiteral("foveaPitVolumeLEdit"));
+        foveaPitVolumeLEdit->setGeometry(QRect(180, 90, 71, 20));
+        foveaPitVolumeLEdit->setReadOnly(true);
+        label_5 = new QLabel(groupBox_4);
+        label_5->setObjectName(QStringLiteral("label_5"));
+        label_5->setGeometry(QRect(10, 90, 171, 21));
 
         horizontalLayout_4->addWidget(groupBox_4);
 
@@ -2034,6 +2061,9 @@ public:
         contactAreaProcOMLabel->setText(QString());
         groupBox_4->setTitle(QApplication::translate("OCTAnnotate", "Statystyka siatk\303\263wki", 0));
         label_28->setText(QApplication::translate("OCTAnnotate", "Grubo\305\233\304\207 siatk\303\263wki [um]:", 0));
+        label_3->setText(QApplication::translate("OCTAnnotate", "Obj\304\231to\305\233\304\207 siatk\303\263wki d=3mm [mm3]:", 0));
+        label_4->setText(QApplication::translate("OCTAnnotate", "Preretinal volume d=3mm [mm3]:", 0));
+        label_5->setText(QApplication::translate("OCTAnnotate", "Fovea pit volume d=3mm [mm3]:", 0));
         label_44->setText(QString());
         label_41->setText(QApplication::translate("OCTAnnotate", "Wirtualna mapa r\304\231cznej segmentacji:", 0));
         label->setText(QApplication::translate("OCTAnnotate", "Warto\305\233\304\207:", 0));

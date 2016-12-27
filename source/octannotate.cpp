@@ -929,6 +929,9 @@ void OCTAnnotate::on_tabWidget_currentChanged()
             ui->contactAreaProcOMLabel->setText(QString::number(caOM / max3 * 100,3,0) + " %");
 
             ui->retinaDepthLEdit->setText(QString::number(patientData.getRetinaDepth()));
+            ui->retinaVolumeLEdit->setText(QString::number(patientData.getRetinaVolume()));
+            ui->preretinalVolumeLEdit->setText(QString::number(patientData.getPreretinalVolume()));
+            ui->foveaPitVolumeLEdit->setText(QString::number(patientData.getFoveaPitVolume()));
         }
     } else if (currWidget == ui->tabErrorAnalysis){
         if (patientData.getIsLoaded()){ // !patientData.getImageFileList().isEmpty()){
@@ -2551,7 +2554,7 @@ void OCTAnnotate::rescaleImage(){
     ui->bScanHCPlot->yAxis->setRange(bscanRange);
     ui->bScanVCPlot->yAxis->setRange(bscanRange);
 
-    QImage image(patientData.getImageFileList().at(currentImageNumber));
+    QImage image(patientData.getImage(currentImageNumber));
     QImage normalImage = patientData.getNormalImage(currentNormalImageNumber);
 
     Calculate *calc = new Calculate();
@@ -2613,7 +2616,7 @@ void OCTAnnotate::changeImageRange(int dir){
         bscanRange = newRange;
 
         Calculate *calc = new Calculate();
-        QImage image(patientData.getImageFileList().at(currentImageNumber));
+        QImage image(patientData.getImage(currentImageNumber));
         QImage normalImage = patientData.getNormalImage(currentNormalImageNumber);
 
         calc->imageEnhancement(&image, contrast, brightness);

@@ -199,7 +199,6 @@ private:
     void eraseLayerNormal(QPoint endPoint);
     void saveLayer(QPoint endPoint, QString action, QPoint prevPoint=QPoint(-1,-1));
     void saveLayerNormal(QPoint endPoint, QString action, QPoint prevPoint=QPoint(-1,-1));
-    QList<QPoint> computeLinePoints(QPoint p0, QPoint p1);
 
 // draw Virtual map
     void setupVirtualMapPlot(QCustomPlot *customPlot);

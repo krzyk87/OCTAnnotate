@@ -66,6 +66,7 @@ Pathologies decodePathology(QString pathology);
 QString encodePathology(Pathologies pathology);
 
 bool isPointSet(QPoint p);
+QList<QPoint> computeLinePoints(QPoint p0, QPoint p1);
 
 // AmslerDist -----------------------------------------------------------------
 class AmslerDist{

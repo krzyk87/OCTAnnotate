@@ -3654,6 +3654,8 @@
    </attribute>
    <addaction name="actionImageFlattening"/>
    <addaction name="actionEditAnnotations"/>
+   <addaction name="actionShowETDRSGrid"/>
+   <addaction name="actionShowCenterOnBscan"/>
   </widget>
   <action name="actionSaveGeneralExam">
    <property name="text">

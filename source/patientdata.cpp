@@ -220,6 +220,46 @@ bool isPointSet(QPoint p){
     return isSet;
 }
 
+QList<QPoint> computeLinePoints(QPoint p0, QPoint p1){
+    QList<QPoint> list;
+
+    int dx = qAbs(p1.x() - p0.x());
+    int dy = qAbs(p1.y() - p0.y());
+
+    int sx = 0;
+    int sy = 0;
+
+    if (p0.x() < p1.x())
+        sx = 1;
+    else
+        sx = -1;
+    if (p0.y() < p1.y())
+        sy = 1;
+    else
+        sy = -1;
+    int err = dx - dy;
+
+    list.append(p0);
+
+    int x = p0.x();
+    int y = p0.y();
+
+    while ((x != p1.x()) || (y != p1.y())){
+        int e2 = 2 * err;
+        if (e2 >= -dy){
+            err = err - dy;
+            x = x + sx;
+        }
+        if (e2 <= dx){
+            err = err + dx;
+            y = y + sy;
+        }
+        list.append(QPoint(x,y));
+    }
+
+    return list;
+}
+
 
 // ----------------------------------------------------------------------------
 // AmslerDist class -----------------------------------------------------------
@@ -1914,9 +1954,7 @@ void PatientData::calculateRetinaVolume(){
         yc = this->bscansNumber / 2;
 
     double distance = 0.0;
-    double angleR = 0.0;
     double depth = 0.0;
-    double PI = 3.1415926535;
 
     for (int x = (xc-gridAreaRadiusX-1); x <= (xc+gridAreaRadiusX); x++){
         for (int y = (yc-gridAreaRadiusY-1); y <= (yc+gridAreaRadiusY); y++){
@@ -1926,10 +1964,7 @@ void PatientData::calculateRetinaVolume(){
 
                 if ((ilm != -1) && (rpe != -1)){
                     distance = calculateDistance(QPoint(xc,yc),QPoint(x,y),deltaX,deltaY);
-                    angleR = qAtan2((y-yc)*deltaY, (x-xc)*deltaX) / PI * 180;
                     depth = rpe-ilm;
-                    if (angleR < 0)
-                        angleR += 360.0;
                     if (distance <= radius){
                         volume += depth * depthCoeff / 1000 * this->areaUnit;
                     }
@@ -1963,9 +1998,7 @@ void PatientData::calculatePreretinalVolume(){
         yc = this->bscansNumber / 2;
 
     double distance = 0.0;
-    double angleR = 0.0;
     double depth = 0.0;
-    double PI = 3.1415926535;
 
     for (int x = (xc-gridAreaRadiusX-1); x <= (xc+gridAreaRadiusX); x++){
         for (int y = (yc-gridAreaRadiusY-1); y <= (yc+gridAreaRadiusY); y++){
@@ -1975,10 +2008,7 @@ void PatientData::calculatePreretinalVolume(){
 
                 if ((ilm != -1) && (pcv != -1)){
                     distance = calculateDistance(QPoint(xc,yc),QPoint(x,y),deltaX,deltaY);
-                    angleR = qAtan2((y-yc)*deltaY, (x-xc)*deltaX) / PI * 180;
                     depth = ilm-pcv;
-                    if (angleR < 0)
-                        angleR += 360.0;
                     if (distance <= radius){
                         volume += depth * depthCoeff / 1000 * this->areaUnit;
                     }
@@ -1995,7 +2025,79 @@ double PatientData::getPreretinalVolume(){
 }
 
 void PatientData::calculateFoveaPitVolume(){
-    //
+    double volume = 0.0;
+    double radius = 1.5;
+
+    int gridAreaRadiusX = (this->bscanWidth - 1) * radius / this->voxelWidth;  // w [px]
+    int gridAreaRadiusY = (this->bscansNumber - 1) * radius / this->voxelHeight;   // w [px]
+    double deltaX = (double)(this->voxelWidth / (this->bscanWidth - 1));
+    double deltaY = (double)(this->voxelHeight / (this->bscansNumber - 1));
+
+    int xc = this->scanCenter.x();
+    int yc = this->scanCenter.y();
+
+    if (xc == -1)
+        xc = this->bscanWidth / 2;
+    if (yc == -1)
+        yc = this->bscansNumber / 2;
+
+    double distance = 0.0;
+    double depth = 0.0;
+
+    for (int y = (yc-gridAreaRadiusY-1); y <= (yc+gridAreaRadiusY); y++){
+        int x1 = 0;
+        int x2 = 0;
+        double top1 = 0.0;
+        double top2 = 0.0;
+
+        QList<int> flatDiff;
+        if (this->hasManualAnnotations())
+            flatDiff = this->getFlatDifferencesRPE(y);
+        else
+            flatDiff = this->getFlatDifferences(y);
+
+        // find left outer point x1 for line y
+        for (int x = (xc-gridAreaRadiusX-1); x <= xc; x++){
+            if ((x >= 0) && (x < this->bscanWidth - 1) && (y >= 0) && (y < this->bscansNumber - 1)){
+                distance = calculateDistance(QPoint(xc,yc),QPoint(x,y),deltaX,deltaY);
+                if (distance <= radius){
+                    x1 = x;
+                    top1 = (double)this->Bscans[y].layers[(int)ILM].getPoint(x).y();
+                    top1 -= flatDiff.at(x);
+                    break;
+                }
+            }
+        }
+        // find right outer point x2 for line y
+        for (int x = (xc+gridAreaRadiusX); x >= xc; x--){
+            if ((x >= 0) && (x < this->bscanWidth - 1) && (y >= 0) && (y < this->bscansNumber - 1)){
+                distance = calculateDistance(QPoint(xc,yc),QPoint(x,y),deltaX,deltaY);
+                if (distance <= radius){
+                    x2 = x;
+                    top2 = (double)this->Bscans[y].layers[(int)ILM].getPoint(x).y();
+                    top2 -= flatDiff.at(x);
+                    break;
+                }
+            }
+        }
+
+        if ((x1 != 0) && (x2 != 0)){
+            // calculate line between top1 and top2
+            QList<QPoint> points = computeLinePoints(QPoint(x1,top1),QPoint(x2,top2));
+
+            // calculate volume for area from x1 to x2
+            foreach (QPoint p, points) {
+                double ilm = (double)this->Bscans[y].layers[(int)ILM].getPoint(p.x()).y();
+                if (ilm != -1){
+                    ilm -= flatDiff.at(p.x());
+                    depth = ilm-p.y();
+                    volume += depth * depthCoeff / 1000 * this->areaUnit;
+                }
+            }
+        }
+    }
+
+    this->foveaPitVolume = volume;
 }
 
 double PatientData::getFoveaPitVolume(){

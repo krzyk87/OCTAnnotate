@@ -1846,46 +1846,6 @@ void OCTAnnotate::saveLayerNormal(QPoint endPoint, QString action, QPoint prevPo
     }
 }
 
-QList<QPoint> OCTAnnotate::computeLinePoints(QPoint p0, QPoint p1){
-    QList<QPoint> list;
-
-    int dx = qAbs(p1.x() - p0.x());
-    int dy = qAbs(p1.y() - p0.y());
-
-    int sx = 0;
-    int sy = 0;
-
-    if (p0.x() < p1.x())
-        sx = 1;
-    else
-        sx = -1;
-    if (p0.y() < p1.y())
-        sy = 1;
-    else
-        sy = -1;
-    int err = dx - dy;
-
-    list.append(p0);
-
-    int x = p0.x();
-    int y = p0.y();
-
-    while ((x != p1.x()) || (y != p1.y())){
-        int e2 = 2 * err;
-        if (e2 >= -dy){
-            err = err - dy;
-            x = x + sx;
-        }
-        if (e2 <= dx){
-            err = err + dx;
-            y = y + sy;
-        }
-        list.append(QPoint(x,y));
-    }
-
-    return list;
-}
-
 
 // aditional settings -----------------------------------------------------------------------------
 void OCTAnnotate::setScanCenter(){

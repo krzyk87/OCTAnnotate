@@ -1862,6 +1862,8 @@ public:
         menuInfo->addAction(actionInfo);
         toolBar->addAction(actionImageFlattening);
         toolBar->addAction(actionEditAnnotations);
+        toolBar->addAction(actionShowETDRSGrid);
+        toolBar->addAction(actionShowCenterOnBscan);
 
         retranslateUi(OCTAnnotate);
 

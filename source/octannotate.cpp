@@ -2967,28 +2967,374 @@ void OCTAnnotate::setupHistPlot(){
 
 void OCTAnnotate::setupVolumeGridPlot(){
     ui->ETDRSgridCPlot->clearItems();
+    ui->ETDRSgridCPlot->clearGraphs();
 
     ui->ETDRSgridCPlot->xAxis->setRange(-3.2,3.2);
     ui->ETDRSgridCPlot->yAxis->setRange(-3.2,3.2);
 
+    double r1 = 3.0;
+    double r2 = 1.5;
+    double r3 = 0.5;
+    double x1 = - qSqrt(2)/2 * r1;
+    double x2 = qSqrt(2)/2 * r1;
+    double x3 = - qSqrt(2)/2 * r2;
+    double x4 = qSqrt(2)/2 * r2;
+    double x5 = -qSqrt(2)/2 * r3;
+    double x6 = qSqrt(2)/2 * r3;
+    double x7 = x1;
+    double x8 = x2;
+    double x9 = x3;
+    double x10 = x4;
+    double x11 = x5;
+    double x12 = x6;
+
+    double deltaX = 6.0 / 600.0;
+    int area1PointsCount = (x2 - x1)*100;
+    int area2PointsCount = (x4 - x3)*100;
+    int area3PointsCount = (x3 + r1)*100;
+    int area4PointsCount = (x5 + r2)*100;
+
+    QPen pen;
+    pen.setBrush(QColor(255,0,0,0));
+
+    // AREA 1 --------------------------------------------- (OM_S)
+    // Line 1 (P1 -> P2)
+    QVector<double> xLine1(area1PointsCount), yLine1(area1PointsCount);
+    for (int i=0; i<area1PointsCount; i++){
+        xLine1[i] = i*deltaX + x1;
+        yLine1[i] = qSqrt(qPow(r1,2) - qPow(xLine1[i],2));
+    }
+    ui->ETDRSgridCPlot->addGraph();
+    ui->ETDRSgridCPlot->graph(0)->setData(xLine1,yLine1);
+    ui->ETDRSgridCPlot->graph(0)->setPen(pen);
+
+    // Line 2 (P1 -> P3 -> P4 -> P2)
+    QVector<double> xLine2(area1PointsCount), yLine2(area1PointsCount);
+    for (int i=0; i<area1PointsCount; i++){
+        xLine2[i] = i*deltaX + x1;
+        if (xLine2[i] <= x3){
+            yLine2[i] = qAbs(xLine2[i]);
+        } else if (xLine2[i] < x4){
+            yLine2[i] = qSqrt(qPow(r2,2) - qPow(xLine2[i],2));
+        } else if (xLine2[i] <= x2){
+            yLine2[i] = xLine2[i];
+        }
+    }
+    ui->ETDRSgridCPlot->addGraph();
+    ui->ETDRSgridCPlot->graph(1)->setData(xLine2,yLine2);
+    ui->ETDRSgridCPlot->graph(1)->setPen(pen);
+
+    // AREA 2 --------------------------------------------- (IM_S)
+    // Line 3 (P3 -> P5 -> P6 -> P4)
+    QVector<double> xLine3(area2PointsCount), yLine3(area2PointsCount);
+    for (int i=0; i<area2PointsCount; i++){
+        xLine3[i] = i*deltaX + x3;
+        if (xLine3[i] <= x5){
+            yLine3[i] = qAbs(xLine3[i]);
+        } else if (xLine3[i] < x6){
+            yLine3[i] = qSqrt(qPow(r3,2) - qPow(xLine3[i],2));
+        } else if (xLine3[i] <= x4){
+            yLine3[i] = xLine3[i];
+        }
+    }
+    ui->ETDRSgridCPlot->addGraph();
+    ui->ETDRSgridCPlot->graph(2)->setData(xLine3,yLine3);
+    ui->ETDRSgridCPlot->graph(2)->setPen(pen);
+
+    // AREA 3 --------------------------------------------- (OM_Left Upper)
+    // Line 4 (-R1 -> P1 -> P3)
+    QVector<double> xLine4(area3PointsCount), yLine4(area3PointsCount);
+    for (int i=0; i<area3PointsCount; i++){
+        xLine4[i] = i*deltaX - r1;
+        if (xLine4[i] <= x1){
+            yLine4[i] = qSqrt(qPow(r1,2) - qPow(xLine4[i],2));
+        } else {
+            yLine4[i] = qAbs(xLine4[i]);
+        }
+    }
+    ui->ETDRSgridCPlot->addGraph();
+    ui->ETDRSgridCPlot->graph(3)->setData(xLine4,yLine4);
+    ui->ETDRSgridCPlot->graph(3)->setPen(pen);
+
+    // Line 5 (-R1 -> -R2 -> P3)
+    QVector<double> xLine5(area3PointsCount), yLine5(area3PointsCount);
+    for (int i=0; i<area3PointsCount; i++){
+        xLine5[i] = i*deltaX - r1;
+        if (xLine5[i] <= -r2){
+            yLine5[i] = 0;
+        } else if (xLine5[i] <= x3){
+            yLine5[i] = qSqrt(qPow(r2,2) - qPow(xLine5[i],2));
+        }
+    }
+    ui->ETDRSgridCPlot->addGraph();
+    ui->ETDRSgridCPlot->graph(4)->setData(xLine5,yLine5);
+    ui->ETDRSgridCPlot->graph(4)->setPen(pen);
+
+    // AREA 4 --------------------------------------------- (IM_Left Upper)
+    // Line 6 (-R2 -> P3 -> P5)
+    QVector<double> xLine6(area4PointsCount), yLine6(area4PointsCount);
+    for (int i=0; i<area4PointsCount; i++){
+        xLine6[i] = i*deltaX - r2;
+        if (xLine6[i] <= x3){
+            yLine6[i] = qSqrt(qPow(r2,2) - qPow(xLine6[i],2));
+        } else {
+            yLine6[i] = qAbs(xLine6[i]);
+        }
+    }
+    ui->ETDRSgridCPlot->addGraph();
+    ui->ETDRSgridCPlot->graph(5)->setData(xLine6,yLine6);
+    ui->ETDRSgridCPlot->graph(5)->setPen(pen);
+
+    // Line 7 (-R2 -> -R3 -> P5)
+    QVector<double> xLine7(area4PointsCount), yLine7(area4PointsCount);
+    for (int i=0; i<area4PointsCount; i++){
+        xLine7[i] = i*deltaX - r2;
+        if (xLine7[i] <= -r3){
+            yLine7[i] = 0;
+        } else {
+            yLine7[i] = qSqrt(qPow(r3,2) - qPow(xLine7[i],2));
+        }
+    }
+    ui->ETDRSgridCPlot->addGraph();
+    ui->ETDRSgridCPlot->graph(6)->setData(xLine7,yLine7);
+    ui->ETDRSgridCPlot->graph(6)->setPen(pen);
+
+    // AREA 5 --------------------------------------------- (OM_Left Lower)
+    // Line 8 (-R1 -> -R2 -> P9)
+    QVector<double> xLine8(area3PointsCount), yLine8(area3PointsCount);
+    for (int i=0; i<area3PointsCount; i++){
+        xLine8[i] = i*deltaX - r1;
+        if (xLine8[i] <= -r2){
+            yLine8[i] = 0;
+        } else if (xLine8[i] <= x9){
+            yLine8[i] = - qSqrt(qPow(r2,2) - qPow(xLine8[i],2));
+        }
+    }
+    ui->ETDRSgridCPlot->addGraph();
+    ui->ETDRSgridCPlot->graph(7)->setData(xLine8,yLine8);
+    ui->ETDRSgridCPlot->graph(7)->setPen(pen);
+
+    // Line 9 (-R1 -> P7 -> P9)
+    QVector<double> xLine9(area3PointsCount), yLine9(area3PointsCount);
+    for (int i=0; i<area3PointsCount; i++){
+        xLine9[i] = i*deltaX - r1;
+        if (xLine9[i] <= x7){
+            yLine9[i] = - qSqrt(qPow(r1,2) - qPow(xLine9[i],2));
+        } else {
+            yLine9[i] = xLine9[i];
+        }
+    }
+    ui->ETDRSgridCPlot->addGraph();
+    ui->ETDRSgridCPlot->graph(8)->setData(xLine9,yLine9);
+    ui->ETDRSgridCPlot->graph(8)->setPen(pen);
+
+    // AREA 6 --------------------------------------------- (IM_Left Lower)
+    // Line 10 (-R2 -> -R3 -> P11)
+    QVector<double> xLine10(area4PointsCount), yLine10(area4PointsCount);
+    for (int i=0; i<area4PointsCount; i++){
+        xLine10[i] = i*deltaX - r2;
+        if (xLine10[i] <= -r3){
+            yLine10[i] = 0;
+        } else {
+            yLine10[i] = - qSqrt(qPow(r3,2) - qPow(xLine10[i],2));
+        }
+    }
+    ui->ETDRSgridCPlot->addGraph();
+    ui->ETDRSgridCPlot->graph(9)->setData(xLine10,yLine10);
+    ui->ETDRSgridCPlot->graph(9)->setPen(pen);
+
+    // Line 11 (-R2 -> P9 -> P11)
+    QVector<double> xLine11(area4PointsCount), yLine11(area4PointsCount);
+    for (int i=0; i<area4PointsCount; i++){
+        xLine11[i] = i*deltaX - r2;
+        if (xLine11[i] <= x9){
+            yLine11[i] = - qSqrt(qPow(r2,2) - qPow(xLine11[i],2));
+        } else {
+            yLine11[i] = xLine11[i];
+        }
+    }
+    ui->ETDRSgridCPlot->addGraph();
+    ui->ETDRSgridCPlot->graph(10)->setData(xLine11,yLine11);
+    ui->ETDRSgridCPlot->graph(10)->setPen(pen);
+
+    // AREA 7 --------------------------------------------- (OM_I)
+    // Line 12 (P7 -> P9 -> P10 -> P8)
+    QVector<double> xLine12(area1PointsCount), yLine12(area1PointsCount);
+    for (int i=0; i<area1PointsCount; i++){
+        xLine12[i] = i*deltaX + x7;
+        if (xLine12[i] <= x9){
+            yLine12[i] = xLine12[i];
+        } else if (xLine12[i] < x10){
+            yLine12[i] = - qSqrt(qPow(r2,2) - qPow(xLine12[i],2));
+        } else if (xLine12[i] <= x8){
+            yLine12[i] = - xLine12[i];
+        }
+    }
+    ui->ETDRSgridCPlot->addGraph();
+    ui->ETDRSgridCPlot->graph(11)->setData(xLine12,yLine12);
+    ui->ETDRSgridCPlot->graph(11)->setPen(pen);
+
+    // Line 13 (P7 -> P8)
+    QVector<double> xLine13(area1PointsCount), yLine13(area1PointsCount);
+    for (int i=0; i<area1PointsCount; i++){
+        xLine13[i] = i*deltaX + x1;
+        yLine13[i] = - qSqrt(qPow(r1,2) - qPow(xLine13[i],2));
+    }
+    ui->ETDRSgridCPlot->addGraph();
+    ui->ETDRSgridCPlot->graph(12)->setData(xLine13,yLine13);
+    ui->ETDRSgridCPlot->graph(12)->setPen(pen);
+
+    // AREA 8 --------------------------------------------- (IM_I)
+    // Line 14 (P9 -> P11 -> P12 -> P10)
+    QVector<double> xLine14(area2PointsCount), yLine14(area2PointsCount);
+    for (int i=0; i<area2PointsCount; i++){
+        xLine14[i] = i*deltaX + x9;
+        if (xLine14[i] <= x11){
+            yLine14[i] = xLine14[i];
+        } else if (xLine3[i] < x12){
+            yLine14[i] = - qSqrt(qPow(r3,2) - qPow(xLine14[i],2));
+        } else if (xLine3[i] <= x10){
+            yLine14[i] = - xLine14[i];
+        }
+    }
+    ui->ETDRSgridCPlot->addGraph();
+    ui->ETDRSgridCPlot->graph(13)->setData(xLine14,yLine14);
+    ui->ETDRSgridCPlot->graph(13)->setPen(pen);
+
+    // AREA 9 --------------------------------------------- (IM_Right Upper)
+    // Line 15 (P6 -> P4 -> R2)
+    QVector<double> xLine15(area4PointsCount), yLine15(area4PointsCount);
+    for (int i=0; i<area4PointsCount; i++){
+        xLine15[i] = i*deltaX + x6;
+        if (xLine15[i] <= x4){
+            yLine15[i] = xLine15[i];
+        } else {
+            yLine15[i] = qSqrt(qPow(r2,2) - qPow(xLine15[i],2));
+        }
+    }
+    ui->ETDRSgridCPlot->addGraph();
+    ui->ETDRSgridCPlot->graph(14)->setData(xLine15,yLine15);
+    ui->ETDRSgridCPlot->graph(14)->setPen(pen);
+
+    // Line 16 (P6 -> R3 -> R2)
+    QVector<double> xLine16(area4PointsCount), yLine16(area4PointsCount);
+    for (int i=0; i<area4PointsCount; i++){
+        xLine16[i] = i*deltaX + x6;
+        if (xLine16[i] <= r3){
+            yLine16[i] = qSqrt(qPow(r3,2) - qPow(xLine16[i],2));
+        } else {
+            yLine16[i] = 0;
+        }
+    }
+    ui->ETDRSgridCPlot->addGraph();
+    ui->ETDRSgridCPlot->graph(15)->setData(xLine16,yLine16);
+    ui->ETDRSgridCPlot->graph(15)->setPen(pen);
+
+    // AREA 10 -------------------------------------------- (IM_Right Lower)
+    // Line 17 (P12 -> R3 -> R2)
+    QVector<double> xLine17(area4PointsCount), yLine17(area4PointsCount);
+    for (int i=0; i<area4PointsCount; i++){
+        xLine17[i] = i*deltaX + x12;
+        if (xLine17[i] <= r3){
+            yLine17[i] = - qSqrt(qPow(r3,2) - qPow(xLine17[i],2));
+        } else {
+            yLine17[i] = 0;
+        }
+    }
+    ui->ETDRSgridCPlot->addGraph();
+    ui->ETDRSgridCPlot->graph(16)->setData(xLine17,yLine17);
+    ui->ETDRSgridCPlot->graph(16)->setPen(pen);
+
+    // Line 18 (P12 -> P10 -> R2)
+    QVector<double> xLine18(area4PointsCount), yLine18(area4PointsCount);
+    for (int i=0; i<area4PointsCount; i++){
+        xLine18[i] = i*deltaX + x12;
+        if (xLine18[i] <= x10){
+            yLine18[i] = - xLine18[i];
+        } else {
+            yLine18[i] = - qSqrt(qPow(r2,2) - qPow(xLine18[i],2));
+        }
+    }
+    ui->ETDRSgridCPlot->addGraph();
+    ui->ETDRSgridCPlot->graph(17)->setData(xLine18,yLine18);
+    ui->ETDRSgridCPlot->graph(17)->setPen(pen);
+
+    // AREA 11 --------------------------------------------- (OM_Right Upper)
+    // Line 19 (P4 -> P2 -> R1)
+    QVector<double> xLine19(area3PointsCount), yLine19(area3PointsCount);
+    for (int i=0; i<area3PointsCount; i++){
+        xLine19[i] = i*deltaX + x4;
+        if (xLine19[i] <= x2){
+            yLine19[i] = xLine19[i];
+        } else {
+            yLine19[i] = qSqrt(qPow(r1,2) - qPow(xLine19[i],2));
+        }
+    }
+    ui->ETDRSgridCPlot->addGraph();
+    ui->ETDRSgridCPlot->graph(18)->setData(xLine19,yLine19);
+    ui->ETDRSgridCPlot->graph(18)->setPen(pen);
+
+    // Line 20 (P4 -> R2 -> R1)
+    QVector<double> xLine20(area3PointsCount), yLine20(area3PointsCount);
+    for (int i=0; i<area3PointsCount; i++){
+        xLine20[i] = i*deltaX + x4;
+        if (xLine20[i] <= r2){
+            yLine20[i] = qSqrt(qPow(r2,2) - qPow(xLine20[i],2));
+        } else if (xLine20[i] <= x3){
+            yLine20[i] = 0;
+        }
+    }
+    ui->ETDRSgridCPlot->addGraph();
+    ui->ETDRSgridCPlot->graph(19)->setData(xLine20,yLine20);
+    ui->ETDRSgridCPlot->graph(19)->setPen(pen);
+
+    // AREA 12 --------------------------------------------- (OM_Right Lower)
+    // Line 21 (P10 -> R2 -> R1)
+    QVector<double> xLine21(area3PointsCount), yLine21(area3PointsCount);
+    for (int i=0; i<area3PointsCount; i++){
+        xLine21[i] = i*deltaX + x10;
+        if (xLine21[i] <= r2){
+            yLine21[i] = - qSqrt(qPow(r2,2) - qPow(xLine21[i],2));
+        } else {
+            yLine21[i] = 0;
+        }
+    }
+    ui->ETDRSgridCPlot->addGraph();
+    ui->ETDRSgridCPlot->graph(20)->setData(xLine21,yLine21);
+    ui->ETDRSgridCPlot->graph(20)->setPen(pen);
+
+    // Line 22 (P10 -> P8 -> R1)
+    QVector<double> xLine22(area3PointsCount), yLine22(area3PointsCount);
+    for (int i=0; i<area3PointsCount; i++){
+        xLine22[i] = i*deltaX + x10;
+        if (xLine22[i] <= x8){
+            yLine22[i] = - xLine22[i];
+        } else {
+            yLine22[i] = - qSqrt(qPow(r1,2) - qPow(xLine22[i],2));
+        }
+    }
+    ui->ETDRSgridCPlot->addGraph();
+    ui->ETDRSgridCPlot->graph(21)->setData(xLine22,yLine22);
+    ui->ETDRSgridCPlot->graph(21)->setPen(pen);
+
     // draw CF circle
     QCPItemEllipse *ellipseCF = new QCPItemEllipse(ui->ETDRSgridCPlot);
     ui->ETDRSgridCPlot->addItem(ellipseCF);
-    ellipseCF->setPen(QPen(Qt::black,3.0));
+    ellipseCF->setPen(QPen(Qt::black,2.0));
     double radius = 1.0/2.0;
     ellipseCF->topLeft->setCoords(-radius, radius);
     ellipseCF->bottomRight->setCoords(radius, -radius);
     // draw IM circle
     QCPItemEllipse *ellipseIM = new QCPItemEllipse(ui->ETDRSgridCPlot);
     ui->ETDRSgridCPlot->addItem(ellipseIM);
-    ellipseIM->setPen(QPen(Qt::black,3.0));
+    ellipseIM->setPen(QPen(Qt::black,2.0));
     radius = 3.0/2.0;
     ellipseIM->topLeft->setCoords(-radius, radius);
     ellipseIM->bottomRight->setCoords(radius, -radius);
     // draw OM circle
     QCPItemEllipse *ellipseOM = new QCPItemEllipse(ui->ETDRSgridCPlot);
     ui->ETDRSgridCPlot->addItem(ellipseOM);
-    ellipseOM->setPen(QPen(Qt::black,3.0));
+    ellipseOM->setPen(QPen(Qt::black,2.0));
     radius = 6.0/2.0;
     ellipseOM->topLeft->setCoords(-radius, radius);
     ellipseOM->bottomRight->setCoords(radius, -radius);
@@ -3001,10 +3347,10 @@ void OCTAnnotate::setupVolumeGridPlot(){
     ui->ETDRSgridCPlot->addItem(line2);
     ui->ETDRSgridCPlot->addItem(line3);
     ui->ETDRSgridCPlot->addItem(line4);
-    line1->setPen(QPen(Qt::black,3.0));
-    line2->setPen(QPen(Qt::black,3.0));
-    line3->setPen(QPen(Qt::black,3.0));
-    line4->setPen(QPen(Qt::black,3.0));
+    line1->setPen(QPen(Qt::black,2.0));
+    line2->setPen(QPen(Qt::black,2.0));
+    line3->setPen(QPen(Qt::black,2.0));
+    line4->setPen(QPen(Qt::black,2.0));
     double alfa = 2 * 3.1415926535 * 45 / 360.0;
     line1->start->setCoords(qCos(alfa)*0.5,qSin(alfa)*0.5);
     line1->end->setCoords(qCos(alfa)*3.0,qSin(alfa)*3.0);
@@ -3455,6 +3801,51 @@ void OCTAnnotate::displayVolumes(){
         labelRight->position->setCoords(2.5,-2.8);
         labelLeft->setFont(QFont(font().family(), 12));
         labelRight->setFont(QFont(font().family(), 12));
+
+        // fills
+        double volOuter = 1.0;
+        double volInner = 0.4;
+        int alfa1 = qBound(0,(int)(volumes[7]/volOuter*50),255);
+        int alfa2 = qBound(0,(int)(volumes[3]/volInner*50),255);
+        int alfa3 = qBound(0,(int)(volumes[6]/volOuter*50),255);
+        int alfa4 = qBound(0,(int)(volumes[2]/volInner*50),255);
+        int alfa5 = qBound(0,(int)(volumes[5]/volOuter*50),255);
+        int alfa6 = qBound(0,(int)(volumes[1]/volInner*50),255);
+        int alfa7 = qBound(0,(int)(volumes[4]/volInner*50),255);
+        int alfa8 = qBound(0,(int)(volumes[8]/volOuter*50),255);
+
+        ui->ETDRSgridCPlot->graph(0)->setBrush(QColor(255,0,0,alfa1)); // AREA 1 (OM_S)
+        ui->ETDRSgridCPlot->graph(0)->setChannelFillGraph(ui->ETDRSgridCPlot->graph(1));
+
+        ui->ETDRSgridCPlot->graph(1)->setBrush(QColor(255,0,0,alfa2)); // AREA 2 (IM_S)
+        ui->ETDRSgridCPlot->graph(1)->setChannelFillGraph(ui->ETDRSgridCPlot->graph(2));
+
+        ui->ETDRSgridCPlot->graph(3)->setBrush(QColor(255,0,0,alfa3)); // AREA 3 (OM_Left)
+        ui->ETDRSgridCPlot->graph(3)->setChannelFillGraph(ui->ETDRSgridCPlot->graph(4));
+        ui->ETDRSgridCPlot->graph(7)->setBrush(QColor(255,0,0,alfa3));
+        ui->ETDRSgridCPlot->graph(7)->setChannelFillGraph(ui->ETDRSgridCPlot->graph(8));
+
+        ui->ETDRSgridCPlot->graph(5)->setBrush(QColor(255,0,0,alfa4)); // AREA 4 (IM_Left)
+        ui->ETDRSgridCPlot->graph(5)->setChannelFillGraph(ui->ETDRSgridCPlot->graph(6));
+        ui->ETDRSgridCPlot->graph(9)->setBrush(QColor(255,0,0,alfa4));
+        ui->ETDRSgridCPlot->graph(9)->setChannelFillGraph(ui->ETDRSgridCPlot->graph(10));
+
+        ui->ETDRSgridCPlot->graph(11)->setBrush(QColor(255,0,0,alfa5)); // AREA 5 (OM_I)
+        ui->ETDRSgridCPlot->graph(11)->setChannelFillGraph(ui->ETDRSgridCPlot->graph(12));
+
+        ui->ETDRSgridCPlot->graph(13)->setBrush(QColor(255,0,0,alfa6)); // AREA 6 (IM_I)
+        ui->ETDRSgridCPlot->graph(13)->setChannelFillGraph(ui->ETDRSgridCPlot->graph(11));
+
+        ui->ETDRSgridCPlot->graph(14)->setBrush(QColor(255,0,0,alfa7)); // AREA 7 (IM_Right)
+        ui->ETDRSgridCPlot->graph(14)->setChannelFillGraph(ui->ETDRSgridCPlot->graph(15));
+        ui->ETDRSgridCPlot->graph(16)->setBrush(QColor(255,0,0,alfa7));
+        ui->ETDRSgridCPlot->graph(16)->setChannelFillGraph(ui->ETDRSgridCPlot->graph(17));
+
+        ui->ETDRSgridCPlot->graph(18)->setBrush(QColor(255,0,0,alfa8)); // AREA 8 (OM_Right)
+        ui->ETDRSgridCPlot->graph(18)->setChannelFillGraph(ui->ETDRSgridCPlot->graph(19));
+        ui->ETDRSgridCPlot->graph(20)->setBrush(QColor(255,0,0,alfa8));
+        ui->ETDRSgridCPlot->graph(20)->setChannelFillGraph(ui->ETDRSgridCPlot->graph(21));
+
 
         if (patientData.getEye() == 1){    // right eye
             labelLeft->setText("T <-");

@@ -37,6 +37,7 @@ private slots:
     void on_nextNormalImageButton_clicked();
     void on_prevNormalImageButton_clicked();
     void on_currImageNumberLEdit_returnPressed();
+    void on_currNormalImageNumberLEdit_returnPressed();
     void on_currImageNumberLayersLEdit_returnPressed();
     void on_contrastSlider_valueChanged(int value);
     void on_brightnessSlider_valueChanged(int value);
@@ -146,9 +147,6 @@ private slots:
 
     void on_batchProcessingButton_clicked();
 
-    void on_currNormalImageNumberLEdit_returnPressed();
-
-
 
 public slots:
     void on_errorOccured(QString);
@@ -202,16 +200,16 @@ private:
 
 // draw Virtual map
     void setupVirtualMapPlot(QCustomPlot *customPlot);
+    void setupVirtualMapContourPlot();
     void setupImageLayersPlot();
     void setupBScanPlots();
     void setupCircProfilePlot();
-    void setupHistPlot();
     void setupVolumeGridPlot();
     void resetImageLayersLabels();
     void displayVirtualMap(QCustomPlot *customPlot, bool isAuto = false);
+    void displayVirtualMapContours();
     void displayImageLayersPlot(int bscanNumber);
     void displayCircProfile();
-    void displayHistogram();
     void displayVolumes();
 
     void saveErrorToFile();
@@ -295,8 +293,6 @@ private:
 
     QList<double> thresholds;
     double contactThreshold;
-
-    QCPBars *histBars;
 
     QString appVersion;
     QProgressBar *progressBar;

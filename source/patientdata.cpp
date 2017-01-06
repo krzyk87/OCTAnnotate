@@ -927,12 +927,6 @@ PatientData::PatientData()
         this->circProfileOM.append(0);
     }
 
-    int histBars = 8;
-    this->virtualMapHistogram.reserve(histBars);
-    for (int i=0; i < histBars; i++){
-        this->virtualMapHistogram.append(0);
-    }
-
     int gridAreas = 10;
     this->volumeGrid.reserve(gridAreas);
     for (int i=0; i < gridAreas; i++){
@@ -1102,6 +1096,7 @@ void PatientData::resetManualAnnotations(){
 
     this->resetVirtualMap();
     this->resetVirtualMapError();
+    this->resetVirtualMapContours();
 }
 
 bool PatientData::hasManualAnnotations(){
@@ -1121,7 +1116,7 @@ void PatientData::resetAutoAnnotations(){
     this->autoAnnotations = false;
 
     // clear virtual map memory
-    this->resetVirtualMap();
+//    this->resetVirtualMap();
     this->resetVirtualMapAuto();
     this->resetVirtualMapError();
 }
@@ -1434,6 +1429,19 @@ void PatientData::resetVirtualMapError(){
     this->virtualMapErrorDev = 0;
 }
 
+void PatientData::resetVirtualMapContours()
+{
+    this->contours.clear();
+
+    Contour c;
+    c.height = 100;
+    c.t = QVector<double>();
+    c.keys = QVector<double>();
+    c.values = QVector<double>();
+
+    this->contours.append(c);
+}
+
 void PatientData::computeVirtualMap(Layers layer1, Layers layer2){
 
     this->resetVirtualMap();
@@ -1460,6 +1468,9 @@ void PatientData::computeVirtualMap(Layers layer1, Layers layer2){
         this->virtualMap.insert(i, row);
     }
 
+    this->resetVirtualMapContours();
+//    computeVirtualMapContours();
+
     // calculate layers contact area
     calculateContactArea(1.0);
     calculateContactArea(3.0);
@@ -1470,15 +1481,8 @@ void PatientData::computeVirtualMap(Layers layer1, Layers layer2){
     calculateCircProfile(3.0);
     calculateCircProfile(6.0);
 
-    // calculate histogram values
-    calculateVirtualMapHistogram();
-
     // calculate volume in ETDRS grid
     calculateVolumeGrid();
-
-    // calculate retina depth
-    calculateRetinaDepth();
-    calculateRetinaVolume();
     calculatePreretinalVolume();
     calculateFoveaPitVolume();
 }
@@ -1510,7 +1514,143 @@ void PatientData::computeVirtualMapAuto(Layers layer1, Layers layer2){
     }
 }
 
-int PatientData::getVirtualMapValue(int x, int y, QString unit){
+void PatientData::computeVirtualMapContours()
+{
+    int contourID = 0;
+    foreach (Contour c, this->contours) {
+
+        QVector<double> t;
+        QVector<double> keys;
+        QVector<double> values;
+        checkList = QVector<bool>(this->bscanWidth*this->bscansNumber);
+        checkList.fill(false);
+
+        double i=0;
+
+        int firstPointIndex = findContourPoint(c.height);
+        QVector<QVector<double> > arrays = findContourLine(firstPointIndex);
+        t = arrays.at(0);
+        keys = arrays.at(1);
+        values = arrays.at(2);
+
+//        for (int x=0; x < this->bscanWidth-1; x++){
+//            for (int y=0; y < this->bscansNumber-1; y++){
+//                double vmValue = this->getVirtualMapValue(x,y,"um");
+//                if (vmValue >= 0){
+//                    double vmValueX = this->getVirtualMapValue(x+1,y,"um");
+//                    double vmValueY = this->getVirtualMapValue(x,y+1,"um");
+//                    bool isContourPoint = false;
+//                    if (vmValue < c.height){
+//                        if ((vmValueX > c.height) || (vmValueY > c.height))
+//                            isContourPoint = true;
+//                    }
+//                    if (vmValue > c.height){
+//                        if (((vmValueX < c.height) && (vmValueX > 0)) || ((vmValueY < c.height) && (vmValueY > 0)))
+//                            isContourPoint = true;
+//                    }
+//                    if (isContourPoint){
+//                        t.append(i);
+//                        keys.append(x);
+//                        values.append(y);
+//                        i++;
+//                    }
+//                }
+//            }
+//        }
+        c.t = t;
+        c.keys = keys;
+        c.values = values;
+
+        this->contours[contourID] = c;
+        contourID++;
+    }
+}
+
+int PatientData::findContourPoint(double height){
+    int index = 0;
+    while (index < (this->bscanWidth * this->bscansNumber)){
+        int x = index % this->bscanWidth;
+        int y = index / this->bscanWidth;
+
+        if (!checkList[index]){
+            double vmValue = this->getVirtualMapValue(x,y,"um");
+            if (vmValue >= 0){
+                bool isContourPoint = false;
+                double vmValueX = -1;
+                double vmValueY = -1;
+
+                if (x < this->bscanWidth-1)
+                    vmValueX = this->getVirtualMapValue(x+1,y,"um");
+                if (y < this->bscanHeight-1)
+                    vmValueY = this->getVirtualMapValue(x,y+1,"um");
+
+                if (vmValue < height){
+                    if ((vmValueX > height) || (vmValueY > height))
+                        isContourPoint = true;
+                }
+                if (vmValue > height){
+                    if (((vmValueX < height) && (vmValueX > 0)) || ((vmValueY < height) && (vmValueY > 0)))
+                        isContourPoint = true;
+                }
+
+                if (isContourPoint){
+                    checkList[index] = true;
+                    break;
+                }
+            }
+            checkList[index] = true;
+        }
+        index++;
+    }
+
+    return index;
+}
+
+QVector<QVector<double> > PatientData::findContourLine(int startPoint)
+{
+    QVector<QVector<double> > arrays;
+    QVector<double> t;
+    QVector<double> keys;
+    QVector<double> values;
+
+    int x = startPoint % this->bscanWidth;
+    int y = startPoint / this->bscanWidth;
+    int i = 0;
+
+    t.append(i);
+    keys.append(x);
+    values.append(y);
+    i++;
+
+    bool lineEnd = false;
+    while (!lineEnd){
+        double vmValue = this->getVirtualMapValue(x,y,"um");
+        double vmTemp = -1;
+
+        // 1. check current slop state (vertical and horizontal)
+            // if nowhere to go then end loop
+        // 2. decide in which direction to go
+        // 3. add new point to the list
+        // 4. update coordinates and move on
+
+        if (x < this->bscanWidth-1){
+            vmTemp = this->getVirtualMapValue(x+1,y,"um");  // move right
+
+        }
+
+        // code here...
+
+        lineEnd = true;
+    }
+
+    arrays.append(t);
+    arrays.append(keys);
+    arrays.append(values);
+
+    return arrays;
+}
+
+double PatientData::getVirtualMapValue(int x, int y, QString unit){
     int value = this->virtualMap.value(y)[x];
 
     if (unit != ""){
@@ -1519,13 +1659,28 @@ int PatientData::getVirtualMapValue(int x, int y, QString unit){
     return value;
 }
 
-int PatientData::getVirtualMapAutoValue(int x, int y, QString unit){
+double PatientData::getVirtualMapAutoValue(int x, int y, QString unit){
     int value = this->virtualMapAuto.value(y)[x];
 
     if (unit != ""){
         value = value * depthCoeff;
     }
     return value;
+}
+
+QVector<double> PatientData::getContourTData(int contourID)
+{
+    return this->contours.at(contourID).t;
+}
+
+QVector<double> PatientData::getContourXData(int contourID)
+{
+    return this->contours.at(contourID).keys;
+}
+
+QVector<double> PatientData::getContourYData(int contourID)
+{
+    return this->contours.at(contourID).values;
 }
 
 void PatientData::computeVirtualMapError(){
@@ -1801,45 +1956,6 @@ QList<double> PatientData::getCircProfileOM(){
     return this->circProfileOM;
 }
 
-void PatientData::calculateVirtualMapHistogram(){
-    QList<double> hist;
-    for (int i=0; i < 8; i++){
-        hist.append(0);
-    }
-
-    for (int bs=0; bs < this->bscansNumber; bs++){
-        for (int px=0; px < this->bscanWidth; px++){
-            double p = this->virtualMap.value(bs)[px];
-            if (p != -1){
-                p = p * depthCoeff;
-                if ((p >= 0) && (p <= 100)){
-                    hist[0] = hist.at(0) + 1;
-                } else if ((p > 100) && (p <= 200)){
-                    hist[1] = hist.at(1) + 1;
-                } else if ((p > 200) && (p <= 300)){
-                    hist[2] = hist.at(2) + 1;
-                } else if ((p > 300) && (p <= 400)){
-                    hist[3] = hist.at(3) + 1;
-                } else if ((p > 400) && (p <= 500)){
-                    hist[4] = hist.at(4) + 1;
-                } else if ((p > 500) && (p <= 600)){
-                    hist[5] = hist.at(5) + 1;
-                } else if ((p > 600) && (p <= 700)){
-                    hist[6] = hist.at(6) + 1;
-                } else if (p > 700){
-                    hist[7] = hist.at(7) + 1;
-                }
-            }
-        }
-    }
-
-    this->virtualMapHistogram = hist;
-}
-
-QList<double> PatientData::getVirtualMapHistogram(){
-    return this->virtualMapHistogram;
-}
-
 void PatientData::calculateVolumeGrid(){
     QList<double> volumeValues;
     for (int i=0; i < 10; i++){
@@ -1910,6 +2026,58 @@ void PatientData::calculateVolumeGrid(){
 
 QList<double> PatientData::getVolumeGrid(){
     return this->volumeGrid;
+}
+
+void PatientData::resetRetinaThicknessMap()
+{
+    // clear virtual map memory
+    this->retinaThicknessMap.clear();
+
+    // create empty virtual map matrix
+    QList<int> row;
+    row.reserve(this->bscanWidth);
+    for (int i=0; i < this->bscanWidth; i++){
+        row.append(-1);
+    }
+    for (int j=0; j < this->bscansNumber; j++){
+        this->retinaThicknessMap.insert(j, row);
+    }
+}
+
+void PatientData::computeRetinaThicknessMap()
+{
+    this->resetRetinaThicknessMap();
+
+    // calculate distances
+    for (int i=0; i < this->bscansNumber; i++){
+        QList<int> row = this->retinaThicknessMap.value(i);
+
+        for (int j=0; j < this->bscanWidth; j++){
+            int layerTop = this->Bscans[i].layers[(int)ILM].getPoint(j).y();
+            int layerBottom = this->Bscans[i].layers[(int)CHR].getPoint(j).y();
+            if ((layerTop != -1) && (layerBottom != -1)){
+                row[j] = layerBottom - layerTop; // reversed coordinate system
+                if (row[j] < 0)
+                    row[j] = 0;
+            }
+
+        }
+        this->retinaThicknessMap.insert(i, row);
+    }
+
+    // calculate retina depth
+    calculateRetinaDepth();
+    calculateRetinaVolume();
+}
+
+double PatientData::getRetinaThicknessMapValue(int x, int y, QString unit)
+{
+    int value = this->retinaThicknessMap.value(y)[x];
+
+    if (unit != ""){
+        value = value * depthCoeff;
+    }
+    return value;
 }
 
 void PatientData::calculateRetinaDepth(){
@@ -2148,6 +2316,7 @@ void PatientData::resetBscansData(){
     this->resetVirtualMap();
     this->resetVirtualMapAuto();
     this->resetVirtualMapError();
+    this->resetVirtualMapContours();
 
     // clear image flattening memory
     this->resetFlatDifferences();

@@ -54,7 +54,7 @@ public:
     QAction *actionFillFromILM;
     QAction *actionFillStraight;
     QAction *actionReadAutoSegmentation;
-    QAction *actionCloseAutoSegmentation;
+    QAction *actionClose_auto_segmentation;
     QAction *actionSetAutoSegmentationAsManual;
     QAction *actionShowETDRSGrid;
     QAction *actionSettings;
@@ -235,48 +235,56 @@ public:
     QPushButton *plotLayersButton;
     QWidget *tabVirtualMap;
     QHBoxLayout *horizontalLayout_18;
-    QVBoxLayout *verticalLayout_10;
-    QHBoxLayout *horizontalLayout_4;
     QVBoxLayout *verticalLayout_8;
     QPushButton *computeVirtualMapButton;
     QGroupBox *groupBox;
+    QFormLayout *formLayout;
     QLabel *label_39;
-    QLabel *label_40;
     QComboBox *layer1CBox;
+    QLabel *label_40;
     QComboBox *layer2CBox;
-    QGroupBox *groupBox_2;
-    QLabel *label_16;
-    QLabel *label_29;
-    QLabel *label_34;
-    QLineEdit *contactAreaCFLEdit;
-    QLineEdit *contactAreaIMLEdit;
-    QLineEdit *contactAreaOMLEdit;
-    QLabel *label_43;
-    QComboBox *contactThresholdCBox;
-    QLabel *contactAreaProcCFLabel;
-    QLabel *contactAreaProcIMLabel;
-    QLabel *contactAreaProcOMLabel;
     QGroupBox *groupBox_4;
+    QFormLayout *formLayout_2;
     QLabel *label_28;
     QLineEdit *retinaDepthLEdit;
     QLabel *label_3;
     QLineEdit *retinaVolumeLEdit;
     QLabel *label_4;
     QLineEdit *preretinalVolumeLEdit;
-    QLineEdit *foveaPitVolumeLEdit;
     QLabel *label_5;
-    QCustomPlot *virtualMapCircProfileCPlot;
-    QLabel *label_44;
-    QHBoxLayout *horizontalLayout_10;
-    QCustomPlot *virtualMapHistCPlot;
+    QLineEdit *foveaPitVolumeLEdit;
+    QGroupBox *groupBox_2;
+    QGridLayout *gridLayout;
+    QLabel *label_43;
+    QComboBox *contactThresholdCBox;
+    QLabel *label_16;
+    QLineEdit *contactAreaCFLEdit;
+    QLabel *contactAreaProcCFLabel;
+    QLabel *label_29;
+    QLineEdit *contactAreaIMLEdit;
+    QLabel *contactAreaProcIMLabel;
+    QLabel *label_34;
+    QLineEdit *contactAreaOMLEdit;
+    QLabel *contactAreaProcOMLabel;
+    QLabel *label_46;
     QCustomPlot *ETDRSgridCPlot;
+    QVBoxLayout *verticalLayout_16;
+    QHBoxLayout *horizontalLayout_4;
     QVBoxLayout *verticalLayout_9;
     QLabel *label_41;
     QCustomPlot *virtualMapImageCPlot;
     QHBoxLayout *horizontalLayout_5;
     QLabel *label;
     QLabel *virtualMapValueHoverLabel;
-    QSpacerItem *verticalSpacer_3;
+    QVBoxLayout *verticalLayout_10;
+    QLabel *label_45;
+    QCustomPlot *virtualMapContourImageCPlot;
+    QHBoxLayout *horizontalLayout_10;
+    QLabel *label_6;
+    QLabel *retinaThicknessMapHoverValueLabel;
+    QVBoxLayout *verticalLayout_15;
+    QCustomPlot *virtualMapCircProfileCPlot;
+    QLabel *label_44;
     QWidget *tabErrorAnalysis;
     QVBoxLayout *verticalLayout_14;
     QFormLayout *formLayout_6;
@@ -379,8 +387,8 @@ public:
         actionFillStraight->setEnabled(false);
         actionReadAutoSegmentation = new QAction(OCTAnnotate);
         actionReadAutoSegmentation->setObjectName(QStringLiteral("actionReadAutoSegmentation"));
-        actionCloseAutoSegmentation = new QAction(OCTAnnotate);
-        actionCloseAutoSegmentation->setObjectName(QStringLiteral("actionCloseAutoSegmentation"));
+        actionClose_auto_segmentation = new QAction(OCTAnnotate);
+        actionClose_auto_segmentation->setObjectName(QStringLiteral("actionClose_auto_segmentation"));
         actionSetAutoSegmentationAsManual = new QAction(OCTAnnotate);
         actionSetAutoSegmentationAsManual->setObjectName(QStringLiteral("actionSetAutoSegmentationAsManual"));
         actionShowETDRSGrid = new QAction(OCTAnnotate);
@@ -664,7 +672,7 @@ public:
 
         label_36 = new QLabel(groupBox_5);
         label_36->setObjectName(QStringLiteral("label_36"));
-        label_36->setMinimumSize(QSize(44, 0));
+        label_36->setMinimumSize(QSize(50, 0));
         label_36->setMaximumSize(QSize(50, 16777215));
 
         gridLayout_3->addWidget(label_36, 4, 0, 1, 1);
@@ -935,6 +943,7 @@ public:
         horizontalLayout_9->setObjectName(QStringLiteral("horizontalLayout_9"));
         prevNormalImageButton = new QPushButton(tabOCTExam);
         prevNormalImageButton->setObjectName(QStringLiteral("prevNormalImageButton"));
+        prevNormalImageButton->setEnabled(false);
         prevNormalImageButton->setMinimumSize(QSize(100, 0));
 
         horizontalLayout_9->addWidget(prevNormalImageButton);
@@ -957,6 +966,7 @@ public:
 
         nextNormalImageButton = new QPushButton(tabOCTExam);
         nextNormalImageButton->setObjectName(QStringLiteral("nextNormalImageButton"));
+        nextNormalImageButton->setEnabled(false);
         nextNormalImageButton->setMinimumSize(QSize(100, 0));
 
         horizontalLayout_9->addWidget(nextNormalImageButton);
@@ -1343,175 +1353,215 @@ public:
         horizontalLayout_18->setSpacing(6);
         horizontalLayout_18->setContentsMargins(11, 11, 11, 11);
         horizontalLayout_18->setObjectName(QStringLiteral("horizontalLayout_18"));
-        verticalLayout_10 = new QVBoxLayout();
-        verticalLayout_10->setSpacing(6);
-        verticalLayout_10->setObjectName(QStringLiteral("verticalLayout_10"));
-        horizontalLayout_4 = new QHBoxLayout();
-        horizontalLayout_4->setSpacing(6);
-        horizontalLayout_4->setObjectName(QStringLiteral("horizontalLayout_4"));
         verticalLayout_8 = new QVBoxLayout();
         verticalLayout_8->setSpacing(6);
         verticalLayout_8->setObjectName(QStringLiteral("verticalLayout_8"));
         computeVirtualMapButton = new QPushButton(tabVirtualMap);
         computeVirtualMapButton->setObjectName(QStringLiteral("computeVirtualMapButton"));
         computeVirtualMapButton->setEnabled(false);
-        sizePolicy6.setHeightForWidth(computeVirtualMapButton->sizePolicy().hasHeightForWidth());
-        computeVirtualMapButton->setSizePolicy(sizePolicy6);
+        QSizePolicy sizePolicy7(QSizePolicy::Expanding, QSizePolicy::Fixed);
+        sizePolicy7.setHorizontalStretch(0);
+        sizePolicy7.setVerticalStretch(0);
+        sizePolicy7.setHeightForWidth(computeVirtualMapButton->sizePolicy().hasHeightForWidth());
+        computeVirtualMapButton->setSizePolicy(sizePolicy7);
         computeVirtualMapButton->setMinimumSize(QSize(201, 31));
+        computeVirtualMapButton->setMaximumSize(QSize(300, 16777215));
 
         verticalLayout_8->addWidget(computeVirtualMapButton);
 
         groupBox = new QGroupBox(tabVirtualMap);
         groupBox->setObjectName(QStringLiteral("groupBox"));
-        sizePolicy6.setHeightForWidth(groupBox->sizePolicy().hasHeightForWidth());
-        groupBox->setSizePolicy(sizePolicy6);
+        sizePolicy7.setHeightForWidth(groupBox->sizePolicy().hasHeightForWidth());
+        groupBox->setSizePolicy(sizePolicy7);
         groupBox->setMinimumSize(QSize(201, 81));
+        groupBox->setMaximumSize(QSize(300, 16777215));
+        formLayout = new QFormLayout(groupBox);
+        formLayout->setSpacing(6);
+        formLayout->setContentsMargins(11, 11, 11, 11);
+        formLayout->setObjectName(QStringLiteral("formLayout"));
         label_39 = new QLabel(groupBox);
         label_39->setObjectName(QStringLiteral("label_39"));
-        label_39->setGeometry(QRect(10, 20, 71, 21));
-        label_40 = new QLabel(groupBox);
-        label_40->setObjectName(QStringLiteral("label_40"));
-        label_40->setGeometry(QRect(10, 50, 71, 21));
+
+        formLayout->setWidget(0, QFormLayout::LabelRole, label_39);
+
         layer1CBox = new QComboBox(groupBox);
         layer1CBox->setObjectName(QStringLiteral("layer1CBox"));
-        layer1CBox->setGeometry(QRect(80, 20, 101, 22));
+
+        formLayout->setWidget(0, QFormLayout::FieldRole, layer1CBox);
+
+        label_40 = new QLabel(groupBox);
+        label_40->setObjectName(QStringLiteral("label_40"));
+
+        formLayout->setWidget(1, QFormLayout::LabelRole, label_40);
+
         layer2CBox = new QComboBox(groupBox);
         layer2CBox->setObjectName(QStringLiteral("layer2CBox"));
-        layer2CBox->setGeometry(QRect(80, 50, 101, 22));
+
+        formLayout->setWidget(1, QFormLayout::FieldRole, layer2CBox);
+
 
         verticalLayout_8->addWidget(groupBox);
-
-
-        horizontalLayout_4->addLayout(verticalLayout_8);
-
-        groupBox_2 = new QGroupBox(tabVirtualMap);
-        groupBox_2->setObjectName(QStringLiteral("groupBox_2"));
-        sizePolicy6.setHeightForWidth(groupBox_2->sizePolicy().hasHeightForWidth());
-        groupBox_2->setSizePolicy(sizePolicy6);
-        groupBox_2->setMinimumSize(QSize(221, 121));
-        label_16 = new QLabel(groupBox_2);
-        label_16->setObjectName(QStringLiteral("label_16"));
-        label_16->setGeometry(QRect(10, 50, 61, 16));
-        label_29 = new QLabel(groupBox_2);
-        label_29->setObjectName(QStringLiteral("label_29"));
-        label_29->setGeometry(QRect(10, 70, 61, 16));
-        label_34 = new QLabel(groupBox_2);
-        label_34->setObjectName(QStringLiteral("label_34"));
-        label_34->setGeometry(QRect(10, 90, 61, 16));
-        contactAreaCFLEdit = new QLineEdit(groupBox_2);
-        contactAreaCFLEdit->setObjectName(QStringLiteral("contactAreaCFLEdit"));
-        contactAreaCFLEdit->setGeometry(QRect(80, 50, 91, 20));
-        contactAreaCFLEdit->setReadOnly(true);
-        contactAreaIMLEdit = new QLineEdit(groupBox_2);
-        contactAreaIMLEdit->setObjectName(QStringLiteral("contactAreaIMLEdit"));
-        contactAreaIMLEdit->setGeometry(QRect(80, 70, 91, 20));
-        contactAreaIMLEdit->setReadOnly(true);
-        contactAreaOMLEdit = new QLineEdit(groupBox_2);
-        contactAreaOMLEdit->setObjectName(QStringLiteral("contactAreaOMLEdit"));
-        contactAreaOMLEdit->setGeometry(QRect(80, 90, 91, 20));
-        contactAreaOMLEdit->setReadOnly(true);
-        label_43 = new QLabel(groupBox_2);
-        label_43->setObjectName(QStringLiteral("label_43"));
-        label_43->setGeometry(QRect(10, 20, 46, 16));
-        contactThresholdCBox = new QComboBox(groupBox_2);
-        contactThresholdCBox->setObjectName(QStringLiteral("contactThresholdCBox"));
-        contactThresholdCBox->setGeometry(QRect(80, 20, 91, 22));
-        contactAreaProcCFLabel = new QLabel(groupBox_2);
-        contactAreaProcCFLabel->setObjectName(QStringLiteral("contactAreaProcCFLabel"));
-        contactAreaProcCFLabel->setGeometry(QRect(180, 50, 41, 21));
-        contactAreaProcIMLabel = new QLabel(groupBox_2);
-        contactAreaProcIMLabel->setObjectName(QStringLiteral("contactAreaProcIMLabel"));
-        contactAreaProcIMLabel->setGeometry(QRect(180, 70, 41, 21));
-        contactAreaProcOMLabel = new QLabel(groupBox_2);
-        contactAreaProcOMLabel->setObjectName(QStringLiteral("contactAreaProcOMLabel"));
-        contactAreaProcOMLabel->setGeometry(QRect(180, 90, 41, 21));
-
-        horizontalLayout_4->addWidget(groupBox_2);
 
         groupBox_4 = new QGroupBox(tabVirtualMap);
         groupBox_4->setObjectName(QStringLiteral("groupBox_4"));
         groupBox_4->setMinimumSize(QSize(120, 0));
+        groupBox_4->setMaximumSize(QSize(300, 16777215));
+        formLayout_2 = new QFormLayout(groupBox_4);
+        formLayout_2->setSpacing(6);
+        formLayout_2->setContentsMargins(11, 11, 11, 11);
+        formLayout_2->setObjectName(QStringLiteral("formLayout_2"));
         label_28 = new QLabel(groupBox_4);
         label_28->setObjectName(QStringLiteral("label_28"));
-        label_28->setGeometry(QRect(10, 20, 121, 21));
+
+        formLayout_2->setWidget(0, QFormLayout::LabelRole, label_28);
+
         retinaDepthLEdit = new QLineEdit(groupBox_4);
         retinaDepthLEdit->setObjectName(QStringLiteral("retinaDepthLEdit"));
-        retinaDepthLEdit->setGeometry(QRect(180, 20, 71, 20));
         retinaDepthLEdit->setReadOnly(true);
+
+        formLayout_2->setWidget(0, QFormLayout::FieldRole, retinaDepthLEdit);
+
         label_3 = new QLabel(groupBox_4);
         label_3->setObjectName(QStringLiteral("label_3"));
-        label_3->setGeometry(QRect(10, 50, 171, 21));
+
+        formLayout_2->setWidget(1, QFormLayout::LabelRole, label_3);
+
         retinaVolumeLEdit = new QLineEdit(groupBox_4);
         retinaVolumeLEdit->setObjectName(QStringLiteral("retinaVolumeLEdit"));
-        retinaVolumeLEdit->setGeometry(QRect(180, 50, 71, 20));
         retinaVolumeLEdit->setReadOnly(true);
+
+        formLayout_2->setWidget(1, QFormLayout::FieldRole, retinaVolumeLEdit);
+
         label_4 = new QLabel(groupBox_4);
         label_4->setObjectName(QStringLiteral("label_4"));
-        label_4->setGeometry(QRect(10, 70, 171, 21));
+
+        formLayout_2->setWidget(2, QFormLayout::LabelRole, label_4);
+
         preretinalVolumeLEdit = new QLineEdit(groupBox_4);
         preretinalVolumeLEdit->setObjectName(QStringLiteral("preretinalVolumeLEdit"));
-        preretinalVolumeLEdit->setGeometry(QRect(180, 70, 71, 20));
         preretinalVolumeLEdit->setReadOnly(true);
-        foveaPitVolumeLEdit = new QLineEdit(groupBox_4);
-        foveaPitVolumeLEdit->setObjectName(QStringLiteral("foveaPitVolumeLEdit"));
-        foveaPitVolumeLEdit->setGeometry(QRect(180, 90, 71, 20));
-        foveaPitVolumeLEdit->setReadOnly(true);
+
+        formLayout_2->setWidget(2, QFormLayout::FieldRole, preretinalVolumeLEdit);
+
         label_5 = new QLabel(groupBox_4);
         label_5->setObjectName(QStringLiteral("label_5"));
-        label_5->setGeometry(QRect(10, 90, 171, 21));
 
-        horizontalLayout_4->addWidget(groupBox_4);
+        formLayout_2->setWidget(3, QFormLayout::LabelRole, label_5);
+
+        foveaPitVolumeLEdit = new QLineEdit(groupBox_4);
+        foveaPitVolumeLEdit->setObjectName(QStringLiteral("foveaPitVolumeLEdit"));
+        foveaPitVolumeLEdit->setReadOnly(true);
+
+        formLayout_2->setWidget(3, QFormLayout::FieldRole, foveaPitVolumeLEdit);
 
 
-        verticalLayout_10->addLayout(horizontalLayout_4);
+        verticalLayout_8->addWidget(groupBox_4);
 
-        virtualMapCircProfileCPlot = new QCustomPlot(tabVirtualMap);
-        virtualMapCircProfileCPlot->setObjectName(QStringLiteral("virtualMapCircProfileCPlot"));
-        sizePolicy.setHeightForWidth(virtualMapCircProfileCPlot->sizePolicy().hasHeightForWidth());
-        virtualMapCircProfileCPlot->setSizePolicy(sizePolicy);
-        virtualMapCircProfileCPlot->setMinimumSize(QSize(561, 150));
-        virtualMapCircProfileCPlot->setMaximumSize(QSize(1122, 402));
+        groupBox_2 = new QGroupBox(tabVirtualMap);
+        groupBox_2->setObjectName(QStringLiteral("groupBox_2"));
+        sizePolicy7.setHeightForWidth(groupBox_2->sizePolicy().hasHeightForWidth());
+        groupBox_2->setSizePolicy(sizePolicy7);
+        groupBox_2->setMinimumSize(QSize(221, 121));
+        groupBox_2->setMaximumSize(QSize(300, 16777215));
+        gridLayout = new QGridLayout(groupBox_2);
+        gridLayout->setSpacing(6);
+        gridLayout->setContentsMargins(11, 11, 11, 11);
+        gridLayout->setObjectName(QStringLiteral("gridLayout"));
+        label_43 = new QLabel(groupBox_2);
+        label_43->setObjectName(QStringLiteral("label_43"));
 
-        verticalLayout_10->addWidget(virtualMapCircProfileCPlot);
+        gridLayout->addWidget(label_43, 0, 0, 1, 1);
 
-        label_44 = new QLabel(tabVirtualMap);
-        label_44->setObjectName(QStringLiteral("label_44"));
-        label_44->setPixmap(QPixmap(QString::fromUtf8("circ_profile_legend.png")));
-        label_44->setAlignment(Qt::AlignCenter);
+        contactThresholdCBox = new QComboBox(groupBox_2);
+        contactThresholdCBox->setObjectName(QStringLiteral("contactThresholdCBox"));
 
-        verticalLayout_10->addWidget(label_44);
+        gridLayout->addWidget(contactThresholdCBox, 0, 1, 1, 1);
 
-        horizontalLayout_10 = new QHBoxLayout();
-        horizontalLayout_10->setSpacing(6);
-        horizontalLayout_10->setObjectName(QStringLiteral("horizontalLayout_10"));
-        virtualMapHistCPlot = new QCustomPlot(tabVirtualMap);
-        virtualMapHistCPlot->setObjectName(QStringLiteral("virtualMapHistCPlot"));
-        sizePolicy.setHeightForWidth(virtualMapHistCPlot->sizePolicy().hasHeightForWidth());
-        virtualMapHistCPlot->setSizePolicy(sizePolicy);
-        virtualMapHistCPlot->setMinimumSize(QSize(450, 201));
-        virtualMapHistCPlot->setMaximumSize(QSize(750, 302));
+        label_16 = new QLabel(groupBox_2);
+        label_16->setObjectName(QStringLiteral("label_16"));
 
-        horizontalLayout_10->addWidget(virtualMapHistCPlot);
+        gridLayout->addWidget(label_16, 1, 0, 1, 1);
+
+        contactAreaCFLEdit = new QLineEdit(groupBox_2);
+        contactAreaCFLEdit->setObjectName(QStringLiteral("contactAreaCFLEdit"));
+        contactAreaCFLEdit->setReadOnly(true);
+
+        gridLayout->addWidget(contactAreaCFLEdit, 1, 1, 1, 1);
+
+        contactAreaProcCFLabel = new QLabel(groupBox_2);
+        contactAreaProcCFLabel->setObjectName(QStringLiteral("contactAreaProcCFLabel"));
+        QSizePolicy sizePolicy8(QSizePolicy::Preferred, QSizePolicy::Preferred);
+        sizePolicy8.setHorizontalStretch(0);
+        sizePolicy8.setVerticalStretch(0);
+        sizePolicy8.setHeightForWidth(contactAreaProcCFLabel->sizePolicy().hasHeightForWidth());
+        contactAreaProcCFLabel->setSizePolicy(sizePolicy8);
+        contactAreaProcCFLabel->setMinimumSize(QSize(30, 0));
+
+        gridLayout->addWidget(contactAreaProcCFLabel, 1, 2, 1, 1);
+
+        label_29 = new QLabel(groupBox_2);
+        label_29->setObjectName(QStringLiteral("label_29"));
+
+        gridLayout->addWidget(label_29, 2, 0, 1, 1);
+
+        contactAreaIMLEdit = new QLineEdit(groupBox_2);
+        contactAreaIMLEdit->setObjectName(QStringLiteral("contactAreaIMLEdit"));
+        contactAreaIMLEdit->setReadOnly(true);
+
+        gridLayout->addWidget(contactAreaIMLEdit, 2, 1, 1, 1);
+
+        contactAreaProcIMLabel = new QLabel(groupBox_2);
+        contactAreaProcIMLabel->setObjectName(QStringLiteral("contactAreaProcIMLabel"));
+
+        gridLayout->addWidget(contactAreaProcIMLabel, 2, 2, 1, 1);
+
+        label_34 = new QLabel(groupBox_2);
+        label_34->setObjectName(QStringLiteral("label_34"));
+
+        gridLayout->addWidget(label_34, 3, 0, 1, 1);
+
+        contactAreaOMLEdit = new QLineEdit(groupBox_2);
+        contactAreaOMLEdit->setObjectName(QStringLiteral("contactAreaOMLEdit"));
+        contactAreaOMLEdit->setReadOnly(true);
+
+        gridLayout->addWidget(contactAreaOMLEdit, 3, 1, 1, 1);
+
+        contactAreaProcOMLabel = new QLabel(groupBox_2);
+        contactAreaProcOMLabel->setObjectName(QStringLiteral("contactAreaProcOMLabel"));
+
+        gridLayout->addWidget(contactAreaProcOMLabel, 3, 2, 1, 1);
+
+
+        verticalLayout_8->addWidget(groupBox_2);
+
+        label_46 = new QLabel(tabVirtualMap);
+        label_46->setObjectName(QStringLiteral("label_46"));
+        label_46->setFont(font);
+
+        verticalLayout_8->addWidget(label_46);
 
         ETDRSgridCPlot = new QCustomPlot(tabVirtualMap);
         ETDRSgridCPlot->setObjectName(QStringLiteral("ETDRSgridCPlot"));
-        QSizePolicy sizePolicy7(QSizePolicy::MinimumExpanding, QSizePolicy::MinimumExpanding);
-        sizePolicy7.setHorizontalStretch(0);
-        sizePolicy7.setVerticalStretch(0);
-        sizePolicy7.setHeightForWidth(ETDRSgridCPlot->sizePolicy().hasHeightForWidth());
-        ETDRSgridCPlot->setSizePolicy(sizePolicy7);
-        ETDRSgridCPlot->setMinimumSize(QSize(300, 250));
+        QSizePolicy sizePolicy9(QSizePolicy::MinimumExpanding, QSizePolicy::MinimumExpanding);
+        sizePolicy9.setHorizontalStretch(0);
+        sizePolicy9.setVerticalStretch(0);
+        sizePolicy9.setHeightForWidth(ETDRSgridCPlot->sizePolicy().hasHeightForWidth());
+        ETDRSgridCPlot->setSizePolicy(sizePolicy9);
+        ETDRSgridCPlot->setMinimumSize(QSize(300, 300));
         ETDRSgridCPlot->setMaximumSize(QSize(300, 300));
         ETDRSgridCPlot->setSizeIncrement(QSize(10, 10));
 
-        horizontalLayout_10->addWidget(ETDRSgridCPlot);
+        verticalLayout_8->addWidget(ETDRSgridCPlot);
 
 
-        verticalLayout_10->addLayout(horizontalLayout_10);
+        horizontalLayout_18->addLayout(verticalLayout_8);
 
-
-        horizontalLayout_18->addLayout(verticalLayout_10);
-
+        verticalLayout_16 = new QVBoxLayout();
+        verticalLayout_16->setSpacing(6);
+        verticalLayout_16->setObjectName(QStringLiteral("verticalLayout_16"));
+        horizontalLayout_4 = new QHBoxLayout();
+        horizontalLayout_4->setSpacing(6);
+        horizontalLayout_4->setObjectName(QStringLiteral("horizontalLayout_4"));
         verticalLayout_9 = new QVBoxLayout();
         verticalLayout_9->setSpacing(6);
         verticalLayout_9->setObjectName(QStringLiteral("verticalLayout_9"));
@@ -1525,7 +1575,7 @@ public:
         virtualMapImageCPlot->setObjectName(QStringLiteral("virtualMapImageCPlot"));
         sizePolicy.setHeightForWidth(virtualMapImageCPlot->sizePolicy().hasHeightForWidth());
         virtualMapImageCPlot->setSizePolicy(sizePolicy);
-        virtualMapImageCPlot->setMinimumSize(QSize(300, 400));
+        virtualMapImageCPlot->setMinimumSize(QSize(400, 450));
         virtualMapImageCPlot->setMaximumSize(QSize(800, 1062));
 
         verticalLayout_9->addWidget(virtualMapImageCPlot);
@@ -1542,23 +1592,85 @@ public:
 
         virtualMapValueHoverLabel = new QLabel(tabVirtualMap);
         virtualMapValueHoverLabel->setObjectName(QStringLiteral("virtualMapValueHoverLabel"));
-        QSizePolicy sizePolicy8(QSizePolicy::Expanding, QSizePolicy::Fixed);
-        sizePolicy8.setHorizontalStretch(0);
-        sizePolicy8.setVerticalStretch(0);
-        sizePolicy8.setHeightForWidth(virtualMapValueHoverLabel->sizePolicy().hasHeightForWidth());
-        virtualMapValueHoverLabel->setSizePolicy(sizePolicy8);
+        sizePolicy7.setHeightForWidth(virtualMapValueHoverLabel->sizePolicy().hasHeightForWidth());
+        virtualMapValueHoverLabel->setSizePolicy(sizePolicy7);
 
         horizontalLayout_5->addWidget(virtualMapValueHoverLabel);
 
 
         verticalLayout_9->addLayout(horizontalLayout_5);
 
-        verticalSpacer_3 = new QSpacerItem(20, 40, QSizePolicy::Minimum, QSizePolicy::Expanding);
 
-        verticalLayout_9->addItem(verticalSpacer_3);
+        horizontalLayout_4->addLayout(verticalLayout_9);
+
+        verticalLayout_10 = new QVBoxLayout();
+        verticalLayout_10->setSpacing(6);
+        verticalLayout_10->setObjectName(QStringLiteral("verticalLayout_10"));
+        label_45 = new QLabel(tabVirtualMap);
+        label_45->setObjectName(QStringLiteral("label_45"));
+        label_45->setFont(font);
+
+        verticalLayout_10->addWidget(label_45);
+
+        virtualMapContourImageCPlot = new QCustomPlot(tabVirtualMap);
+        virtualMapContourImageCPlot->setObjectName(QStringLiteral("virtualMapContourImageCPlot"));
+        sizePolicy.setHeightForWidth(virtualMapContourImageCPlot->sizePolicy().hasHeightForWidth());
+        virtualMapContourImageCPlot->setSizePolicy(sizePolicy);
+        virtualMapContourImageCPlot->setMinimumSize(QSize(400, 450));
+        virtualMapContourImageCPlot->setMaximumSize(QSize(800, 1062));
+
+        verticalLayout_10->addWidget(virtualMapContourImageCPlot);
+
+        horizontalLayout_10 = new QHBoxLayout();
+        horizontalLayout_10->setSpacing(6);
+        horizontalLayout_10->setObjectName(QStringLiteral("horizontalLayout_10"));
+        label_6 = new QLabel(tabVirtualMap);
+        label_6->setObjectName(QStringLiteral("label_6"));
+        sizePolicy6.setHeightForWidth(label_6->sizePolicy().hasHeightForWidth());
+        label_6->setSizePolicy(sizePolicy6);
+
+        horizontalLayout_10->addWidget(label_6);
+
+        retinaThicknessMapHoverValueLabel = new QLabel(tabVirtualMap);
+        retinaThicknessMapHoverValueLabel->setObjectName(QStringLiteral("retinaThicknessMapHoverValueLabel"));
+        sizePolicy7.setHeightForWidth(retinaThicknessMapHoverValueLabel->sizePolicy().hasHeightForWidth());
+        retinaThicknessMapHoverValueLabel->setSizePolicy(sizePolicy7);
+
+        horizontalLayout_10->addWidget(retinaThicknessMapHoverValueLabel);
 
 
-        horizontalLayout_18->addLayout(verticalLayout_9);
+        verticalLayout_10->addLayout(horizontalLayout_10);
+
+
+        horizontalLayout_4->addLayout(verticalLayout_10);
+
+
+        verticalLayout_16->addLayout(horizontalLayout_4);
+
+        verticalLayout_15 = new QVBoxLayout();
+        verticalLayout_15->setSpacing(6);
+        verticalLayout_15->setObjectName(QStringLiteral("verticalLayout_15"));
+        virtualMapCircProfileCPlot = new QCustomPlot(tabVirtualMap);
+        virtualMapCircProfileCPlot->setObjectName(QStringLiteral("virtualMapCircProfileCPlot"));
+        sizePolicy.setHeightForWidth(virtualMapCircProfileCPlot->sizePolicy().hasHeightForWidth());
+        virtualMapCircProfileCPlot->setSizePolicy(sizePolicy);
+        virtualMapCircProfileCPlot->setMinimumSize(QSize(561, 150));
+        virtualMapCircProfileCPlot->setMaximumSize(QSize(2000, 402));
+
+        verticalLayout_15->addWidget(virtualMapCircProfileCPlot);
+
+        label_44 = new QLabel(tabVirtualMap);
+        label_44->setObjectName(QStringLiteral("label_44"));
+        label_44->setPixmap(QPixmap(QString::fromUtf8("circ_profile_legend.png")));
+        label_44->setAlignment(Qt::AlignCenter);
+
+        verticalLayout_15->addWidget(label_44);
+
+
+        verticalLayout_16->addLayout(verticalLayout_15);
+
+
+        horizontalLayout_18->addLayout(verticalLayout_16);
 
         tabWidget->addTab(tabVirtualMap, QString());
         tabErrorAnalysis = new QWidget();
@@ -1700,7 +1812,7 @@ public:
         label_25->setGeometry(QRect(10, 20, 121, 21));
         label_26 = new QLabel(layersErrorStatsGBox);
         label_26->setObjectName(QStringLiteral("label_26"));
-        label_26->setGeometry(QRect(10, 120, 181, 16));
+        label_26->setGeometry(QRect(10, 120, 191, 16));
         layerErrorProcLEdit = new QLineEdit(layersErrorStatsGBox);
         layerErrorProcLEdit->setObjectName(QStringLiteral("layerErrorProcLEdit"));
         layerErrorProcLEdit->setEnabled(false);
@@ -1840,7 +1952,7 @@ public:
         menuPatient->addSeparator();
         menuPatient->addAction(menuAnnotations->menuAction());
         menuAnnotations->addAction(actionReadAutoSegmentation);
-        menuAnnotations->addAction(actionCloseAutoSegmentation);
+        menuAnnotations->addAction(actionClose_auto_segmentation);
         menuAnnotations->addAction(actionSaveAutoAnnotationsAs);
         menuAnnotations->addAction(actionConvertAutoAnnotations);
         menuAnnotations->addSeparator();
@@ -1876,103 +1988,104 @@ public:
     void retranslateUi(QMainWindow *OCTAnnotate)
     {
         OCTAnnotate->setWindowTitle(QApplication::translate("OCTAnnotate", "OCTAnnotate", 0));
-        actionSaveGeneralExam->setText(QApplication::translate("OCTAnnotate", "Zapisz badanie og\303\263lne", 0));
-        actionSaveOCTExam->setText(QApplication::translate("OCTAnnotate", "Zapisz badanie OCT", 0));
-        actionLoadOCTSequence->setText(QApplication::translate("OCTAnnotate", "Wczytaj badanie OCT (katalog)", 0));
-        actionChangeLayerColor->setText(QApplication::translate("OCTAnnotate", "Zmie\305\204 kolor warstwy", 0));
-        actionSetScanCenter->setText(QApplication::translate("OCTAnnotate", "Ustaw \305\233rodek skanu", 0));
-        actionClose->setText(QApplication::translate("OCTAnnotate", "Zamknij", 0));
-        actionSaveAutoAnnotationsAs->setText(QApplication::translate("OCTAnnotate", "Zapisz automatyczn\304\205 segmentacj\304\231 jako...", 0));
-        actionConvertAutoAnnotations->setText(QApplication::translate("OCTAnnotate", "Konwertuj automatyczn\304\205 segmentacj\304\231 z XML na TXT", 0));
-        actionReadManualAnnotations->setText(QApplication::translate("OCTAnnotate", "Wczytaj r\304\231czn\304\205 segmentacj\304\231", 0));
-        actionFillFromILM->setText(QApplication::translate("OCTAnnotate", "z ILM", 0));
-        actionFillStraight->setText(QApplication::translate("OCTAnnotate", "lini\304\205 prost\304\205", 0));
-        actionReadAutoSegmentation->setText(QApplication::translate("OCTAnnotate", "Wczytaj automatyczn\304\205 segmentacj\304\231", 0));
-        actionCloseAutoSegmentation->setText(QApplication::translate("OCTAnnotate", "Zamknij automatyczn\304\205 segmentacj\304\231", 0));
-        actionSetAutoSegmentationAsManual->setText(QApplication::translate("OCTAnnotate", "Kopiuj automatyczn\304\205 segmentacj\304\231 jako r\304\231czn\304\205", 0));
-        actionShowETDRSGrid->setText(QApplication::translate("OCTAnnotate", "Poka\305\274 siatk\304\231 ETDRS", 0));
-        actionSettings->setText(QApplication::translate("OCTAnnotate", "Ustawienia", 0));
-        actionShowCenterOnBscan->setText(QApplication::translate("OCTAnnotate", "Poka\305\274 \305\233rodek skanu na B-skanie", 0));
+        actionSaveGeneralExam->setText(QApplication::translate("OCTAnnotate", "Save general exam data", 0));
+        actionSaveOCTExam->setText(QApplication::translate("OCTAnnotate", "Save OCT scan segmentations", 0));
+        actionLoadOCTSequence->setText(QApplication::translate("OCTAnnotate", "Load OCT scan folder", 0));
+        actionChangeLayerColor->setText(QApplication::translate("OCTAnnotate", "Change layer color", 0));
+        actionSetScanCenter->setText(QApplication::translate("OCTAnnotate", "Set scan center", 0));
+        actionClose->setText(QApplication::translate("OCTAnnotate", "Close", 0));
+        actionSaveAutoAnnotationsAs->setText(QApplication::translate("OCTAnnotate", "Save automatic segmentation as...", 0));
+        actionConvertAutoAnnotations->setText(QApplication::translate("OCTAnnotate", "Convert automatic segmentation from XML to TXT", 0));
+        actionReadManualAnnotations->setText(QApplication::translate("OCTAnnotate", "Load manual segmentation", 0));
+        actionFillFromILM->setText(QApplication::translate("OCTAnnotate", "from ILM", 0));
+        actionFillStraight->setText(QApplication::translate("OCTAnnotate", "straight line", 0));
+        actionReadAutoSegmentation->setText(QApplication::translate("OCTAnnotate", "Load auto segmentation", 0));
+        actionClose_auto_segmentation->setText(QApplication::translate("OCTAnnotate", "Close auto segmentation", 0));
+        actionSetAutoSegmentationAsManual->setText(QApplication::translate("OCTAnnotate", "Copy auto segmentation as manual", 0));
+        actionShowETDRSGrid->setText(QApplication::translate("OCTAnnotate", "Show ETDRS grid", 0));
+        actionSettings->setText(QApplication::translate("OCTAnnotate", "Settings", 0));
+        actionShowCenterOnBscan->setText(QApplication::translate("OCTAnnotate", "Show scan center on cross-section", 0));
         actionComputeErrorAllScans->setText(QApplication::translate("OCTAnnotate", "MSE dla wszystkich skan\303\263w", 0));
         actionComputeStatistics->setText(QApplication::translate("OCTAnnotate", "Statystyk\304\231 trakcji dla wybranych skan\303\263w Avanti", 0));
-        actionImageFlattening->setText(QApplication::translate("OCTAnnotate", "Wyprostowanie obrazu", 0));
+        actionImageFlattening->setText(QApplication::translate("OCTAnnotate", "Image flattening", 0));
 #ifndef QT_NO_TOOLTIP
         actionImageFlattening->setToolTip(QApplication::translate("OCTAnnotate", "Image flattening", 0));
 #endif // QT_NO_TOOLTIP
-        actionEditAnnotations->setText(QApplication::translate("OCTAnnotate", "Edytuj segmentacje", 0));
+        actionEditAnnotations->setText(QApplication::translate("OCTAnnotate", "Edit segmentations", 0));
 #ifndef QT_NO_TOOLTIP
         actionEditAnnotations->setToolTip(QApplication::translate("OCTAnnotate", "Edit Annotations", 0));
 #endif // QT_NO_TOOLTIP
         actionInfo->setText(QApplication::translate("OCTAnnotate", "Info", 0));
-        actionLoadOCTFile->setText(QApplication::translate("OCTAnnotate", "Wczytaj badanie OCT (.oct)", 0));
-        addPatientDBButton->setText(QApplication::translate("OCTAnnotate", "Dodaj pacjenta", 0));
-        editPatientDBButton->setText(QApplication::translate("OCTAnnotate", "Edytuj pacjenta", 0));
-        deletePatientDBButton->setText(QApplication::translate("OCTAnnotate", "Usu\305\204 pacjenta", 0));
-        patienSearchGBox->setTitle(QApplication::translate("OCTAnnotate", "Wyszukaj", 0));
+        actionLoadOCTFile->setText(QApplication::translate("OCTAnnotate", "Load OCT scan file (.oct)", 0));
+        addPatientDBButton->setText(QApplication::translate("OCTAnnotate", "Add patient", 0));
+        editPatientDBButton->setText(QApplication::translate("OCTAnnotate", "Edit patient", 0));
+        deletePatientDBButton->setText(QApplication::translate("OCTAnnotate", "Delete patient", 0));
+        patienSearchGBox->setTitle(QApplication::translate("OCTAnnotate", "Search", 0));
         searchLastNameLEdit->setText(QString());
-        searchLastNameLEdit->setPlaceholderText(QApplication::translate("OCTAnnotate", "Nazwisko", 0));
+        searchLastNameLEdit->setPlaceholderText(QApplication::translate("OCTAnnotate", "Last name", 0));
         searchFirstNameLEdit->setText(QString());
-        searchFirstNameLEdit->setPlaceholderText(QApplication::translate("OCTAnnotate", "Imi\304\231", 0));
+        searchFirstNameLEdit->setPlaceholderText(QApplication::translate("OCTAnnotate", "First name", 0));
         searchGenderCBox->clear();
         searchGenderCBox->insertItems(0, QStringList()
-         << QApplication::translate("OCTAnnotate", "p\305\202e\304\207", 0)
-         << QApplication::translate("OCTAnnotate", "Kobieta", 0)
-         << QApplication::translate("OCTAnnotate", "M\304\231\305\274czyzna", 0)
+         << QApplication::translate("OCTAnnotate", "gender", 0)
+         << QApplication::translate("OCTAnnotate", "Woman", 0)
+         << QApplication::translate("OCTAnnotate", "Man", 0)
         );
+        searchGenderCBox->setCurrentText(QApplication::translate("OCTAnnotate", "gender", 0));
         searchPathologyCBox->clear();
         searchPathologyCBox->insertItems(0, QStringList()
-         << QApplication::translate("OCTAnnotate", "rozpoznanie", 0)
+         << QApplication::translate("OCTAnnotate", "diagnosis", 0)
          << QApplication::translate("OCTAnnotate", "brak", 0)
          << QApplication::translate("OCTAnnotate", "VMA", 0)
          << QApplication::translate("OCTAnnotate", "VMT", 0)
          << QApplication::translate("OCTAnnotate", "ERM", 0)
          << QApplication::translate("OCTAnnotate", "MH", 0)
          << QApplication::translate("OCTAnnotate", "CNV", 0)
-         << QApplication::translate("OCTAnnotate", "inne", 0)
+         << QApplication::translate("OCTAnnotate", "other", 0)
         );
         searchFileNoLEdit->setText(QString());
-        searchFileNoLEdit->setPlaceholderText(QApplication::translate("OCTAnnotate", "Numer kartoteki", 0));
-        searchNotesLEdit->setPlaceholderText(QApplication::translate("OCTAnnotate", "Uwagi", 0));
+        searchFileNoLEdit->setPlaceholderText(QApplication::translate("OCTAnnotate", "File no", 0));
+        searchNotesLEdit->setPlaceholderText(QApplication::translate("OCTAnnotate", "Notes", 0));
         searchAgeFromLEdit->setText(QString());
-        searchAgeFromLEdit->setPlaceholderText(QApplication::translate("OCTAnnotate", "Wiek od [lat]", 0));
+        searchAgeFromLEdit->setPlaceholderText(QApplication::translate("OCTAnnotate", "Age from", 0));
         searchAgeToLEdit->setText(QString());
-        searchAgeToLEdit->setPlaceholderText(QApplication::translate("OCTAnnotate", "Wiek do [lat]", 0));
-        showAllScansRButton->setText(QApplication::translate("OCTAnnotate", "poka\305\274 wszystkie skany pacjenta", 0));
-        showOnlyDefaultScanRButton->setText(QApplication::translate("OCTAnnotate", "poka\305\274 tylko jeden skan pacjenta", 0));
-        searchPatientDBButton->setText(QApplication::translate("OCTAnnotate", "Szukaj", 0));
-        groupBox_5->setTitle(QApplication::translate("OCTAnnotate", "Ostro\305\233\304\207 widzenia i M-Charts", 0));
-        label_9->setText(QApplication::translate("OCTAnnotate", "OP", 0));
-        label_10->setText(QApplication::translate("OCTAnnotate", "OL", 0));
+        searchAgeToLEdit->setPlaceholderText(QApplication::translate("OCTAnnotate", "Age to [years]", 0));
+        showAllScansRButton->setText(QApplication::translate("OCTAnnotate", "show all scans for patient", 0));
+        showOnlyDefaultScanRButton->setText(QApplication::translate("OCTAnnotate", "show only one scan for patient", 0));
+        searchPatientDBButton->setText(QApplication::translate("OCTAnnotate", "Search", 0));
+        groupBox_5->setTitle(QApplication::translate("OCTAnnotate", "Visual acuity i M-Charts", 0));
+        label_9->setText(QApplication::translate("OCTAnnotate", "OD", 0));
+        label_10->setText(QApplication::translate("OCTAnnotate", "OS", 0));
         label_7->setText(QApplication::translate("OCTAnnotate", "Vis:", 0));
         label_8->setText(QApplication::translate("OCTAnnotate", "Sn:", 0));
-        label_35->setText(QApplication::translate("OCTAnnotate", "Pionowo:", 0));
-        label_36->setText(QApplication::translate("OCTAnnotate", "Poziomo:", 0));
+        label_35->setText(QApplication::translate("OCTAnnotate", "Vertical:", 0));
+        label_36->setText(QApplication::translate("OCTAnnotate", "Horizontal:", 0));
         fundusDBLabel->setText(QApplication::translate("OCTAnnotate", "Fundus", 0));
-        label_47->setText(QApplication::translate("OCTAnnotate", "Wy\305\233wietl list\304\231 skan\303\263w dla:", 0));
+        label_47->setText(QApplication::translate("OCTAnnotate", "Display scans for:", 0));
         scanListGroupCBox->clear();
         scanListGroupCBox->insertItems(0, QStringList()
-         << QApplication::translate("OCTAnnotate", "jednego pacjenta", 0)
-         << QApplication::translate("OCTAnnotate", "wed\305\202ug filtra", 0)
-         << QApplication::translate("OCTAnnotate", "wszystkich pacjent\303\263w", 0)
+         << QApplication::translate("OCTAnnotate", "one patient", 0)
+         << QApplication::translate("OCTAnnotate", "filtered patients", 0)
+         << QApplication::translate("OCTAnnotate", "all patients", 0)
         );
-        searchForScansButton->setText(QApplication::translate("OCTAnnotate", "Wyszukaj skany", 0));
-        addScanFolderButton->setText(QApplication::translate("OCTAnnotate", "Dodaj katalog", 0));
-        addScanFileButton->setText(QApplication::translate("OCTAnnotate", "Dodaj .OCT skan", 0));
-        batchProcessingButton->setText(QApplication::translate("OCTAnnotate", "Przetwarzanie seryjne", 0));
+        searchForScansButton->setText(QApplication::translate("OCTAnnotate", "Search for scans", 0));
+        addScanFolderButton->setText(QApplication::translate("OCTAnnotate", "Add OCT scan folder", 0));
+        addScanFileButton->setText(QApplication::translate("OCTAnnotate", "Add .OCT scan file", 0));
+        batchProcessingButton->setText(QApplication::translate("OCTAnnotate", "Batch processing", 0));
         bscanHLabel->setText(QApplication::translate("OCTAnnotate", "Bscan Horizontal", 0));
         bscanVLabel->setText(QApplication::translate("OCTAnnotate", "Bscan Vertical", 0));
-        tabWidget->setTabText(tabWidget->indexOf(tabDatabase), QApplication::translate("OCTAnnotate", "Lista pacjent\303\263w", 0));
-        label_2->setText(QApplication::translate("OCTAnnotate", "Obraz:", 0));
+        tabWidget->setTabText(tabWidget->indexOf(tabDatabase), QApplication::translate("OCTAnnotate", "Patients", 0));
+        label_2->setText(QApplication::translate("OCTAnnotate", "Image:", 0));
         imageNumberLabel->setText(QString());
         zoomOutButton->setText(QApplication::translate("OCTAnnotate", "-", 0));
         zoomInButton->setText(QApplication::translate("OCTAnnotate", "+", 0));
-        prevImageButton->setText(QApplication::translate("OCTAnnotate", "Wy\305\274ej", 0));
+        prevImageButton->setText(QApplication::translate("OCTAnnotate", "Upper", 0));
         currImageNumberLEdit->setText(QApplication::translate("OCTAnnotate", "0", 0));
-        nextImageButton->setText(QApplication::translate("OCTAnnotate", "Ni\305\274ej", 0));
-        prevNormalImageButton->setText(QApplication::translate("OCTAnnotate", "Lewo", 0));
+        nextImageButton->setText(QApplication::translate("OCTAnnotate", "Lower", 0));
+        prevNormalImageButton->setText(QApplication::translate("OCTAnnotate", "Left", 0));
         currNormalImageNumberLEdit->setText(QApplication::translate("OCTAnnotate", "0", 0));
-        nextNormalImageButton->setText(QApplication::translate("OCTAnnotate", "Prawo", 0));
-        editLayerGBox->setTitle(QApplication::translate("OCTAnnotate", "Edycja warstwy", 0));
+        nextNormalImageButton->setText(QApplication::translate("OCTAnnotate", "Right", 0));
+        editLayerGBox->setTitle(QApplication::translate("OCTAnnotate", "Edit layers", 0));
         pcvLayerRButton->setText(QApplication::translate("OCTAnnotate", "PCV", 0));
         ilmLayerRButton->setText(QApplication::translate("OCTAnnotate", "ILM", 0));
         pcvColorLabel->setText(QString());
@@ -2025,11 +2138,11 @@ public:
         ermLayerRButton->setText(QApplication::translate("OCTAnnotate", "ERM", 0));
         ermColorLabel->setText(QString());
         ermAnnotCountLabel->setText(QApplication::translate("OCTAnnotate", "( --- / --- )", 0));
-        allLayersCBox->setText(QApplication::translate("OCTAnnotate", "Poka\305\274 wszystkie warstwy", 0));
-        contrastResetButton->setText(QApplication::translate("OCTAnnotate", "Kontrast", 0));
-        brightnessResetButton->setText(QApplication::translate("OCTAnnotate", "Jasno\305\233\304\207", 0));
+        allLayersCBox->setText(QApplication::translate("OCTAnnotate", "Show all layers", 0));
+        contrastResetButton->setText(QApplication::translate("OCTAnnotate", "Contrast", 0));
+        brightnessResetButton->setText(QApplication::translate("OCTAnnotate", "Brightness", 0));
         fundusImageLabel->setText(QString());
-        tabWidget->setTabText(tabWidget->indexOf(tabOCTExam), QApplication::translate("OCTAnnotate", "Badanie OCT", 0));
+        tabWidget->setTabText(tabWidget->indexOf(tabOCTExam), QApplication::translate("OCTAnnotate", "OCT cross-sections", 0));
         layersToPlotGBox->setTitle(QApplication::translate("OCTAnnotate", "Wyb\303\263r warstw do rysowania", 0));
         elmLayerCBox_2->setText(QApplication::translate("OCTAnnotate", "ELM", 0));
         ermLayerCBox_2->setText(QApplication::translate("OCTAnnotate", "ERM", 0));
@@ -2045,57 +2158,61 @@ public:
         onlLayerCBox_2->setText(QApplication::translate("OCTAnnotate", "OPL / ONL", 0));
         mezLayerCBox_2->setText(QApplication::translate("OCTAnnotate", "Myoid / Ellipsoid", 0));
         plotLayersButton->setText(QApplication::translate("OCTAnnotate", "Wy\305\233wietl", 0));
-        tabWidget->setTabText(tabWidget->indexOf(tabRetinaAnalysis), QApplication::translate("OCTAnnotate", "Analiza siatk\303\263wki", 0));
+        tabWidget->setTabText(tabWidget->indexOf(tabRetinaAnalysis), QApplication::translate("OCTAnnotate", "Retina analysis", 0));
         computeVirtualMapButton->setText(QApplication::translate("OCTAnnotate", "Oblicz / Od\305\233wie\305\274 wirtualn\304\205 map\304\231", 0));
-        groupBox->setTitle(QApplication::translate("OCTAnnotate", "Wybierz warstwy", 0));
-        label_39->setText(QApplication::translate("OCTAnnotate", "Warstwa 1:", 0));
-        label_40->setText(QApplication::translate("OCTAnnotate", "Warstwa 2:", 0));
-        groupBox_2->setTitle(QApplication::translate("OCTAnnotate", "Pole powierzchni styku [mm2]", 0));
-        label_16->setText(QApplication::translate("OCTAnnotate", "Obszar CF:", 0));
-        label_29->setText(QApplication::translate("OCTAnnotate", "Obszar IM:", 0));
-        label_34->setText(QApplication::translate("OCTAnnotate", "Obszar OM:", 0));
-        contactAreaCFLEdit->setText(QApplication::translate("OCTAnnotate", "0", 0));
-        contactAreaIMLEdit->setText(QApplication::translate("OCTAnnotate", "0", 0));
-        contactAreaOMLEdit->setText(QApplication::translate("OCTAnnotate", "0", 0));
-        label_43->setText(QApplication::translate("OCTAnnotate", "Pr\303\263g:", 0));
-        contactAreaProcCFLabel->setText(QString());
-        contactAreaProcIMLabel->setText(QString());
-        contactAreaProcOMLabel->setText(QString());
-        groupBox_4->setTitle(QApplication::translate("OCTAnnotate", "Statystyka siatk\303\263wki", 0));
-        label_28->setText(QApplication::translate("OCTAnnotate", "Grubo\305\233\304\207 siatk\303\263wki [um]:", 0));
-        label_3->setText(QApplication::translate("OCTAnnotate", "Obj\304\231to\305\233\304\207 siatk\303\263wki d=3mm [mm3]:", 0));
+        groupBox->setTitle(QApplication::translate("OCTAnnotate", "Select layers:", 0));
+        label_39->setText(QApplication::translate("OCTAnnotate", "Layer 1:", 0));
+        label_40->setText(QApplication::translate("OCTAnnotate", "Layer 2:", 0));
+        groupBox_4->setTitle(QApplication::translate("OCTAnnotate", "Retina statistics", 0));
+        label_28->setText(QApplication::translate("OCTAnnotate", "Thickness [um]:", 0));
+        label_3->setText(QApplication::translate("OCTAnnotate", "Volume (d=3mm) [mm3]:", 0));
         label_4->setText(QApplication::translate("OCTAnnotate", "Preretinal volume d=3mm [mm3]:", 0));
         label_5->setText(QApplication::translate("OCTAnnotate", "Fovea pit volume d=3mm [mm3]:", 0));
-        label_44->setText(QString());
-        label_41->setText(QApplication::translate("OCTAnnotate", "Wirtualna mapa r\304\231cznej segmentacji:", 0));
-        label->setText(QApplication::translate("OCTAnnotate", "Warto\305\233\304\207:", 0));
+        groupBox_2->setTitle(QApplication::translate("OCTAnnotate", "Contact area [mm2]", 0));
+        label_43->setText(QApplication::translate("OCTAnnotate", "Threshold:", 0));
+        label_16->setText(QApplication::translate("OCTAnnotate", "Area CF:", 0));
+        contactAreaCFLEdit->setText(QApplication::translate("OCTAnnotate", "0", 0));
+        contactAreaProcCFLabel->setText(QString());
+        label_29->setText(QApplication::translate("OCTAnnotate", "Area IM:", 0));
+        contactAreaIMLEdit->setText(QApplication::translate("OCTAnnotate", "0", 0));
+        contactAreaProcIMLabel->setText(QString());
+        label_34->setText(QApplication::translate("OCTAnnotate", "Area OM:", 0));
+        contactAreaOMLEdit->setText(QApplication::translate("OCTAnnotate", "0", 0));
+        contactAreaProcOMLabel->setText(QString());
+        label_46->setText(QApplication::translate("OCTAnnotate", "Virtual map volumetric analysis:", 0));
+        label_41->setText(QApplication::translate("OCTAnnotate", "Virtual map for selected layers:", 0));
+        label->setText(QApplication::translate("OCTAnnotate", "Value:", 0));
         virtualMapValueHoverLabel->setText(QString());
-        tabWidget->setTabText(tabWidget->indexOf(tabVirtualMap), QApplication::translate("OCTAnnotate", "Wirtualna mapa", 0));
-        label_12->setText(QApplication::translate("OCTAnnotate", "Wczytany plik:", 0));
+        label_45->setText(QApplication::translate("OCTAnnotate", "Retina thickness:", 0));
+        label_6->setText(QApplication::translate("OCTAnnotate", "Value:", 0));
+        retinaThicknessMapHoverValueLabel->setText(QString());
+        label_44->setText(QString());
+        tabWidget->setTabText(tabWidget->indexOf(tabVirtualMap), QApplication::translate("OCTAnnotate", "Virtual map", 0));
+        label_12->setText(QApplication::translate("OCTAnnotate", "Loaded file:", 0));
         autoSegmentFileLabel->setText(QString());
-        prevImageLayersButton->setText(QApplication::translate("OCTAnnotate", "Poprzedni", 0));
-        nextImageLayersButton->setText(QApplication::translate("OCTAnnotate", "Nast\304\231pny", 0));
-        virtualMapErrorStatsGBox->setTitle(QApplication::translate("OCTAnnotate", "Statystyka wirtualnej mapy", 0));
-        label_17->setText(QApplication::translate("OCTAnnotate", "\305\232redni b\305\202\304\205d wirtualnej mapy:", 0));
-        label_21->setText(QApplication::translate("OCTAnnotate", "Odchylenie standardowe wirtualnej mapy:", 0));
-        layersErrorStatsGBox->setTitle(QApplication::translate("OCTAnnotate", "Statystyka warstw", 0));
-        label_27->setText(QApplication::translate("OCTAnnotate", "Odchylenie standardowe dla warstwy:", 0));
-        label_25->setText(QApplication::translate("OCTAnnotate", "\305\232redni b\305\202\304\205d dla warstwy:", 0));
-        label_26->setText(QApplication::translate("OCTAnnotate", "Procent b\305\202\304\231dnie oznaczonych pikseli:", 0));
-        currScanLayerErrorStatsGBox->setTitle(QApplication::translate("OCTAnnotate", "Statystyka aktualnego skanu", 0));
-        label_30->setText(QApplication::translate("OCTAnnotate", "\305\232redni b\305\202\304\205d dla warstwy PCV:", 0));
-        label_31->setText(QApplication::translate("OCTAnnotate", "Odchylenie standardowe dla warstwy PCV:", 0));
-        label_32->setText(QApplication::translate("OCTAnnotate", "Odchylenie standardowe dla warstwy ILM:", 0));
-        label_33->setText(QApplication::translate("OCTAnnotate", "\305\232redni b\305\202\304\205d dla warstwy ILM:", 0));
-        groupBox_3->setTitle(QApplication::translate("OCTAnnotate", "B\305\202\304\205d wszystkich skan\303\263w", 0));
-        label_42->setText(QApplication::translate("OCTAnnotate", "Wirtualna mapa automatycznej segmentacji:", 0));
-        tabWidget->setTabText(tabWidget->indexOf(tabErrorAnalysis), QApplication::translate("OCTAnnotate", "Analiza b\305\202\304\231du", 0));
-        menuPatient->setTitle(QApplication::translate("OCTAnnotate", "Pacjent", 0));
-        menuAnnotations->setTitle(QApplication::translate("OCTAnnotate", "Segmentacja", 0));
+        prevImageLayersButton->setText(QApplication::translate("OCTAnnotate", "Previous", 0));
+        nextImageLayersButton->setText(QApplication::translate("OCTAnnotate", "Next", 0));
+        virtualMapErrorStatsGBox->setTitle(QApplication::translate("OCTAnnotate", "Virtual map statistics", 0));
+        label_17->setText(QApplication::translate("OCTAnnotate", "Average error", 0));
+        label_21->setText(QApplication::translate("OCTAnnotate", "Standard deviation", 0));
+        layersErrorStatsGBox->setTitle(QApplication::translate("OCTAnnotate", "Layers statistics", 0));
+        label_27->setText(QApplication::translate("OCTAnnotate", "Standard deviation", 0));
+        label_25->setText(QApplication::translate("OCTAnnotate", "Average error for:", 0));
+        label_26->setText(QApplication::translate("OCTAnnotate", "Percent of erroneous segmentations:", 0));
+        currScanLayerErrorStatsGBox->setTitle(QApplication::translate("OCTAnnotate", "Current scan statistics", 0));
+        label_30->setText(QApplication::translate("OCTAnnotate", "Average error for PCV layer:", 0));
+        label_31->setText(QApplication::translate("OCTAnnotate", "Standard deviation for PCV layer:", 0));
+        label_32->setText(QApplication::translate("OCTAnnotate", "Standard deviation for ILM layer:", 0));
+        label_33->setText(QApplication::translate("OCTAnnotate", "Average error for ILM layer:", 0));
+        groupBox_3->setTitle(QApplication::translate("OCTAnnotate", "Error for all scans", 0));
+        label_42->setText(QApplication::translate("OCTAnnotate", "Virtual map of automatic segmentations:", 0));
+        tabWidget->setTabText(tabWidget->indexOf(tabErrorAnalysis), QApplication::translate("OCTAnnotate", "Error analysis", 0));
+        menuPatient->setTitle(QApplication::translate("OCTAnnotate", "Patient", 0));
+        menuAnnotations->setTitle(QApplication::translate("OCTAnnotate", "Segmentations", 0));
         menuProgram->setTitle(QApplication::translate("OCTAnnotate", "Program", 0));
-        menuFillLineFrom->setTitle(QApplication::translate("OCTAnnotate", "Uzupe\305\202nij lini\304\231 na podstawie punkt\303\263w", 0));
+        menuFillLineFrom->setTitle(QApplication::translate("OCTAnnotate", "Fill line from points", 0));
         menuCompute->setTitle(QApplication::translate("OCTAnnotate", "Oblicz", 0));
-        menuInfo->setTitle(QApplication::translate("OCTAnnotate", "Pomoc", 0));
+        menuInfo->setTitle(QApplication::translate("OCTAnnotate", "Help", 0));
         toolBar->setWindowTitle(QApplication::translate("OCTAnnotate", "toolBar", 0));
     } // retranslateUi
 

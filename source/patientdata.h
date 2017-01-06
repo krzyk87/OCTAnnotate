@@ -311,10 +311,17 @@ public:
     void resetVirtualMap();
     void resetVirtualMapAuto();
     void resetVirtualMapError();
+    void resetVirtualMapContours();
     void computeVirtualMap(Layers layer1, Layers layer2);
     void computeVirtualMapAuto(Layers layer1, Layers layer2);
-    int getVirtualMapValue(int x, int y, QString unit = "");
-    int getVirtualMapAutoValue(int x, int y, QString unit = "");
+    void computeVirtualMapContours();
+    int findContourPoint(double height);
+    QVector<QVector<double> > findContourLine(int startPoint);
+    double getVirtualMapValue(int x, int y, QString unit = "");
+    double getVirtualMapAutoValue(int x, int y, QString unit = "");
+    QVector<double> getContourTData(int contourID);
+    QVector<double> getContourXData(int contourID);
+    QVector<double> getContourYData(int contourID);
     void computeVirtualMapError();
     double getVirtualMapErrorAvg(QString unit = "");
     double getVirtualMapErrorDev(QString unit = "");
@@ -335,15 +342,14 @@ public:
     QList<double> getCircProfileIM();
     QList<double> getCircProfileOM();
 
-    // virtual map statistics - histogram
-    void calculateVirtualMapHistogram();
-    QList<double> getVirtualMapHistogram();
-
     // virtual map statistics - volume
     void calculateVolumeGrid();
     QList<double> getVolumeGrid();
 
     // retina depth
+    void resetRetinaThicknessMap();
+    void computeRetinaThicknessMap();
+    double getRetinaThicknessMapValue(int x, int y, QString unit = "");
     void calculateRetinaDepth();
     double getRetinaDepth();
 
@@ -443,6 +449,14 @@ private:
     QList<double> virtualMapLineErrorDev;
     double virtualMapErrorAvg;
     double virtualMapErrorDev;
+    struct Contour{
+        double height;
+        QVector<double> t;
+        QVector<double> keys;
+        QVector<double> values;
+    };
+    QList<Contour> contours;
+    QVector<bool> checkList;
 
     // statistical data
     double contactAreaCF;
@@ -454,8 +468,10 @@ private:
     QList<double> circProfileIM;
     QList<double> circProfileOM;
 
-    QList<double> virtualMapHistogram;
     QList<double> volumeGrid;
+
+    // retina depth
+    QMap<int, QList<int> > retinaThicknessMap;
     double retinaDepth;
     double retinaVolume;
     double preretinalVolume;

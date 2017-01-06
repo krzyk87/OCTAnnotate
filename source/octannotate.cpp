@@ -89,7 +89,7 @@ OCTAnnotate::OCTAnnotate(QWidget *parent) : QMainWindow(parent),
     ui->virtualMapImageCPlot->installEventFilter(this);
     ui->virtualMapAutoImageCPlot->installEventFilter(this);
     ui->virtualMapCircProfileCPlot->installEventFilter(this);
-    ui->virtualMapHistCPlot->installEventFilter(this);
+    ui->virtualMapContourImageCPlot->installEventFilter(this);
     ui->ETDRSgridCPlot->installEventFilter(this);
     ui->imageLayersCPlot->installEventFilter(this);
     ui->layerCPlot->installEventFilter(this);
@@ -172,8 +172,8 @@ OCTAnnotate::OCTAnnotate(QWidget *parent) : QMainWindow(parent),
     setupVirtualMapPlot(ui->virtualMapImageCPlot);
     setupVirtualMapPlot(ui->virtualMapAutoImageCPlot);
     //setupVirtualMapPlot(ui->errorVirtualMapCPlot);
+    setupVirtualMapContourPlot();
     setupCircProfilePlot();
-    setupHistPlot();
     setupVolumeGridPlot();
 
     scaleFactor = 0;
@@ -911,8 +911,8 @@ void OCTAnnotate::on_tabWidget_currentChanged()
         if (patientData.getIsLoaded()){ //  !patientData.getImageFileList().isEmpty()){
             //on_computeVirtualMapButton_clicked();
             displayVirtualMap(ui->virtualMapImageCPlot);
+            displayVirtualMapContours(); // retina thickenss map
             displayCircProfile();
-            displayHistogram();
             displayVolumes();
 
             double caCF = patientData.getContactAreaCF();
@@ -1281,10 +1281,22 @@ bool OCTAnnotate::eventFilter(QObject *target, QEvent *event){
                 int bscanNumber = -(ui->virtualMapImageCPlot->yAxis2->pixelToCoord(mouseEvent->pos().y()));
                 int bscanColumn = ui->virtualMapImageCPlot->xAxis2->pixelToCoord(mouseEvent->pos().x());
                 if ((bscanNumber > 0) && (bscanNumber < patientData.getBscansNumber()) && (bscanColumn > 0) && (bscanColumn < patientData.getBscanWidth())){
-                    int value = patientData.getVirtualMapValue(bscanColumn,bscanNumber,"um");
+                    int value = (int)patientData.getVirtualMapValue(bscanColumn,bscanNumber,"um");
                     ui->virtualMapValueHoverLabel->setText("(" + QString::number(bscanColumn) + ", " + QString::number(bscanNumber) + ") " + QString::number(value) + " [um]");
                 } else {
                     ui->virtualMapValueHoverLabel->setText("");
+                }
+            }
+        } else if (target == ui->virtualMapContourImageCPlot){
+            if (event->type() == QEvent::MouseMove){
+                QMouseEvent *mouseEvent = static_cast<QMouseEvent*>(event);
+                int bscanNumber = -(ui->virtualMapContourImageCPlot->yAxis2->pixelToCoord(mouseEvent->pos().y()));
+                int bscanColumn = ui->virtualMapContourImageCPlot->xAxis2->pixelToCoord(mouseEvent->pos().x());
+                if ((bscanNumber > 0) && (bscanNumber < patientData.getBscansNumber()) && (bscanColumn > 0) && (bscanColumn < patientData.getBscanWidth())){
+                    int value = (int)patientData.getRetinaThicknessMapValue(bscanColumn,bscanNumber,"um");
+                    ui->retinaThicknessMapHoverValueLabel->setText("(" + QString::number(bscanColumn) + ", " + QString::number(bscanNumber) + ") " + QString::number(value) + " [um]");
+                } else {
+                    ui->retinaThicknessMapHoverValueLabel->setText("");
                 }
             }
         } else if (target == ui->virtualMapAutoImageCPlot){
@@ -1374,15 +1386,6 @@ bool OCTAnnotate::eventFilter(QObject *target, QEvent *event){
                 if (mouseEvent->button() == Qt::RightButton){
                     QClipboard *clipboard = QApplication::clipboard();
                     clipboard->setPixmap(ui->virtualMapCircProfileCPlot->toPixmap());
-                    QMessageBox::information(this, "Skopiowano", "Obraz został skopiowany do schowka");
-                }
-            }
-        } else if (target == ui->virtualMapHistCPlot){
-            if (event->type() == QEvent::MouseButtonPress){
-                QMouseEvent *mouseEvent = static_cast<QMouseEvent*>(event);
-                if (mouseEvent->button() == Qt::RightButton){
-                    QClipboard *clipboard = QApplication::clipboard();
-                    clipboard->setPixmap(ui->virtualMapHistCPlot->toPixmap());
                     QMessageBox::information(this, "Skopiowano", "Obraz został skopiowany do schowka");
                 }
             }
@@ -2672,8 +2675,8 @@ void OCTAnnotate::setupVirtualMapPlot(QCustomPlot *customPlot){
     customPlot->yAxis->setLabel("Vertical distance from scan center [mm]");
     //customPlot->xAxis->setLabel("Odległość od środka skanu w kierunku poziomym");
     //customPlot->yAxis->setLabel("Odległość od środka skanu w kierunku pionowym");
-    customPlot->xAxis->setLabelFont(QFont("Arial",16));
-    customPlot->yAxis->setLabelFont(QFont("Arial",16));
+//    customPlot->xAxis->setLabelFont(QFont("Arial",16));
+//    customPlot->yAxis->setLabelFont(QFont("Arial",16));
     QPoint center = patientData.getScanCenter();
     int scanWidth = (int)patientData.getVoxelWidth();
     if (center.x() != -1){
@@ -2689,18 +2692,18 @@ void OCTAnnotate::setupVirtualMapPlot(QCustomPlot *customPlot){
         customPlot->xAxis->setRange(-4,4);
         customPlot->yAxis->setRange(-4,4);
     }
-    customPlot->xAxis->setLabelPadding(3);
-    customPlot->yAxis->setLabelPadding(3);
-    customPlot->xAxis->setTickLabelFont(QFont("Arial",12));
-    customPlot->yAxis->setTickLabelFont(QFont("Arial",12));
+//    customPlot->xAxis->setLabelPadding(3);
+//    customPlot->yAxis->setLabelPadding(3);
+//    customPlot->xAxis->setTickLabelFont(QFont("Arial",12));
+//    customPlot->yAxis->setTickLabelFont(QFont("Arial",12));
 
     customPlot->xAxis2->setLabel("B-scan pixel");
     customPlot->yAxis2->setLabel("B-scan number");
     //customPlot->xAxis2->setLabel("Piksel obrazu B-skan");
     //customPlot->yAxis2->setLabel("Numer obazu B-skan");
-    customPlot->xAxis2->setLabelFont(QFont("Arial",16));
-    customPlot->yAxis2->setLabelFont(QFont("Arial",16));
-    if (patientData.getIsLoaded()){ // !patientData.getImageFileList().isEmpty()){
+//    customPlot->xAxis2->setLabelFont(QFont("Arial",16));
+//    customPlot->yAxis2->setLabelFont(QFont("Arial",16));
+    if (patientData.getIsLoaded()){
         customPlot->xAxis2->setRange(0,patientData.getBscanWidth());
         customPlot->yAxis2->setRange(-patientData.getBscansNumber(),0);
     } else {
@@ -2711,10 +2714,59 @@ void OCTAnnotate::setupVirtualMapPlot(QCustomPlot *customPlot){
     customPlot->yAxis2->setTickStep(10);
     customPlot->xAxis2->setVisible(true);
     customPlot->yAxis2->setVisible(true);
-    customPlot->xAxis2->setLabelPadding(3);
-    customPlot->yAxis2->setLabelPadding(3);
-    customPlot->xAxis2->setTickLabelFont(QFont("Arial",12));
-    customPlot->yAxis2->setTickLabelFont(QFont("Arial",12));
+//    customPlot->xAxis2->setLabelPadding(3);
+//    customPlot->yAxis2->setLabelPadding(3);
+//    customPlot->xAxis2->setTickLabelFont(QFont("Arial",12));
+//    customPlot->yAxis2->setTickLabelFont(QFont("Arial",12));
+}
+
+void OCTAnnotate::setupVirtualMapContourPlot()
+{
+    ui->virtualMapContourImageCPlot->clearPlottables();
+
+    ui->virtualMapContourImageCPlot->xAxis->setLabel("Horizontal distance from scan center [mm]");
+    ui->virtualMapContourImageCPlot->yAxis->setLabel("Vertical distance from scan center [mm]");
+
+    if (patientData.getIsLoaded()){
+        double scanWidth = patientData.getVoxelWidth();
+        double scanHeight = patientData.getVoxelHeight();
+        QCPRange xRange = QCPRange(-scanWidth/2,scanWidth/2);
+        QCPRange yRange = QCPRange(-scanHeight/2,scanHeight/2);
+        ui->virtualMapContourImageCPlot->xAxis->setRange(xRange);
+        ui->virtualMapContourImageCPlot->yAxis->setRange(yRange);
+    } else {
+        ui->virtualMapContourImageCPlot->xAxis->setRange(-4,4);
+        ui->virtualMapContourImageCPlot->yAxis->setRange(-4,4);
+    }
+
+//    QPoint center = patientData.getScanCenter();
+//    int scanWidth = (int)patientData.getVoxelWidth();
+//    if (center.x() != -1){
+//        int m = patientData.getBscanWidth();
+//        double x1 = -(double)(scanWidth * (center.x() - (double)m/2))/m - scanWidth/2;
+//        double x2 = -(double)(scanWidth * (center.x() - (double)m/2))/m + scanWidth/2;
+//        int n = patientData.getBscansNumber();
+//        double y1 = (double)(scanWidth * (center.y() - (double)n/2))/n - scanWidth/2;
+//        double y2 = (double)(scanWidth * (center.y() - (double)n/2))/n + scanWidth/2;
+//        ui->virtualMapContourImageCPlot->xAxis->setRange(x1,x2);
+//        ui->virtualMapContourImageCPlot->yAxis->setRange(y1,y2);
+//    } else {
+
+//    }
+
+    ui->virtualMapContourImageCPlot->xAxis2->setLabel("B-scan pixel");
+    ui->virtualMapContourImageCPlot->yAxis2->setLabel("B-scan number");
+    if (patientData.getIsLoaded()){
+        ui->virtualMapContourImageCPlot->xAxis2->setRange(0,patientData.getBscanWidth());
+        ui->virtualMapContourImageCPlot->yAxis2->setRange(-patientData.getBscansNumber(),0);
+    } else {
+        ui->virtualMapContourImageCPlot->xAxis2->setRange(0,800);
+        ui->virtualMapContourImageCPlot->yAxis2->setRange(-100,0);
+    }
+    ui->virtualMapContourImageCPlot->yAxis2->setAutoTickStep(false);
+    ui->virtualMapContourImageCPlot->yAxis2->setTickStep(10);
+    ui->virtualMapContourImageCPlot->xAxis2->setVisible(true);
+    ui->virtualMapContourImageCPlot->yAxis2->setVisible(true);
 }
 
 void OCTAnnotate::setupImageLayersPlot(){
@@ -2935,34 +2987,6 @@ void OCTAnnotate::setupCircProfilePlot(){
     rect700->setPen(Qt::NoPen);
     rect700->topLeft->setCoords(0,700);
     rect700->bottomRight->setCoords(360,500);
-}
-
-void OCTAnnotate::setupHistPlot(){
-    ui->virtualMapHistCPlot->clearPlottables();
-    histBars = new QCPBars(ui->virtualMapHistCPlot->xAxis, ui->virtualMapHistCPlot->yAxis);
-    ui->virtualMapHistCPlot->addPlottable(histBars);
-
-    QPen pen;
-    pen.setWidthF(1.2);
-    histBars->setName("Virtual Map Value");
-    pen.setColor(QColor(1,92,191));
-    histBars->setPen(pen);
-    histBars->setBrush(QColor(1,92,191,50));
-
-    QVector<double> ticks;
-    QVector<QString> labels;
-    ticks << 1 << 2 << 3 << 4 << 5 << 6 << 7 << 8;
-    labels << "0-100" << "100-200" << "200-300" << "300-400" << "400-500" << "500-600" << "600-700" << "> 700";
-    ui->virtualMapHistCPlot->xAxis->setAutoTicks(false);
-    ui->virtualMapHistCPlot->xAxis->setAutoTickLabels(false);
-    ui->virtualMapHistCPlot->xAxis->setTickVector(ticks);
-    ui->virtualMapHistCPlot->xAxis->setTickVectorLabels(labels);
-    ui->virtualMapHistCPlot->xAxis->setSubTickCount(0);
-    ui->virtualMapHistCPlot->xAxis->setRange(0.5,8.5);
-    ui->virtualMapHistCPlot->xAxis->setLabel("Distance between layers in virtual map [um]");
-
-    ui->virtualMapHistCPlot->yAxis->setRange(0,50000);
-    ui->virtualMapHistCPlot->yAxis->setLabel("Number of points in virtual map");
 }
 
 void OCTAnnotate::setupVolumeGridPlot(){
@@ -3399,6 +3423,8 @@ void OCTAnnotate::on_computeVirtualMapButton_clicked()
 //    patientData.computeErrorAll();
     patientData.computeVirtualMapError();
 
+    patientData.computeRetinaThicknessMap();
+
     on_tabWidget_currentChanged();  // refresh images
 }
 
@@ -3431,7 +3457,7 @@ void OCTAnnotate::displayVirtualMap(QCustomPlot *customPlot, bool isAuto){
         }
         colorMap->data()->setRange(xRange, yRange); // and span the coordinate range -4..4 in both key (x) and value (y) dimensions
 
-        int z;
+        double z;
         for (int xIndex=0; xIndex<nx; ++xIndex)
         {
             for (int yIndex=0; yIndex<ny; ++yIndex)
@@ -3452,9 +3478,11 @@ void OCTAnnotate::displayVirtualMap(QCustomPlot *customPlot, bool isAuto){
         colorMap->setColorScale(colorScale); // associate the color map with the color scale
         colorScale->axis()->setLabel("Distance between layers [um]");
         //colorScale->axis()->setLabel("Odległość pomiędzy warstwami [um]");
-        colorScale->axis()->setLabelFont(QFont("Arial",16));
-        colorScale->axis()->setTickLabelFont(QFont("Arial",12));
-        colorMap->setGradient(QCPColorGradient::gpJet);
+//        colorScale->axis()->setLabelFont(QFont("Arial",16));
+//        colorScale->axis()->setTickLabelFont(QFont("Arial",12));
+        QCPColorGradient gradient = QCPColorGradient(QCPColorGradient::gpJet);
+//        gradient.setLevelCount(7);
+        colorMap->setGradient(gradient);
         colorMap->setDataRange(QCPRange(0,700));
 
         // draw B-scan line
@@ -3527,6 +3555,70 @@ void OCTAnnotate::displayVirtualMap(QCustomPlot *customPlot, bool isAuto){
         //double ratio = patientData.getVoxelWidth()/patientData.getVoxelHeight();
         //customPlot->xAxis->setScaleRatio(customPlot->yAxis,1);
         customPlot->replot();
+    }
+}
+
+void OCTAnnotate::displayVirtualMapContours()
+{
+    ui->virtualMapContourImageCPlot->clearPlottables();
+
+    if (patientData.getIsLoaded()){
+
+        int nx = patientData.getBscanWidth();
+        int ny = patientData.getBscansNumber();
+
+        double scanWidth = patientData.getVoxelWidth();
+        double scanHeight = patientData.getVoxelHeight();
+        QCPRange xRange = QCPRange(-scanWidth/2,scanWidth/2);
+        QCPRange yRange = QCPRange(-scanHeight/2,scanHeight/2);
+        ui->virtualMapContourImageCPlot->xAxis->setRange(xRange);
+        ui->virtualMapContourImageCPlot->yAxis->setRange(yRange);
+
+        // TODO: loop over all contours...
+
+//        QVector<double> tData = patientData.getContourTData(0);
+//        QVector<double> xData = patientData.getContourXData(0);
+//        QVector<double> yData = patientData.getContourYData(0);
+
+//        double xRatio = (double)nx / (double)scanWidth;
+//        double yRatio = (double)ny / (double)scanHeight;
+
+//        for (int i=0; i < tData.count(); i++){
+//            xData[i] = (xData[i] - nx/2) / xRatio;
+//            yData[i] = -(yData[i] - ny/2) / yRatio;
+//        }
+
+//        QCPCurve *newCurve = new QCPCurve(ui->virtualMapContourImageCPlot->xAxis, ui->virtualMapContourImageCPlot->yAxis);
+//        ui->virtualMapContourImageCPlot->addPlottable(newCurve);
+//        newCurve->setData(tData, xData, yData);
+////        newCurve->setLineStyle(QCPCurve::lsNone);
+////        newCurve->setPen(QPen(QBrush(Qt::red),3.0));
+
+        QCPColorMap *colorMap = new QCPColorMap(ui->virtualMapContourImageCPlot->xAxis, ui->virtualMapContourImageCPlot->yAxis);
+        ui->virtualMapContourImageCPlot->addPlottable(colorMap);
+        colorMap->data()->setSize(nx,ny);
+        colorMap->data()->setRange(xRange,yRange);
+        double z;
+        for (int xIndex=0; xIndex<nx; ++xIndex)
+        {
+            for (int yIndex=0; yIndex<ny; ++yIndex)
+            {
+                z = patientData.getRetinaThicknessMapValue(xIndex, ny-yIndex-1, "um");
+                colorMap->data()->setCell(xIndex, yIndex, z);
+            }
+        }
+        QCPColorScale *colorScale = new QCPColorScale(ui->virtualMapContourImageCPlot);
+        int c = ui->virtualMapContourImageCPlot->plotLayout()->elementCount();
+        if (c > 1)
+            ui->virtualMapContourImageCPlot->plotLayout()->remove(ui->virtualMapContourImageCPlot->plotLayout()->element(1,0));
+        ui->virtualMapContourImageCPlot->plotLayout()->addElement(1, 0, colorScale); // add it to the right of the main axis rect
+        colorScale->setType(QCPAxis::atBottom); // scale shall be vertical bar with tick/axis labels right (actually atRight is already the default)
+        colorMap->setColorScale(colorScale); // associate the color map with the color scale
+        colorScale->axis()->setLabel("Distance between layers [um]");
+        colorMap->setGradient(QCPColorGradient::gpJet);
+        colorMap->setDataRange(QCPRange(0,700));
+
+        ui->virtualMapContourImageCPlot->replot();
     }
 }
 
@@ -3698,27 +3790,6 @@ void OCTAnnotate::displayCircProfile(){
     }
 }
 
-void OCTAnnotate::displayHistogram(){
-    setupHistPlot();
-
-    if (patientData.getIsLoaded()){ // !patientData.getImageFileList().isEmpty()){
-        QList<double> histVal = patientData.getVirtualMapHistogram();
-        QVector<double> hist(8);
-        double max = 0;
-        for (int i=0; i < 8; i++){
-            hist[i] = histVal[i];
-            max = qMax(max, hist[i]);
-        }
-        QVector<double> ticks = ui->virtualMapHistCPlot->xAxis->tickVector();
-        histBars->setData(ticks,hist);
-
-        ui->virtualMapHistCPlot->yAxis->setRange(0,max);
-        ui->virtualMapHistCPlot->yAxis->setLabel("Number of points in the range");
-
-        ui->virtualMapHistCPlot->replot();
-    }
-}
-
 void OCTAnnotate::displayVolumes(){
     setupVolumeGridPlot();
 
@@ -3804,7 +3875,7 @@ void OCTAnnotate::displayVolumes(){
 
         // fills
         double volOuter = 1.0;
-        double volInner = 0.4;
+        double volInner = 0.3;
         int alfa1 = qBound(0,(int)(volumes[7]/volOuter*50),255);
         int alfa2 = qBound(0,(int)(volumes[3]/volInner*50),255);
         int alfa3 = qBound(0,(int)(volumes[6]/volOuter*50),255);
@@ -4468,6 +4539,7 @@ void OCTAnnotate::on_readingDataFinished(QString data){
     setupVirtualMapPlot(ui->virtualMapImageCPlot);
     setupVirtualMapPlot(ui->virtualMapAutoImageCPlot);
     setupVirtualMapPlot(ui->errorVirtualMapCPlot);
+    setupVirtualMapContourPlot();
     setupImageLayersPlot();
     setupBScanPlots();
 

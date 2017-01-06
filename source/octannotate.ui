@@ -49,7 +49,7 @@
       </property>
       <widget class="QWidget" name="tabDatabase">
        <attribute name="title">
-        <string>Lista pacjentów</string>
+        <string>Patients</string>
        </attribute>
        <layout class="QVBoxLayout" name="verticalLayout_7">
         <item>
@@ -82,7 +82,7 @@
                  </size>
                 </property>
                 <property name="text">
-                 <string>Dodaj pacjenta</string>
+                 <string>Add patient</string>
                 </property>
                </widget>
               </item>
@@ -107,7 +107,7 @@
                  </size>
                 </property>
                 <property name="text">
-                 <string>Edytuj pacjenta</string>
+                 <string>Edit patient</string>
                 </property>
                </widget>
               </item>
@@ -132,7 +132,7 @@
                  </size>
                 </property>
                 <property name="text">
-                 <string>Usuń pacjenta</string>
+                 <string>Delete patient</string>
                 </property>
                </widget>
               </item>
@@ -159,7 +159,7 @@
                </size>
               </property>
               <property name="title">
-               <string>Wyszukaj</string>
+               <string>Search</string>
               </property>
               <layout class="QVBoxLayout" name="verticalLayout_22">
                <item>
@@ -168,7 +168,7 @@
                   <string/>
                  </property>
                  <property name="placeholderText">
-                  <string>Nazwisko</string>
+                  <string>Last name</string>
                  </property>
                 </widget>
                </item>
@@ -178,25 +178,28 @@
                   <string/>
                  </property>
                  <property name="placeholderText">
-                  <string>Imię</string>
+                  <string>First name</string>
                  </property>
                 </widget>
                </item>
                <item>
                 <widget class="QComboBox" name="searchGenderCBox">
+                 <property name="currentText">
+                  <string>gender</string>
+                 </property>
                  <item>
                   <property name="text">
-                   <string>płeć</string>
+                   <string>gender</string>
                   </property>
                  </item>
                  <item>
                   <property name="text">
-                   <string>Kobieta</string>
+                   <string>Woman</string>
                   </property>
                  </item>
                  <item>
                   <property name="text">
-                   <string>Mężczyzna</string>
+                   <string>Man</string>
                   </property>
                  </item>
                 </widget>
@@ -205,7 +208,7 @@
                 <widget class="QComboBox" name="searchPathologyCBox">
                  <item>
                   <property name="text">
-                   <string>rozpoznanie</string>
+                   <string>diagnosis</string>
                   </property>
                  </item>
                  <item>
@@ -240,7 +243,7 @@
                  </item>
                  <item>
                   <property name="text">
-                   <string>inne</string>
+                   <string>other</string>
                   </property>
                  </item>
                 </widget>
@@ -251,14 +254,14 @@
                   <string/>
                  </property>
                  <property name="placeholderText">
-                  <string>Numer kartoteki</string>
+                  <string>File no</string>
                  </property>
                 </widget>
                </item>
                <item>
                 <widget class="QLineEdit" name="searchNotesLEdit">
                  <property name="placeholderText">
-                  <string>Uwagi</string>
+                  <string>Notes</string>
                  </property>
                 </widget>
                </item>
@@ -276,7 +279,7 @@
                     <string/>
                    </property>
                    <property name="placeholderText">
-                    <string>Wiek od [lat]</string>
+                    <string>Age from</string>
                    </property>
                   </widget>
                  </item>
@@ -292,7 +295,7 @@
                     <string/>
                    </property>
                    <property name="placeholderText">
-                    <string>Wiek do [lat]</string>
+                    <string>Age to [years]</string>
                    </property>
                   </widget>
                  </item>
@@ -301,7 +304,7 @@
                <item>
                 <widget class="QRadioButton" name="showAllScansRButton">
                  <property name="text">
-                  <string>pokaż wszystkie skany pacjenta</string>
+                  <string>show all scans for patient</string>
                  </property>
                  <property name="checked">
                   <bool>true</bool>
@@ -311,7 +314,7 @@
                <item>
                 <widget class="QRadioButton" name="showOnlyDefaultScanRButton">
                  <property name="text">
-                  <string>pokaż tylko jeden skan pacjenta</string>
+                  <string>show only one scan for patient</string>
                  </property>
                  <property name="checked">
                   <bool>false</bool>
@@ -333,7 +336,7 @@
                   </font>
                  </property>
                  <property name="text">
-                  <string>Szukaj</string>
+                  <string>Search</string>
                  </property>
                 </widget>
                </item>
@@ -375,7 +378,7 @@
                <enum>Qt::LeftToRight</enum>
               </property>
               <property name="title">
-               <string>Ostrość widzenia i M-Charts</string>
+               <string>Visual acuity i M-Charts</string>
               </property>
               <property name="alignment">
                <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
@@ -390,7 +393,7 @@
                   </size>
                  </property>
                  <property name="text">
-                  <string>OP</string>
+                  <string>OD</string>
                  </property>
                  <property name="alignment">
                   <set>Qt::AlignCenter</set>
@@ -406,7 +409,7 @@
                   </size>
                  </property>
                  <property name="text">
-                  <string>OL</string>
+                  <string>OS</string>
                  </property>
                  <property name="alignment">
                   <set>Qt::AlignCenter</set>
@@ -536,7 +539,7 @@
                   </size>
                  </property>
                  <property name="text">
-                  <string>Pionowo:</string>
+                  <string>Vertical:</string>
                  </property>
                 </widget>
                </item>
@@ -582,7 +585,7 @@
                 <widget class="QLabel" name="label_36">
                  <property name="minimumSize">
                   <size>
-                   <width>44</width>
+                   <width>50</width>
                    <height>0</height>
                   </size>
                  </property>
@@ -593,7 +596,7 @@
                   </size>
                  </property>
                  <property name="text">
-                  <string>Poziomo:</string>
+                  <string>Horizontal:</string>
                  </property>
                 </widget>
                </item>
@@ -712,7 +715,7 @@
                  </size>
                 </property>
                 <property name="text">
-                 <string>Wyświetl listę skanów dla:</string>
+                 <string>Display scans for:</string>
                 </property>
                </widget>
               </item>
@@ -726,17 +729,17 @@
                 </property>
                 <item>
                  <property name="text">
-                  <string>jednego pacjenta</string>
+                  <string>one patient</string>
                  </property>
                 </item>
                 <item>
                  <property name="text">
-                  <string>według filtra</string>
+                  <string>filtered patients</string>
                  </property>
                 </item>
                 <item>
                  <property name="text">
-                  <string>wszystkich pacjentów</string>
+                  <string>all patients</string>
                  </property>
                 </item>
                </widget>
@@ -744,28 +747,28 @@
               <item>
                <widget class="QPushButton" name="searchForScansButton">
                 <property name="text">
-                 <string>Wyszukaj skany</string>
+                 <string>Search for scans</string>
                 </property>
                </widget>
               </item>
               <item>
                <widget class="QPushButton" name="addScanFolderButton">
                 <property name="text">
-                 <string>Dodaj katalog</string>
+                 <string>Add OCT scan folder</string>
                 </property>
                </widget>
               </item>
               <item>
                <widget class="QPushButton" name="addScanFileButton">
                 <property name="text">
-                 <string>Dodaj .OCT skan</string>
+                 <string>Add .OCT scan file</string>
                 </property>
                </widget>
               </item>
               <item>
                <widget class="QPushButton" name="batchProcessingButton">
                 <property name="text">
-                 <string>Przetwarzanie seryjne</string>
+                 <string>Batch processing</string>
                 </property>
                </widget>
               </item>
@@ -833,7 +836,7 @@
       </widget>
       <widget class="QWidget" name="tabOCTExam">
        <attribute name="title">
-        <string>Badanie OCT</string>
+        <string>OCT cross-sections</string>
        </attribute>
        <layout class="QHBoxLayout" name="horizontalLayout_16">
         <item>
@@ -860,7 +863,7 @@
                  </size>
                 </property>
                 <property name="text">
-                 <string>Obraz:</string>
+                 <string>Image:</string>
                 </property>
                </widget>
               </item>
@@ -978,7 +981,7 @@
                    </size>
                   </property>
                   <property name="text">
-                   <string>Wyżej</string>
+                   <string>Upper</string>
                   </property>
                  </widget>
                 </item>
@@ -1042,7 +1045,7 @@
                    </size>
                   </property>
                   <property name="text">
-                   <string>Niżej</string>
+                   <string>Lower</string>
                   </property>
                  </widget>
                 </item>
@@ -1078,6 +1081,9 @@
                <layout class="QHBoxLayout" name="horizontalLayout_9">
                 <item>
                  <widget class="QPushButton" name="prevNormalImageButton">
+                  <property name="enabled">
+                   <bool>false</bool>
+                  </property>
                   <property name="minimumSize">
                    <size>
                     <width>100</width>
@@ -1085,7 +1091,7 @@
                    </size>
                   </property>
                   <property name="text">
-                   <string>Lewo</string>
+                   <string>Left</string>
                   </property>
                  </widget>
                 </item>
@@ -1139,6 +1145,9 @@
                 </item>
                 <item>
                  <widget class="QPushButton" name="nextNormalImageButton">
+                  <property name="enabled">
+                   <bool>false</bool>
+                  </property>
                   <property name="minimumSize">
                    <size>
                     <width>100</width>
@@ -1146,7 +1155,7 @@
                    </size>
                   </property>
                   <property name="text">
-                   <string>Prawo</string>
+                   <string>Right</string>
                   </property>
                  </widget>
                 </item>
@@ -1175,7 +1184,7 @@
              </size>
             </property>
             <property name="title">
-             <string>Edycja warstwy</string>
+             <string>Edit layers</string>
             </property>
             <widget class="QRadioButton" name="pcvLayerRButton">
              <property name="geometry">
@@ -1971,7 +1980,7 @@
               </rect>
              </property>
              <property name="text">
-              <string>Pokaż wszystkie warstwy</string>
+              <string>Show all layers</string>
              </property>
              <property name="checked">
               <bool>true</bool>
@@ -1993,7 +2002,7 @@
                </size>
               </property>
               <property name="text">
-               <string>Kontrast</string>
+               <string>Contrast</string>
               </property>
              </widget>
             </item>
@@ -2040,7 +2049,7 @@
                </size>
               </property>
               <property name="text">
-               <string>Jasność</string>
+               <string>Brightness</string>
               </property>
              </widget>
             </item>
@@ -2124,7 +2133,7 @@
       </widget>
       <widget class="QWidget" name="tabRetinaAnalysis">
        <attribute name="title">
-        <string>Analiza siatkówki</string>
+        <string>Retina analysis</string>
        </attribute>
        <layout class="QHBoxLayout" name="horizontalLayout_12">
         <item>
@@ -2406,430 +2415,475 @@
       </widget>
       <widget class="QWidget" name="tabVirtualMap">
        <attribute name="title">
-        <string>Wirtualna mapa</string>
+        <string>Virtual map</string>
        </attribute>
        <layout class="QHBoxLayout" name="horizontalLayout_18">
         <item>
-         <layout class="QVBoxLayout" name="verticalLayout_10">
+         <layout class="QVBoxLayout" name="verticalLayout_8">
           <item>
-           <layout class="QHBoxLayout" name="horizontalLayout_4">
-            <item>
-             <layout class="QVBoxLayout" name="verticalLayout_8">
-              <item>
-               <widget class="QPushButton" name="computeVirtualMapButton">
-                <property name="enabled">
-                 <bool>false</bool>
-                </property>
-                <property name="sizePolicy">
-                 <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-                  <horstretch>0</horstretch>
-                  <verstretch>0</verstretch>
-                 </sizepolicy>
-                </property>
-                <property name="minimumSize">
-                 <size>
-                  <width>201</width>
-                  <height>31</height>
-                 </size>
-                </property>
-                <property name="text">
-                 <string>Oblicz / Odśwież wirtualną mapę</string>
-                </property>
-               </widget>
-              </item>
-              <item>
-               <widget class="QGroupBox" name="groupBox">
-                <property name="sizePolicy">
-                 <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-                  <horstretch>0</horstretch>
-                  <verstretch>0</verstretch>
-                 </sizepolicy>
-                </property>
-                <property name="minimumSize">
-                 <size>
-                  <width>201</width>
-                  <height>81</height>
-                 </size>
-                </property>
-                <property name="title">
-                 <string>Wybierz warstwy</string>
-                </property>
-                <widget class="QLabel" name="label_39">
-                 <property name="geometry">
-                  <rect>
-                   <x>10</x>
-                   <y>20</y>
-                   <width>71</width>
-                   <height>21</height>
-                  </rect>
-                 </property>
-                 <property name="text">
-                  <string>Warstwa 1:</string>
-                 </property>
-                </widget>
-                <widget class="QLabel" name="label_40">
-                 <property name="geometry">
-                  <rect>
-                   <x>10</x>
-                   <y>50</y>
-                   <width>71</width>
-                   <height>21</height>
-                  </rect>
-                 </property>
-                 <property name="text">
-                  <string>Warstwa 2:</string>
-                 </property>
-                </widget>
-                <widget class="QComboBox" name="layer1CBox">
-                 <property name="geometry">
-                  <rect>
-                   <x>80</x>
-                   <y>20</y>
-                   <width>101</width>
-                   <height>22</height>
-                  </rect>
-                 </property>
-                </widget>
-                <widget class="QComboBox" name="layer2CBox">
-                 <property name="geometry">
-                  <rect>
-                   <x>80</x>
-                   <y>50</y>
-                   <width>101</width>
-                   <height>22</height>
-                  </rect>
-                 </property>
-                </widget>
-               </widget>
-              </item>
-             </layout>
-            </item>
-            <item>
-             <widget class="QGroupBox" name="groupBox_2">
-              <property name="sizePolicy">
-               <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-                <horstretch>0</horstretch>
-                <verstretch>0</verstretch>
-               </sizepolicy>
-              </property>
-              <property name="minimumSize">
-               <size>
-                <width>221</width>
-                <height>121</height>
-               </size>
-              </property>
-              <property name="title">
-               <string>Pole powierzchni styku [mm2]</string>
-              </property>
-              <widget class="QLabel" name="label_16">
-               <property name="geometry">
-                <rect>
-                 <x>10</x>
-                 <y>50</y>
-                 <width>61</width>
-                 <height>16</height>
-                </rect>
-               </property>
-               <property name="text">
-                <string>Obszar CF:</string>
-               </property>
-              </widget>
-              <widget class="QLabel" name="label_29">
-               <property name="geometry">
-                <rect>
-                 <x>10</x>
-                 <y>70</y>
-                 <width>61</width>
-                 <height>16</height>
-                </rect>
-               </property>
-               <property name="text">
-                <string>Obszar IM:</string>
-               </property>
-              </widget>
-              <widget class="QLabel" name="label_34">
-               <property name="geometry">
-                <rect>
-                 <x>10</x>
-                 <y>90</y>
-                 <width>61</width>
-                 <height>16</height>
-                </rect>
-               </property>
-               <property name="text">
-                <string>Obszar OM:</string>
-               </property>
-              </widget>
-              <widget class="QLineEdit" name="contactAreaCFLEdit">
-               <property name="geometry">
-                <rect>
-                 <x>80</x>
-                 <y>50</y>
-                 <width>91</width>
-                 <height>20</height>
-                </rect>
-               </property>
-               <property name="text">
-                <string>0</string>
-               </property>
-               <property name="readOnly">
-                <bool>true</bool>
-               </property>
-              </widget>
-              <widget class="QLineEdit" name="contactAreaIMLEdit">
-               <property name="geometry">
-                <rect>
-                 <x>80</x>
-                 <y>70</y>
-                 <width>91</width>
-                 <height>20</height>
-                </rect>
-               </property>
-               <property name="text">
-                <string>0</string>
-               </property>
-               <property name="readOnly">
-                <bool>true</bool>
-               </property>
-              </widget>
-              <widget class="QLineEdit" name="contactAreaOMLEdit">
-               <property name="geometry">
-                <rect>
-                 <x>80</x>
-                 <y>90</y>
-                 <width>91</width>
-                 <height>20</height>
-                </rect>
-               </property>
-               <property name="text">
-                <string>0</string>
-               </property>
-               <property name="readOnly">
-                <bool>true</bool>
-               </property>
-              </widget>
-              <widget class="QLabel" name="label_43">
-               <property name="geometry">
-                <rect>
-                 <x>10</x>
-                 <y>20</y>
-                 <width>46</width>
-                 <height>16</height>
-                </rect>
-               </property>
-               <property name="text">
-                <string>Próg:</string>
-               </property>
-              </widget>
-              <widget class="QComboBox" name="contactThresholdCBox">
-               <property name="geometry">
-                <rect>
-                 <x>80</x>
-                 <y>20</y>
-                 <width>91</width>
-                 <height>22</height>
-                </rect>
-               </property>
-              </widget>
-              <widget class="QLabel" name="contactAreaProcCFLabel">
-               <property name="geometry">
-                <rect>
-                 <x>180</x>
-                 <y>50</y>
-                 <width>41</width>
-                 <height>21</height>
-                </rect>
-               </property>
-               <property name="text">
-                <string/>
-               </property>
-              </widget>
-              <widget class="QLabel" name="contactAreaProcIMLabel">
-               <property name="geometry">
-                <rect>
-                 <x>180</x>
-                 <y>70</y>
-                 <width>41</width>
-                 <height>21</height>
-                </rect>
-               </property>
-               <property name="text">
-                <string/>
-               </property>
-              </widget>
-              <widget class="QLabel" name="contactAreaProcOMLabel">
-               <property name="geometry">
-                <rect>
-                 <x>180</x>
-                 <y>90</y>
-                 <width>41</width>
-                 <height>21</height>
-                </rect>
-               </property>
-               <property name="text">
-                <string/>
-               </property>
-              </widget>
-             </widget>
-            </item>
-            <item>
-             <widget class="QGroupBox" name="groupBox_4">
-              <property name="minimumSize">
-               <size>
-                <width>120</width>
-                <height>0</height>
-               </size>
-              </property>
-              <property name="title">
-               <string>Statystyka siatkówki</string>
-              </property>
-              <widget class="QLabel" name="label_28">
-               <property name="geometry">
-                <rect>
-                 <x>10</x>
-                 <y>20</y>
-                 <width>121</width>
-                 <height>21</height>
-                </rect>
-               </property>
-               <property name="text">
-                <string>Grubość siatkówki [um]:</string>
-               </property>
-              </widget>
-              <widget class="QLineEdit" name="retinaDepthLEdit">
-               <property name="geometry">
-                <rect>
-                 <x>180</x>
-                 <y>20</y>
-                 <width>71</width>
-                 <height>20</height>
-                </rect>
-               </property>
-               <property name="readOnly">
-                <bool>true</bool>
-               </property>
-              </widget>
-              <widget class="QLabel" name="label_3">
-               <property name="geometry">
-                <rect>
-                 <x>10</x>
-                 <y>50</y>
-                 <width>171</width>
-                 <height>21</height>
-                </rect>
-               </property>
-               <property name="text">
-                <string>Objętość siatkówki d=3mm [mm3]:</string>
-               </property>
-              </widget>
-              <widget class="QLineEdit" name="retinaVolumeLEdit">
-               <property name="geometry">
-                <rect>
-                 <x>180</x>
-                 <y>50</y>
-                 <width>71</width>
-                 <height>20</height>
-                </rect>
-               </property>
-               <property name="readOnly">
-                <bool>true</bool>
-               </property>
-              </widget>
-              <widget class="QLabel" name="label_4">
-               <property name="geometry">
-                <rect>
-                 <x>10</x>
-                 <y>70</y>
-                 <width>171</width>
-                 <height>21</height>
-                </rect>
-               </property>
-               <property name="text">
-                <string>Preretinal volume d=3mm [mm3]:</string>
-               </property>
-              </widget>
-              <widget class="QLineEdit" name="preretinalVolumeLEdit">
-               <property name="geometry">
-                <rect>
-                 <x>180</x>
-                 <y>70</y>
-                 <width>71</width>
-                 <height>20</height>
-                </rect>
-               </property>
-               <property name="readOnly">
-                <bool>true</bool>
-               </property>
-              </widget>
-              <widget class="QLineEdit" name="foveaPitVolumeLEdit">
-               <property name="geometry">
-                <rect>
-                 <x>180</x>
-                 <y>90</y>
-                 <width>71</width>
-                 <height>20</height>
-                </rect>
-               </property>
-               <property name="readOnly">
-                <bool>true</bool>
-               </property>
-              </widget>
-              <widget class="QLabel" name="label_5">
-               <property name="geometry">
-                <rect>
-                 <x>10</x>
-                 <y>90</y>
-                 <width>171</width>
-                 <height>21</height>
-                </rect>
-               </property>
-               <property name="text">
-                <string>Fovea pit volume d=3mm [mm3]:</string>
-               </property>
-              </widget>
-             </widget>
-            </item>
-           </layout>
-          </item>
-          <item>
-           <widget class="QCustomPlot" name="virtualMapCircProfileCPlot" native="true">
+           <widget class="QPushButton" name="computeVirtualMapButton">
+            <property name="enabled">
+             <bool>false</bool>
+            </property>
             <property name="sizePolicy">
-             <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+             <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
               <horstretch>0</horstretch>
               <verstretch>0</verstretch>
              </sizepolicy>
             </property>
             <property name="minimumSize">
              <size>
-              <width>561</width>
-              <height>150</height>
+              <width>201</width>
+              <height>31</height>
              </size>
             </property>
             <property name="maximumSize">
              <size>
-              <width>1122</width>
-              <height>402</height>
+              <width>300</width>
+              <height>16777215</height>
+             </size>
+            </property>
+            <property name="text">
+             <string>Oblicz / Odśwież wirtualną mapę</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QGroupBox" name="groupBox">
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
+            <property name="minimumSize">
+             <size>
+              <width>201</width>
+              <height>81</height>
+             </size>
+            </property>
+            <property name="maximumSize">
+             <size>
+              <width>300</width>
+              <height>16777215</height>
+             </size>
+            </property>
+            <property name="title">
+             <string>Select layers:</string>
+            </property>
+            <layout class="QFormLayout" name="formLayout">
+             <item row="0" column="0">
+              <widget class="QLabel" name="label_39">
+               <property name="text">
+                <string>Layer 1:</string>
+               </property>
+              </widget>
+             </item>
+             <item row="0" column="1">
+              <widget class="QComboBox" name="layer1CBox"/>
+             </item>
+             <item row="1" column="0">
+              <widget class="QLabel" name="label_40">
+               <property name="text">
+                <string>Layer 2:</string>
+               </property>
+              </widget>
+             </item>
+             <item row="1" column="1">
+              <widget class="QComboBox" name="layer2CBox"/>
+             </item>
+            </layout>
+           </widget>
+          </item>
+          <item>
+           <widget class="QGroupBox" name="groupBox_4">
+            <property name="minimumSize">
+             <size>
+              <width>120</width>
+              <height>0</height>
+             </size>
+            </property>
+            <property name="maximumSize">
+             <size>
+              <width>300</width>
+              <height>16777215</height>
+             </size>
+            </property>
+            <property name="title">
+             <string>Retina statistics</string>
+            </property>
+            <layout class="QFormLayout" name="formLayout_2">
+             <item row="0" column="0">
+              <widget class="QLabel" name="label_28">
+               <property name="text">
+                <string>Thickness [um]:</string>
+               </property>
+              </widget>
+             </item>
+             <item row="0" column="1">
+              <widget class="QLineEdit" name="retinaDepthLEdit">
+               <property name="readOnly">
+                <bool>true</bool>
+               </property>
+              </widget>
+             </item>
+             <item row="1" column="0">
+              <widget class="QLabel" name="label_3">
+               <property name="text">
+                <string>Volume (d=3mm) [mm3]:</string>
+               </property>
+              </widget>
+             </item>
+             <item row="1" column="1">
+              <widget class="QLineEdit" name="retinaVolumeLEdit">
+               <property name="readOnly">
+                <bool>true</bool>
+               </property>
+              </widget>
+             </item>
+             <item row="2" column="0">
+              <widget class="QLabel" name="label_4">
+               <property name="text">
+                <string>Preretinal volume d=3mm [mm3]:</string>
+               </property>
+              </widget>
+             </item>
+             <item row="2" column="1">
+              <widget class="QLineEdit" name="preretinalVolumeLEdit">
+               <property name="readOnly">
+                <bool>true</bool>
+               </property>
+              </widget>
+             </item>
+             <item row="3" column="0">
+              <widget class="QLabel" name="label_5">
+               <property name="text">
+                <string>Fovea pit volume d=3mm [mm3]:</string>
+               </property>
+              </widget>
+             </item>
+             <item row="3" column="1">
+              <widget class="QLineEdit" name="foveaPitVolumeLEdit">
+               <property name="readOnly">
+                <bool>true</bool>
+               </property>
+              </widget>
+             </item>
+            </layout>
+           </widget>
+          </item>
+          <item>
+           <widget class="QGroupBox" name="groupBox_2">
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
+            <property name="minimumSize">
+             <size>
+              <width>221</width>
+              <height>121</height>
+             </size>
+            </property>
+            <property name="maximumSize">
+             <size>
+              <width>300</width>
+              <height>16777215</height>
+             </size>
+            </property>
+            <property name="title">
+             <string>Contact area [mm2]</string>
+            </property>
+            <layout class="QGridLayout" name="gridLayout">
+             <item row="0" column="0">
+              <widget class="QLabel" name="label_43">
+               <property name="text">
+                <string>Threshold:</string>
+               </property>
+              </widget>
+             </item>
+             <item row="0" column="1">
+              <widget class="QComboBox" name="contactThresholdCBox"/>
+             </item>
+             <item row="1" column="0">
+              <widget class="QLabel" name="label_16">
+               <property name="text">
+                <string>Area CF:</string>
+               </property>
+              </widget>
+             </item>
+             <item row="1" column="1">
+              <widget class="QLineEdit" name="contactAreaCFLEdit">
+               <property name="text">
+                <string>0</string>
+               </property>
+               <property name="readOnly">
+                <bool>true</bool>
+               </property>
+              </widget>
+             </item>
+             <item row="1" column="2">
+              <widget class="QLabel" name="contactAreaProcCFLabel">
+               <property name="sizePolicy">
+                <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+                 <horstretch>0</horstretch>
+                 <verstretch>0</verstretch>
+                </sizepolicy>
+               </property>
+               <property name="minimumSize">
+                <size>
+                 <width>30</width>
+                 <height>0</height>
+                </size>
+               </property>
+               <property name="text">
+                <string/>
+               </property>
+              </widget>
+             </item>
+             <item row="2" column="0">
+              <widget class="QLabel" name="label_29">
+               <property name="text">
+                <string>Area IM:</string>
+               </property>
+              </widget>
+             </item>
+             <item row="2" column="1">
+              <widget class="QLineEdit" name="contactAreaIMLEdit">
+               <property name="text">
+                <string>0</string>
+               </property>
+               <property name="readOnly">
+                <bool>true</bool>
+               </property>
+              </widget>
+             </item>
+             <item row="2" column="2">
+              <widget class="QLabel" name="contactAreaProcIMLabel">
+               <property name="text">
+                <string/>
+               </property>
+              </widget>
+             </item>
+             <item row="3" column="0">
+              <widget class="QLabel" name="label_34">
+               <property name="text">
+                <string>Area OM:</string>
+               </property>
+              </widget>
+             </item>
+             <item row="3" column="1">
+              <widget class="QLineEdit" name="contactAreaOMLEdit">
+               <property name="text">
+                <string>0</string>
+               </property>
+               <property name="readOnly">
+                <bool>true</bool>
+               </property>
+              </widget>
+             </item>
+             <item row="3" column="2">
+              <widget class="QLabel" name="contactAreaProcOMLabel">
+               <property name="text">
+                <string/>
+               </property>
+              </widget>
+             </item>
+            </layout>
+           </widget>
+          </item>
+          <item>
+           <widget class="QLabel" name="label_46">
+            <property name="font">
+             <font>
+              <weight>75</weight>
+              <bold>true</bold>
+             </font>
+            </property>
+            <property name="text">
+             <string>Virtual map volumetric analysis:</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QCustomPlot" name="ETDRSgridCPlot" native="true">
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="MinimumExpanding" vsizetype="MinimumExpanding">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
+            <property name="minimumSize">
+             <size>
+              <width>300</width>
+              <height>300</height>
+             </size>
+            </property>
+            <property name="maximumSize">
+             <size>
+              <width>300</width>
+              <height>300</height>
+             </size>
+            </property>
+            <property name="sizeIncrement">
+             <size>
+              <width>10</width>
+              <height>10</height>
              </size>
             </property>
            </widget>
           </item>
+         </layout>
+        </item>
+        <item>
+         <layout class="QVBoxLayout" name="verticalLayout_16">
           <item>
-           <widget class="QLabel" name="label_44">
-            <property name="text">
-             <string/>
-            </property>
-            <property name="pixmap">
-             <pixmap>circ_profile_legend.png</pixmap>
-            </property>
-            <property name="alignment">
-             <set>Qt::AlignCenter</set>
-            </property>
-           </widget>
+           <layout class="QHBoxLayout" name="horizontalLayout_4">
+            <item>
+             <layout class="QVBoxLayout" name="verticalLayout_9">
+              <item>
+               <widget class="QLabel" name="label_41">
+                <property name="font">
+                 <font>
+                  <weight>75</weight>
+                  <bold>true</bold>
+                 </font>
+                </property>
+                <property name="text">
+                 <string>Virtual map for selected layers:</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QCustomPlot" name="virtualMapImageCPlot" native="true">
+                <property name="sizePolicy">
+                 <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+                  <horstretch>0</horstretch>
+                  <verstretch>0</verstretch>
+                 </sizepolicy>
+                </property>
+                <property name="minimumSize">
+                 <size>
+                  <width>400</width>
+                  <height>450</height>
+                 </size>
+                </property>
+                <property name="maximumSize">
+                 <size>
+                  <width>800</width>
+                  <height>1062</height>
+                 </size>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <layout class="QHBoxLayout" name="horizontalLayout_5">
+                <item>
+                 <widget class="QLabel" name="label">
+                  <property name="sizePolicy">
+                   <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                    <horstretch>0</horstretch>
+                    <verstretch>0</verstretch>
+                   </sizepolicy>
+                  </property>
+                  <property name="text">
+                   <string>Value:</string>
+                  </property>
+                 </widget>
+                </item>
+                <item>
+                 <widget class="QLabel" name="virtualMapValueHoverLabel">
+                  <property name="sizePolicy">
+                   <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+                    <horstretch>0</horstretch>
+                    <verstretch>0</verstretch>
+                   </sizepolicy>
+                  </property>
+                  <property name="text">
+                   <string/>
+                  </property>
+                 </widget>
+                </item>
+               </layout>
+              </item>
+             </layout>
+            </item>
+            <item>
+             <layout class="QVBoxLayout" name="verticalLayout_10">
+              <item>
+               <widget class="QLabel" name="label_45">
+                <property name="font">
+                 <font>
+                  <weight>75</weight>
+                  <bold>true</bold>
+                 </font>
+                </property>
+                <property name="text">
+                 <string>Retina thickness:</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QCustomPlot" name="virtualMapContourImageCPlot" native="true">
+                <property name="sizePolicy">
+                 <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+                  <horstretch>0</horstretch>
+                  <verstretch>0</verstretch>
+                 </sizepolicy>
+                </property>
+                <property name="minimumSize">
+                 <size>
+                  <width>400</width>
+                  <height>450</height>
+                 </size>
+                </property>
+                <property name="maximumSize">
+                 <size>
+                  <width>800</width>
+                  <height>1062</height>
+                 </size>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <layout class="QHBoxLayout" name="horizontalLayout_10">
+                <item>
+                 <widget class="QLabel" name="label_6">
+                  <property name="sizePolicy">
+                   <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                    <horstretch>0</horstretch>
+                    <verstretch>0</verstretch>
+                   </sizepolicy>
+                  </property>
+                  <property name="text">
+                   <string>Value:</string>
+                  </property>
+                 </widget>
+                </item>
+                <item>
+                 <widget class="QLabel" name="retinaThicknessMapHoverValueLabel">
+                  <property name="sizePolicy">
+                   <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+                    <horstretch>0</horstretch>
+                    <verstretch>0</verstretch>
+                   </sizepolicy>
+                  </property>
+                  <property name="text">
+                   <string/>
+                  </property>
+                 </widget>
+                </item>
+               </layout>
+              </item>
+             </layout>
+            </item>
+           </layout>
           </item>
           <item>
-           <layout class="QHBoxLayout" name="horizontalLayout_10">
+           <layout class="QVBoxLayout" name="verticalLayout_15">
             <item>
-             <widget class="QCustomPlot" name="virtualMapHistCPlot" native="true">
+             <widget class="QCustomPlot" name="virtualMapCircProfileCPlot" native="true">
               <property name="sizePolicy">
                <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
                 <horstretch>0</horstretch>
@@ -2838,129 +2892,32 @@
               </property>
               <property name="minimumSize">
                <size>
-                <width>450</width>
-                <height>201</height>
+                <width>561</width>
+                <height>150</height>
                </size>
               </property>
               <property name="maximumSize">
                <size>
-                <width>750</width>
-                <height>302</height>
+                <width>2000</width>
+                <height>402</height>
                </size>
               </property>
              </widget>
             </item>
             <item>
-             <widget class="QCustomPlot" name="ETDRSgridCPlot" native="true">
-              <property name="sizePolicy">
-               <sizepolicy hsizetype="MinimumExpanding" vsizetype="MinimumExpanding">
-                <horstretch>0</horstretch>
-                <verstretch>0</verstretch>
-               </sizepolicy>
-              </property>
-              <property name="minimumSize">
-               <size>
-                <width>300</width>
-                <height>250</height>
-               </size>
-              </property>
-              <property name="maximumSize">
-               <size>
-                <width>300</width>
-                <height>300</height>
-               </size>
-              </property>
-              <property name="sizeIncrement">
-               <size>
-                <width>10</width>
-                <height>10</height>
-               </size>
-              </property>
-             </widget>
-            </item>
-           </layout>
-          </item>
-         </layout>
-        </item>
-        <item>
-         <layout class="QVBoxLayout" name="verticalLayout_9">
-          <item>
-           <widget class="QLabel" name="label_41">
-            <property name="font">
-             <font>
-              <weight>75</weight>
-              <bold>true</bold>
-             </font>
-            </property>
-            <property name="text">
-             <string>Wirtualna mapa ręcznej segmentacji:</string>
-            </property>
-           </widget>
-          </item>
-          <item>
-           <widget class="QCustomPlot" name="virtualMapImageCPlot" native="true">
-            <property name="sizePolicy">
-             <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
-              <horstretch>0</horstretch>
-              <verstretch>0</verstretch>
-             </sizepolicy>
-            </property>
-            <property name="minimumSize">
-             <size>
-              <width>300</width>
-              <height>400</height>
-             </size>
-            </property>
-            <property name="maximumSize">
-             <size>
-              <width>800</width>
-              <height>1062</height>
-             </size>
-            </property>
-           </widget>
-          </item>
-          <item>
-           <layout class="QHBoxLayout" name="horizontalLayout_5">
-            <item>
-             <widget class="QLabel" name="label">
-              <property name="sizePolicy">
-               <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-                <horstretch>0</horstretch>
-                <verstretch>0</verstretch>
-               </sizepolicy>
-              </property>
-              <property name="text">
-               <string>Wartość:</string>
-              </property>
-             </widget>
-            </item>
-            <item>
-             <widget class="QLabel" name="virtualMapValueHoverLabel">
-              <property name="sizePolicy">
-               <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
-                <horstretch>0</horstretch>
-                <verstretch>0</verstretch>
-               </sizepolicy>
-              </property>
+             <widget class="QLabel" name="label_44">
               <property name="text">
                <string/>
               </property>
+              <property name="pixmap">
+               <pixmap>circ_profile_legend.png</pixmap>
+              </property>
+              <property name="alignment">
+               <set>Qt::AlignCenter</set>
+              </property>
              </widget>
             </item>
            </layout>
-          </item>
-          <item>
-           <spacer name="verticalSpacer_3">
-            <property name="orientation">
-             <enum>Qt::Vertical</enum>
-            </property>
-            <property name="sizeHint" stdset="0">
-             <size>
-              <width>20</width>
-              <height>40</height>
-             </size>
-            </property>
-           </spacer>
           </item>
          </layout>
         </item>
@@ -2968,7 +2925,7 @@
       </widget>
       <widget class="QWidget" name="tabErrorAnalysis">
        <attribute name="title">
-        <string>Analiza błędu</string>
+        <string>Error analysis</string>
        </attribute>
        <layout class="QVBoxLayout" name="verticalLayout_14">
         <item>
@@ -2982,7 +2939,7 @@
              </size>
             </property>
             <property name="text">
-             <string>Wczytany plik:</string>
+             <string>Loaded file:</string>
             </property>
            </widget>
           </item>
@@ -3023,7 +2980,7 @@
                  <bool>false</bool>
                 </property>
                 <property name="text">
-                 <string>Poprzedni</string>
+                 <string>Previous</string>
                 </property>
                </widget>
               </item>
@@ -3072,7 +3029,7 @@
                  <bool>false</bool>
                 </property>
                 <property name="text">
-                 <string>Następny</string>
+                 <string>Next</string>
                 </property>
                </widget>
               </item>
@@ -3103,7 +3060,7 @@
                </font>
               </property>
               <property name="title">
-               <string>Statystyka wirtualnej mapy</string>
+               <string>Virtual map statistics</string>
               </property>
               <widget class="QLineEdit" name="virtualMapErrorDevLEdit_um">
                <property name="enabled">
@@ -3128,7 +3085,7 @@
                 </rect>
                </property>
                <property name="text">
-                <string>Średni błąd wirtualnej mapy:</string>
+                <string>Average error</string>
                </property>
               </widget>
               <widget class="QLineEdit" name="virtualMapErrorAvgLEdit_um">
@@ -3167,7 +3124,7 @@
                 </rect>
                </property>
                <property name="text">
-                <string>Odchylenie standardowe wirtualnej mapy:</string>
+                <string>Standard deviation</string>
                </property>
               </widget>
               <widget class="QLineEdit" name="virtualMapErrorDevLEdit">
@@ -3194,7 +3151,7 @@
                </size>
               </property>
               <property name="title">
-               <string>Statystyka warstw</string>
+               <string>Layers statistics</string>
               </property>
               <widget class="QLineEdit" name="layerErrorDevLEdit_um">
                <property name="enabled">
@@ -3219,7 +3176,7 @@
                 </rect>
                </property>
                <property name="text">
-                <string>Odchylenie standardowe dla warstwy:</string>
+                <string>Standard deviation</string>
                </property>
               </widget>
               <widget class="QComboBox" name="layerErrorCBox">
@@ -3281,7 +3238,7 @@
                 </rect>
                </property>
                <property name="text">
-                <string>Średni błąd dla warstwy:</string>
+                <string>Average error for:</string>
                </property>
               </widget>
               <widget class="QLabel" name="label_26">
@@ -3289,12 +3246,12 @@
                 <rect>
                  <x>10</x>
                  <y>120</y>
-                 <width>181</width>
+                 <width>191</width>
                  <height>16</height>
                 </rect>
                </property>
                <property name="text">
-                <string>Procent błędnie oznaczonych pikseli:</string>
+                <string>Percent of erroneous segmentations:</string>
                </property>
               </widget>
               <widget class="QLineEdit" name="layerErrorProcLEdit">
@@ -3327,7 +3284,7 @@
                </size>
               </property>
               <property name="title">
-               <string>Statystyka aktualnego skanu</string>
+               <string>Current scan statistics</string>
               </property>
               <widget class="QLineEdit" name="pcvLineErrorDevLEdit">
                <property name="enabled">
@@ -3378,7 +3335,7 @@
                 </rect>
                </property>
                <property name="text">
-                <string>Średni błąd dla warstwy PCV:</string>
+                <string>Average error for PCV layer:</string>
                </property>
               </widget>
               <widget class="QLineEdit" name="ilmLineErrorAvgLEdit">
@@ -3404,7 +3361,7 @@
                 </rect>
                </property>
                <property name="text">
-                <string>Odchylenie standardowe dla warstwy PCV:</string>
+                <string>Standard deviation for PCV layer:</string>
                </property>
               </widget>
               <widget class="QLineEdit" name="ilmLineErrorDevLEdit_um">
@@ -3430,7 +3387,7 @@
                 </rect>
                </property>
                <property name="text">
-                <string>Odchylenie standardowe dla warstwy ILM:</string>
+                <string>Standard deviation for ILM layer:</string>
                </property>
               </widget>
               <widget class="QLineEdit" name="ilmLineErrorDevLEdit">
@@ -3469,7 +3426,7 @@
                 </rect>
                </property>
                <property name="text">
-                <string>Średni błąd dla warstwy ILM:</string>
+                <string>Average error for ILM layer:</string>
                </property>
               </widget>
               <widget class="QLineEdit" name="pcvLineErrorAvgLEdit_um">
@@ -3490,7 +3447,7 @@
             <item>
              <widget class="QGroupBox" name="groupBox_3">
               <property name="title">
-               <string>Błąd wszystkich skanów</string>
+               <string>Error for all scans</string>
               </property>
               <widget class="QLineEdit" name="layerErrorMSEAllLEdit">
                <property name="geometry">
@@ -3527,7 +3484,7 @@
                </font>
               </property>
               <property name="text">
-               <string>Wirtualna mapa automatycznej segmentacji:</string>
+               <string>Virtual map of automatic segmentations:</string>
               </property>
              </widget>
             </item>
@@ -3581,14 +3538,14 @@
    </property>
    <widget class="QMenu" name="menuPatient">
     <property name="title">
-     <string>Pacjent</string>
+     <string>Patient</string>
     </property>
     <widget class="QMenu" name="menuAnnotations">
      <property name="title">
-      <string>Segmentacja</string>
+      <string>Segmentations</string>
      </property>
      <addaction name="actionReadAutoSegmentation"/>
-     <addaction name="actionCloseAutoSegmentation"/>
+     <addaction name="actionClose_auto_segmentation"/>
      <addaction name="actionSaveAutoAnnotationsAs"/>
      <addaction name="actionConvertAutoAnnotations"/>
      <addaction name="separator"/>
@@ -3608,7 +3565,7 @@
     </property>
     <widget class="QMenu" name="menuFillLineFrom">
      <property name="title">
-      <string>Uzupełnij linię na podstawie punktów</string>
+      <string>Fill line from points</string>
      </property>
      <addaction name="actionFillFromILM"/>
      <addaction name="actionFillStraight"/>
@@ -3632,7 +3589,7 @@
    </widget>
    <widget class="QMenu" name="menuInfo">
     <property name="title">
-     <string>Pomoc</string>
+     <string>Help</string>
     </property>
     <addaction name="actionInfo"/>
    </widget>
@@ -3659,7 +3616,7 @@
   </widget>
   <action name="actionSaveGeneralExam">
    <property name="text">
-    <string>Zapisz badanie ogólne</string>
+    <string>Save general exam data</string>
    </property>
   </action>
   <action name="actionSaveOCTExam">
@@ -3667,17 +3624,17 @@
     <bool>true</bool>
    </property>
    <property name="text">
-    <string>Zapisz badanie OCT</string>
+    <string>Save OCT scan segmentations</string>
    </property>
   </action>
   <action name="actionLoadOCTSequence">
    <property name="text">
-    <string>Wczytaj badanie OCT (katalog)</string>
+    <string>Load OCT scan folder</string>
    </property>
   </action>
   <action name="actionChangeLayerColor">
    <property name="text">
-    <string>Zmień kolor warstwy</string>
+    <string>Change layer color</string>
    </property>
   </action>
   <action name="actionSetScanCenter">
@@ -3688,27 +3645,27 @@
     <bool>false</bool>
    </property>
    <property name="text">
-    <string>Ustaw środek skanu</string>
+    <string>Set scan center</string>
    </property>
   </action>
   <action name="actionClose">
    <property name="text">
-    <string>Zamknij</string>
+    <string>Close</string>
    </property>
   </action>
   <action name="actionSaveAutoAnnotationsAs">
    <property name="text">
-    <string>Zapisz automatyczną segmentację jako...</string>
+    <string>Save automatic segmentation as...</string>
    </property>
   </action>
   <action name="actionConvertAutoAnnotations">
    <property name="text">
-    <string>Konwertuj automatyczną segmentację z XML na TXT</string>
+    <string>Convert automatic segmentation from XML to TXT</string>
    </property>
   </action>
   <action name="actionReadManualAnnotations">
    <property name="text">
-    <string>Wczytaj ręczną segmentację</string>
+    <string>Load manual segmentation</string>
    </property>
   </action>
   <action name="actionFillFromILM">
@@ -3716,7 +3673,7 @@
     <bool>false</bool>
    </property>
    <property name="text">
-    <string>z ILM</string>
+    <string>from ILM</string>
    </property>
   </action>
   <action name="actionFillStraight">
@@ -3724,22 +3681,22 @@
     <bool>false</bool>
    </property>
    <property name="text">
-    <string>linią prostą</string>
+    <string>straight line</string>
    </property>
   </action>
   <action name="actionReadAutoSegmentation">
    <property name="text">
-    <string>Wczytaj automatyczną segmentację</string>
+    <string>Load auto segmentation</string>
    </property>
   </action>
-  <action name="actionCloseAutoSegmentation">
+  <action name="actionClose_auto_segmentation">
    <property name="text">
-    <string>Zamknij automatyczną segmentację</string>
+    <string>Close auto segmentation</string>
    </property>
   </action>
   <action name="actionSetAutoSegmentationAsManual">
    <property name="text">
-    <string>Kopiuj automatyczną segmentację jako ręczną</string>
+    <string>Copy auto segmentation as manual</string>
    </property>
   </action>
   <action name="actionShowETDRSGrid">
@@ -3750,12 +3707,12 @@
     <bool>true</bool>
    </property>
    <property name="text">
-    <string>Pokaż siatkę ETDRS</string>
+    <string>Show ETDRS grid</string>
    </property>
   </action>
   <action name="actionSettings">
    <property name="text">
-    <string>Ustawienia</string>
+    <string>Settings</string>
    </property>
   </action>
   <action name="actionShowCenterOnBscan">
@@ -3766,7 +3723,7 @@
     <bool>true</bool>
    </property>
    <property name="text">
-    <string>Pokaż środek skanu na B-skanie</string>
+    <string>Show scan center on cross-section</string>
    </property>
   </action>
   <action name="actionComputeErrorAllScans">
@@ -3784,7 +3741,7 @@
     <bool>true</bool>
    </property>
    <property name="text">
-    <string>Wyprostowanie obrazu</string>
+    <string>Image flattening</string>
    </property>
    <property name="toolTip">
     <string>Image flattening</string>
@@ -3795,7 +3752,7 @@
     <bool>true</bool>
    </property>
    <property name="text">
-    <string>Edytuj segmentacje</string>
+    <string>Edit segmentations</string>
    </property>
    <property name="toolTip">
     <string>Edit Annotations</string>
@@ -3808,7 +3765,7 @@
   </action>
   <action name="actionLoadOCTFile">
    <property name="text">
-    <string>Wczytaj badanie OCT (.oct)</string>
+    <string>Load OCT scan file (.oct)</string>
    </property>
   </action>
  </widget>

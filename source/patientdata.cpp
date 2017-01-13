@@ -937,6 +937,7 @@ PatientData::PatientData()
     this->retinaVolume = 0.0;
     this->preretinalVolume = 0.0;
     this->foveaPitVolume = 0.0;
+    this->foveaPitContour.clear();
 }
 
 QImage PatientData::getNormalImage(int normalImageNumber){
@@ -2068,10 +2069,20 @@ void PatientData::computeRetinaThicknessMap()
     // calculate retina depth
     calculateRetinaDepth();
     calculateRetinaVolume();
+
+    computeFoveaPitContour();
 }
 
 double PatientData::getRetinaThicknessMapValue(int x, int y, QString unit)
 {
+    if (y < 0)
+        qDebug() << "y out of bounds (<0)";
+    if (x < 0)
+        qDebug() << "x out of bounds (<0)";
+    if (y > this->bscansNumber-1)
+        qDebug() << "y out of bounds (>n)";
+    if (x > this->bscanWidth-1)
+        qDebug() << "x out of bounds (>n)";
     int value = this->retinaThicknessMap.value(y)[x];
 
     if (unit != ""){
@@ -2270,6 +2281,445 @@ void PatientData::calculateFoveaPitVolume(){
 
 double PatientData::getFoveaPitVolume(){
     return this->foveaPitVolume;
+}
+
+void PatientData::computeFoveaPitContour()
+{
+    QPoint center = this->scanCenter;
+    if (center.x() == -1)
+        center.setX(this->bscanWidth/2);
+    if (center.y() == -1)
+        center.setY(this->bscansNumber/2);
+    QList<QPoint> tempList;
+
+    double deltaX = (double)(this->getVoxelWidth() / (this->getBscanWidth()));
+    double deltaY = (double)(this->getVoxelHeight() / (this->getBscansNumber()));
+
+    double radius = 2.0;
+    double circDist;
+    int xCoord, xCoord2;
+    int yCoord = center.y();
+
+    int maxIndexLeft = 0;
+    int maxIndexRight = this->bscanWidth-1;
+    int maxDistance = maxIndexRight - maxIndexLeft;
+    double yDist, alfa;
+    int maxValue;
+
+    while (maxDistance > 1){
+
+        // calculate points coord from radius
+        if (yCoord == center.y()){
+            circDist = radius;
+        } else {
+            yDist = (double)qAbs(yCoord - center.y())*deltaY;
+            if (yDist > radius)
+                break;
+            alfa = acos(yDist / radius);
+            circDist = sin(alfa) * radius;
+        }
+
+        xCoord = center.x() - circDist/deltaX;
+        xCoord2 = center.x() + circDist/deltaX;
+
+        // get vector of points to the left
+        QList<int> pointsLeft;
+        for (int x=center.x(); x >= xCoord; x--){
+            pointsLeft.append(this->getRetinaThicknessMapValue(x,yCoord));
+        }
+
+        // find max
+        maxValue = 0;
+        for (int i=0; i < pointsLeft.count(); i++){
+            if (pointsLeft.at(i) > maxValue){
+                maxValue = pointsLeft.at(i);
+                maxIndexLeft = center.x() - i;
+            }
+        }
+
+        // add to the list
+        this->foveaPitContour.append(QPoint(maxIndexLeft,yCoord));
+
+        // get vector of points to the right
+        QList<int> pointsRight;
+        for (int x=center.x(); x <= xCoord2; x++){
+            pointsRight.append(this->getRetinaThicknessMapValue(x,yCoord));
+        }
+
+        // find max
+        maxValue = 0;
+        for (int i=0; i < pointsRight.count(); i++){
+            if (pointsRight.at(i) > maxValue){
+                maxValue = pointsRight.at(i);
+                maxIndexRight = center.x() + i;
+            }
+        }
+
+        // add to the list
+        tempList.append(QPoint(maxIndexRight,yCoord));
+
+        // if max indexes are the same or next to each other then stop
+        maxDistance = maxIndexRight - maxIndexLeft;
+        yCoord--;
+
+    }
+
+    for (int i=tempList.count()-1; i>=0; i--){
+        this->foveaPitContour.append(tempList.at(i));
+    }
+
+    // ---------- LOWER BOUND ------------
+    maxIndexLeft = 0;
+    maxIndexRight = this->bscanWidth-1;
+    maxDistance = maxIndexRight - maxIndexLeft;
+    yCoord = center.y();
+    tempList.clear();
+    while (maxDistance > 1){
+
+        // calculate points coord from radius
+        if (yCoord == center.y()){
+            circDist = radius;
+        } else {
+            yDist = (double)qAbs(yCoord - center.y())*deltaY;
+            if (yDist > radius)
+                break;
+            alfa = acos(yDist / radius);
+            circDist = sin(alfa) * radius;
+        }
+
+        xCoord = center.x() - circDist/deltaX;
+        xCoord2 = center.x() + circDist/deltaX;
+
+        // get vector of points to the right
+        QList<int> pointsRight;
+        for (int x=center.x(); x <= xCoord2; x++){
+            pointsRight.append(this->getRetinaThicknessMapValue(x,yCoord));
+        }
+
+        // find max
+        maxValue = 0;
+        for (int i=0; i < pointsRight.count(); i++){
+            if (pointsRight.at(i) > maxValue){
+                maxValue = pointsRight.at(i);
+                maxIndexRight = center.x() + i;
+            }
+        }
+
+        // add to the list
+        this->foveaPitContour.append(QPoint(maxIndexRight,yCoord));
+
+        // get vector of points to the right
+        QList<int> pointsLeft;
+        for (int x=center.x(); x >= xCoord; x--){
+            pointsLeft.append(this->getRetinaThicknessMapValue(x,yCoord));
+        }
+
+        // find max
+        int maxValue = 0;
+        for (int i=0; i < pointsLeft.count(); i++){
+            if (pointsLeft.at(i) > maxValue){
+                maxValue = pointsLeft.at(i);
+                maxIndexLeft = center.x() - i;
+            }
+        }
+
+        // add to the list
+        tempList.append(QPoint(maxIndexLeft,yCoord));
+
+        // if max indexes are the same or next to each other then stop
+        maxDistance = maxIndexRight - maxIndexLeft;
+        yCoord++;
+
+    }
+
+    for (int i=tempList.count()-1; i>=0; i--){
+        this->foveaPitContour.append(tempList.at(i));
+    }
+
+    // ---------------------------------------------------------------------------------
+    // pionowo
+
+    maxIndexLeft = 0;
+    maxIndexRight = this->bscansNumber-1;
+    maxDistance = maxIndexRight - maxIndexLeft;
+    xCoord = center.x();
+    tempList.clear();
+    double xDist;
+    int yCoord2;
+
+    while (maxDistance > 1){
+        // calculate points coord from radius
+        if (xCoord == center.x()){
+            circDist = radius;
+        } else {
+            xDist = (double)qAbs(xCoord - center.x())*deltaX;
+            if (xDist > radius)
+                break;
+            alfa = acos(xDist / radius);
+            circDist = sin(alfa) * radius;
+        }
+
+        yCoord = center.y() - circDist/deltaY;
+        yCoord2 = center.y() + circDist/deltaY;
+
+        // get vector of points to the left
+        QList<int> pointsLeft;
+        for (int y=yCoord; y <= center.y(); y++){
+            pointsLeft.append(this->getRetinaThicknessMapValue(xCoord,y));
+        }
+
+        // find max
+        int maxValue = 0;
+        for (int i=0; i < pointsLeft.count(); i++){
+            if (pointsLeft.at(i) > maxValue){
+                maxValue = pointsLeft.at(i);
+                maxIndexLeft = center.y() - (pointsLeft.count() - i);
+            }
+        }
+
+        // add to the list
+        this->foveaPitContour2.append(QPoint(xCoord,maxIndexLeft));
+
+        // get vector of points to the right
+        QList<int> pointsRight;
+        for (int y=yCoord2; y >= center.y(); y--){
+            pointsRight.append(this->getRetinaThicknessMapValue(xCoord,y));
+        }
+
+        // find max
+        maxValue = 0;
+        for (int i=0; i < pointsRight.count(); i++){
+            if (pointsRight.at(i) > maxValue){
+                maxValue = pointsRight.at(i);
+                maxIndexRight = center.y() + (pointsRight.count() - i);
+            }
+        }
+
+        // add to the list
+        tempList.append(QPoint(xCoord,maxIndexRight));
+
+        // if max indexes are the same or next to each other then stop
+        maxDistance = maxIndexRight - maxIndexLeft;
+        xCoord--;
+    }
+
+    for (int i=tempList.count()-1; i>=0; i--){
+        this->foveaPitContour2.append(tempList.at(i));
+    }
+
+//    // LOWER BOUND 2 -------------------
+
+    maxIndexLeft = 0;
+    maxIndexRight = this->bscansNumber-1;
+    maxDistance = maxIndexRight - maxIndexLeft;
+    xCoord = center.x();
+    tempList.clear();
+
+    while (maxDistance > 1){
+        // calculate points coord from radius
+        if (xCoord == center.x()){
+            circDist = radius;
+        } else {
+            xDist = (double)qAbs(xCoord - center.x())*deltaX;
+            if (xDist > radius)
+                break;
+            alfa = acos(xDist / radius);
+            circDist = sin(alfa) * radius;
+        }
+
+        yCoord = center.y() - circDist/deltaY;
+        yCoord2 = center.y() + circDist/deltaY;
+
+        // get vector of points to the right
+        QList<int> pointsRight;
+        for (int y=yCoord2; y >= center.y(); y--){
+            pointsRight.append(this->getRetinaThicknessMapValue(xCoord,y));
+        }
+
+        // find max
+        maxValue = 0;
+        for (int i=0; i < pointsRight.count(); i++){
+            if (pointsRight.at(i) > maxValue){
+                maxValue = pointsRight.at(i);
+                maxIndexRight = center.y() + (pointsRight.count() - i);
+            }
+        }
+
+        // add to the list
+        this->foveaPitContour2.append(QPoint(xCoord,maxIndexRight));
+
+        // get vector of points to the left
+        QList<int> pointsLeft;
+        for (int y=yCoord; y <= center.y(); y++){
+            pointsLeft.append(this->getRetinaThicknessMapValue(xCoord,y));
+        }
+
+        // find max
+        int maxValue = 0;
+        for (int i=0; i < pointsLeft.count(); i++){
+            if (pointsLeft.at(i) > maxValue){
+                maxValue = pointsLeft.at(i);
+                maxIndexLeft = center.y() - (pointsLeft.count() - i);
+            }
+        }
+
+        // add to the list
+        tempList.append(QPoint(xCoord,maxIndexLeft));
+
+        // if max indexes are the same or next to each other then stop
+        maxDistance = maxIndexRight - maxIndexLeft;
+        xCoord++;
+    }
+
+    for (int i=tempList.count()-1; i>=0; i--){
+        this->foveaPitContour2.append(tempList.at(i));
+    }
+
+    // ---------------------------------------------------------------------------------
+
+//    maxIndexLeft = 0;
+//    maxIndexRight = this->bscanWidth-1;
+//    maxDistance = maxIndexRight - maxIndexLeft;
+//    yCoord = center.y();
+//    tempList.clear();
+
+//    while (maxDistance > 1){
+//        // calculate points coord from radius
+//        if (yCoord == center.y()){
+//            circDist = radius;
+//        } else {
+//            yDist = (double)qAbs(yCoord - center.y())*deltaY;
+//            if (yDist > radius)
+//                break;
+//            alfa = acos(yDist / radius);
+//            circDist = sin(alfa) * radius;
+//        }
+
+//        xCoord = center.x() - circDist/deltaX;
+//        xCoord2 = center.x() + circDist/deltaX;
+
+//        // get vector of points to the left
+//        QList<int> pointsLeft;
+//        for (int x=xCoord; x <= center.x(); x++){
+//            pointsLeft.append(this->getRetinaThicknessMapValue(x,yCoord));
+//        }
+
+//        // find max
+//        int maxValue = 0;
+//        for (int i=0; i < pointsLeft.count(); i++){
+//            if (pointsLeft.at(i) > maxValue){
+//                maxValue = pointsLeft.at(i);
+//                maxIndexLeft = center.x() - (pointsLeft.count() - i);
+//            }
+//        }
+
+//        // add to the list
+//        this->foveaPitContour2.append(QPoint(maxIndexLeft,yCoord));
+
+//        // get vector of points to the right
+//        QList<int> pointsRight;
+//        for (int x=xCoord2; x >= center.x(); x--){
+//            pointsRight.append(this->getRetinaThicknessMapValue(x,yCoord));
+//        }
+
+//        // find max
+//        maxValue = 0;
+//        for (int i=0; i < pointsRight.count(); i++){
+//            if (pointsRight.at(i) > maxValue){
+//                maxValue = pointsRight.at(i);
+//                maxIndexRight = center.x() + (pointsRight.count() - i);
+//            }
+//        }
+
+//        // add to the list
+//        tempList.append(QPoint(maxIndexRight,yCoord));
+
+//        // if max indexes are the same or next to each other then stop
+//        maxDistance = maxIndexRight - maxIndexLeft;
+//        yCoord--;
+//    }
+
+//    for (int i=tempList.count()-1; i>=0; i--){
+//        this->foveaPitContour2.append(tempList.at(i));
+//    }
+
+//    // LOWER BOUND 2 -------------------
+
+//    maxIndexLeft = 0;
+//    maxIndexRight = this->bscanWidth-1;
+//    maxDistance = maxIndexRight - maxIndexLeft;
+//    yCoord = center.y();
+//    tempList.clear();
+
+//    while (maxDistance > 1){
+//        // calculate points coord from radius
+//        if (yCoord == center.y()){
+//            circDist = radius;
+//        } else {
+//            yDist = (double)qAbs(yCoord - center.y())*deltaY;
+//            if (yDist > radius)
+//                break;
+//            alfa = acos(yDist / radius);
+//            circDist = sin(alfa) * radius;
+//        }
+
+//        xCoord = center.x() - circDist/deltaX;
+//        xCoord2 = center.x() + circDist/deltaX;
+
+//        // get vector of points to the right
+//        QList<int> pointsRight;
+//        for (int x=xCoord2; x >= center.x(); x--){
+//            pointsRight.append(this->getRetinaThicknessMapValue(x,yCoord));
+//        }
+
+//        // find max
+//        maxValue = 0;
+//        for (int i=0; i < pointsRight.count(); i++){
+//            if (pointsRight.at(i) > maxValue){
+//                maxValue = pointsRight.at(i);
+//                maxIndexRight = center.x() + (pointsRight.count() - i);
+//            }
+//        }
+
+//        // add to the list
+//        this->foveaPitContour2.append(QPoint(maxIndexRight,yCoord));
+
+//        // get vector of points to the left
+//        QList<int> pointsLeft;
+//        for (int x=xCoord; x <= center.x(); x++){
+//            pointsLeft.append(this->getRetinaThicknessMapValue(x,yCoord));
+//        }
+
+//        // find max
+//        int maxValue = 0;
+//        for (int i=0; i < pointsLeft.count(); i++){
+//            if (pointsLeft.at(i) > maxValue){
+//                maxValue = pointsLeft.at(i);
+//                maxIndexLeft = center.x() - (pointsLeft.count() - i);
+//            }
+//        }
+
+//        // add to the list
+//        tempList.append(QPoint(maxIndexLeft,yCoord));
+
+//        // if max indexes are the same or next to each other then stop
+//        maxDistance = maxIndexRight - maxIndexLeft;
+//        yCoord++;
+//    }
+
+//    for (int i=tempList.count()-1; i>=0; i--){
+//        this->foveaPitContour2.append(tempList.at(i));
+//    }
+}
+
+QList<QPoint> PatientData::getFoveaPitContour()
+{
+    return this->foveaPitContour;
+}
+
+QList<QPoint> PatientData::getFoveaPitContour2()
+{
+    return this->foveaPitContour2;
 }
 
 // OCT Exam Data --------------------------------------------------------------

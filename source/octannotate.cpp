@@ -2671,12 +2671,12 @@ void OCTAnnotate::setupVirtualMapPlot(QCustomPlot *customPlot){
     customPlot->clearPlottables();
 
     // axis
-    customPlot->xAxis->setLabel("Horizontal distance from scan center [mm]");
-    customPlot->yAxis->setLabel("Vertical distance from scan center [mm]");
-    //customPlot->xAxis->setLabel("Odległość od środka skanu w kierunku poziomym");
-    //customPlot->yAxis->setLabel("Odległość od środka skanu w kierunku pionowym");
-//    customPlot->xAxis->setLabelFont(QFont("Arial",16));
-//    customPlot->yAxis->setLabelFont(QFont("Arial",16));
+//    customPlot->xAxis->setLabel("Horizontal distance from scan center [mm]");
+//    customPlot->yAxis->setLabel("Vertical distance from scan center [mm]");
+    customPlot->xAxis->setLabel("Odległość od środka skanu w kierunku poziomym");
+    customPlot->yAxis->setLabel("Odległość od środka skanu w kierunku pionowym");
+    customPlot->xAxis->setLabelFont(QFont("Arial",14));
+    customPlot->yAxis->setLabelFont(QFont("Arial",14));
     QPoint center = patientData.getScanCenter();
     int scanWidth = (int)patientData.getVoxelWidth();
     if (center.x() != -1){
@@ -2692,17 +2692,17 @@ void OCTAnnotate::setupVirtualMapPlot(QCustomPlot *customPlot){
         customPlot->xAxis->setRange(-4,4);
         customPlot->yAxis->setRange(-4,4);
     }
-//    customPlot->xAxis->setLabelPadding(3);
-//    customPlot->yAxis->setLabelPadding(3);
-//    customPlot->xAxis->setTickLabelFont(QFont("Arial",12));
-//    customPlot->yAxis->setTickLabelFont(QFont("Arial",12));
+    customPlot->xAxis->setLabelPadding(3);
+    customPlot->yAxis->setLabelPadding(3);
+    customPlot->xAxis->setTickLabelFont(QFont("Arial",12));
+    customPlot->yAxis->setTickLabelFont(QFont("Arial",12));
 
-    customPlot->xAxis2->setLabel("B-scan pixel");
-    customPlot->yAxis2->setLabel("B-scan number");
-    //customPlot->xAxis2->setLabel("Piksel obrazu B-skan");
-    //customPlot->yAxis2->setLabel("Numer obazu B-skan");
-//    customPlot->xAxis2->setLabelFont(QFont("Arial",16));
-//    customPlot->yAxis2->setLabelFont(QFont("Arial",16));
+//    customPlot->xAxis2->setLabel("B-scan pixel");
+//    customPlot->yAxis2->setLabel("B-scan number");
+    customPlot->xAxis2->setLabel("Piksel obrazu B-skan");
+    customPlot->yAxis2->setLabel("Numer obazu B-skan");
+    customPlot->xAxis2->setLabelFont(QFont("Arial",14));
+    customPlot->yAxis2->setLabelFont(QFont("Arial",14));
     if (patientData.getIsLoaded()){
         customPlot->xAxis2->setRange(0,patientData.getBscanWidth());
         customPlot->yAxis2->setRange(-patientData.getBscansNumber(),0);
@@ -2714,10 +2714,10 @@ void OCTAnnotate::setupVirtualMapPlot(QCustomPlot *customPlot){
     customPlot->yAxis2->setTickStep(10);
     customPlot->xAxis2->setVisible(true);
     customPlot->yAxis2->setVisible(true);
-//    customPlot->xAxis2->setLabelPadding(3);
-//    customPlot->yAxis2->setLabelPadding(3);
-//    customPlot->xAxis2->setTickLabelFont(QFont("Arial",12));
-//    customPlot->yAxis2->setTickLabelFont(QFont("Arial",12));
+    customPlot->xAxis2->setLabelPadding(3);
+    customPlot->yAxis2->setLabelPadding(3);
+    customPlot->xAxis2->setTickLabelFont(QFont("Arial",12));
+    customPlot->yAxis2->setTickLabelFont(QFont("Arial",12));
 }
 
 void OCTAnnotate::setupVirtualMapContourPlot()
@@ -3476,10 +3476,10 @@ void OCTAnnotate::displayVirtualMap(QCustomPlot *customPlot, bool isAuto){
         customPlot->plotLayout()->addElement(1, 0, colorScale); // add it to the right of the main axis rect
         colorScale->setType(QCPAxis::atBottom); // scale shall be vertical bar with tick/axis labels right (actually atRight is already the default)
         colorMap->setColorScale(colorScale); // associate the color map with the color scale
-        colorScale->axis()->setLabel("Distance between layers [um]");
-        //colorScale->axis()->setLabel("Odległość pomiędzy warstwami [um]");
-//        colorScale->axis()->setLabelFont(QFont("Arial",16));
-//        colorScale->axis()->setTickLabelFont(QFont("Arial",12));
+//        colorScale->axis()->setLabel("Distance between layers [um]");
+        colorScale->axis()->setLabel("Odległość pomiędzy warstwami [um]");
+        colorScale->axis()->setLabelFont(QFont("Arial",16));
+        colorScale->axis()->setTickLabelFont(QFont("Arial",12));
         QCPColorGradient gradient = QCPColorGradient(QCPColorGradient::gpJet);
 //        gradient.setLevelCount(7);
         colorMap->setGradient(gradient);
@@ -3616,7 +3616,93 @@ void OCTAnnotate::displayVirtualMapContours()
         colorMap->setColorScale(colorScale); // associate the color map with the color scale
         colorScale->axis()->setLabel("Distance between layers [um]");
         colorMap->setGradient(QCPColorGradient::gpJet);
-        colorMap->setDataRange(QCPRange(0,700));
+        colorMap->setDataRange(QCPRange(0,400));
+
+        if (showETDRSGrid){
+            // draw CF circle
+            QCPItemEllipse *ellipseCF = new QCPItemEllipse(ui->virtualMapContourImageCPlot);
+            ui->virtualMapContourImageCPlot->addItem(ellipseCF);
+            ellipseCF->setPen(QPen(Qt::black));
+            double radius = 1.0/2.0;
+            ellipseCF->topLeft->setCoords(-radius, radius);
+            ellipseCF->bottomRight->setCoords(radius, -radius);
+            // draw IM circle
+            QCPItemEllipse *ellipseIM = new QCPItemEllipse(ui->virtualMapContourImageCPlot);
+            ui->virtualMapContourImageCPlot->addItem(ellipseIM);
+            ellipseIM->setPen(QPen(Qt::black));
+            radius = 3.0/2.0;
+            ellipseIM->topLeft->setCoords(-radius, radius);
+            ellipseIM->bottomRight->setCoords(radius, -radius);
+            // draw OM circle
+            QCPItemEllipse *ellipseOM = new QCPItemEllipse(ui->virtualMapContourImageCPlot);
+            ui->virtualMapContourImageCPlot->addItem(ellipseOM);
+            ellipseOM->setPen(QPen(Qt::black));
+            radius = 6.0/2.0;
+            ellipseOM->topLeft->setCoords(-radius, radius);
+            ellipseOM->bottomRight->setCoords(radius, -radius);
+            //lines
+            QCPItemLine *line1 = new QCPItemLine(ui->virtualMapContourImageCPlot);
+            QCPItemLine *line2 = new QCPItemLine(ui->virtualMapContourImageCPlot);
+            QCPItemLine *line3 = new QCPItemLine(ui->virtualMapContourImageCPlot);
+            QCPItemLine *line4 = new QCPItemLine(ui->virtualMapContourImageCPlot);
+            ui->virtualMapContourImageCPlot->addItem(line1);
+            ui->virtualMapContourImageCPlot->addItem(line2);
+            ui->virtualMapContourImageCPlot->addItem(line3);
+            ui->virtualMapContourImageCPlot->addItem(line4);
+            line1->setPen(QPen(Qt::black));
+            line2->setPen(QPen(Qt::black));
+            line3->setPen(QPen(Qt::black));
+            line4->setPen(QPen(Qt::black));
+            double alfa = 2 * 3.1415926535 * 45 / 360.0;
+            line1->start->setCoords(qCos(alfa)*0.5,qSin(alfa)*0.5);
+            line1->end->setCoords(qCos(alfa)*3.0,qSin(alfa)*3.0);
+            alfa = 2 * 3.1415926535 * 135 / 360.0;
+            line2->start->setCoords(qCos(alfa)*0.5,qSin(alfa)*0.5);
+            line2->end->setCoords(qCos(alfa)*3.0,qSin(alfa)*3.0);
+            alfa = 2 * 3.1415926535 * 225 / 360.0;
+            line3->start->setCoords(qCos(alfa)*0.5,qSin(alfa)*0.5);
+            line3->end->setCoords(qCos(alfa)*3.0,qSin(alfa)*3.0);
+            alfa = 2 * 3.1415926535 * 315 / 360.0;
+            line4->start->setCoords(qCos(alfa)*0.5,qSin(alfa)*0.5);
+            line4->end->setCoords(qCos(alfa)*3.0,qSin(alfa)*3.0);
+        }
+
+//        QVector<double> tData, xData, yData;
+//        QList<QPoint> foveaContourPoints = patientData.getFoveaPitContour();
+//        double xRatio = (double)nx / (double)scanWidth;
+//        double yRatio = (double)ny / (double)scanHeight;
+
+//        for (int i=0; i < foveaContourPoints.count(); i++){
+//            tData.append(i);
+//            xData.append(foveaContourPoints.at(i).x());
+//            yData.append(foveaContourPoints.at(i).y());
+
+//            xData[i] = (xData[i] - nx/2) / xRatio;
+//            yData[i] = -(yData[i] - ny/2) / yRatio;
+//        }
+
+//        QCPCurve *newCurve = new QCPCurve(ui->virtualMapContourImageCPlot->xAxis, ui->virtualMapContourImageCPlot->yAxis);
+//        ui->virtualMapContourImageCPlot->addPlottable(newCurve);
+//        newCurve->setData(tData, xData, yData);
+//        newCurve->setPen(QPen(Qt::blue));
+
+//        tData.clear();
+//        xData.clear();
+//        yData.clear();
+//        foveaContourPoints = patientData.getFoveaPitContour2();
+//        for (int i=0; i < foveaContourPoints.count(); i++){
+//            tData.append(i);
+//            xData.append(foveaContourPoints.at(i).x());
+//            yData.append(foveaContourPoints.at(i).y());
+
+//            xData[i] = (xData[i] - nx/2) / xRatio;
+//            yData[i] = -(yData[i] - ny/2) / yRatio;
+//        }
+
+//        QCPCurve *newCurve2 = new QCPCurve(ui->virtualMapContourImageCPlot->xAxis, ui->virtualMapContourImageCPlot->yAxis);
+//        ui->virtualMapContourImageCPlot->addPlottable(newCurve2);
+//        newCurve2->setData(tData, xData, yData);
+//        newCurve2->setPen(QPen(Qt::green));
 
         ui->virtualMapContourImageCPlot->replot();
     }
@@ -3759,6 +3845,7 @@ void OCTAnnotate::on_actionShowETDRSGrid_toggled(bool checked)
     showETDRSGrid = checked;
     displayVirtualMap(ui->virtualMapImageCPlot);
     displayVirtualMap(ui->virtualMapAutoImageCPlot,true);
+    displayVirtualMapContours();
 }
 
 
@@ -3876,6 +3963,7 @@ void OCTAnnotate::displayVolumes(){
         // fills
         double volOuter = 1.0;
         double volInner = 0.3;
+        double volCenter = 0.1;
         int alfa1 = qBound(0,(int)(volumes[7]/volOuter*50),255);
         int alfa2 = qBound(0,(int)(volumes[3]/volInner*50),255);
         int alfa3 = qBound(0,(int)(volumes[6]/volOuter*50),255);
@@ -3884,6 +3972,7 @@ void OCTAnnotate::displayVolumes(){
         int alfa6 = qBound(0,(int)(volumes[1]/volInner*50),255);
         int alfa7 = qBound(0,(int)(volumes[4]/volInner*50),255);
         int alfa8 = qBound(0,(int)(volumes[8]/volOuter*50),255);
+        int alfa9 = qBound(0,(int)(volumes[0]/volCenter*50),255);
 
         ui->ETDRSgridCPlot->graph(0)->setBrush(QColor(255,0,0,alfa1)); // AREA 1 (OM_S)
         ui->ETDRSgridCPlot->graph(0)->setChannelFillGraph(ui->ETDRSgridCPlot->graph(1));
@@ -3917,6 +4006,13 @@ void OCTAnnotate::displayVolumes(){
         ui->ETDRSgridCPlot->graph(20)->setBrush(QColor(255,0,0,alfa8));
         ui->ETDRSgridCPlot->graph(20)->setChannelFillGraph(ui->ETDRSgridCPlot->graph(21));
 
+        QCPItemEllipse *ellipseCF = new QCPItemEllipse(ui->ETDRSgridCPlot);
+        ui->ETDRSgridCPlot->addItem(ellipseCF);
+        ellipseCF->setPen(QPen(QColor(255,0,0,0)));
+        ellipseCF->setBrush(QColor(255,0,0,alfa9));
+        double radius = 1.0/2.0;
+        ellipseCF->topLeft->setCoords(-radius, radius);
+        ellipseCF->bottomRight->setCoords(radius, -radius);
 
         if (patientData.getEye() == 1){    // right eye
             labelLeft->setText("T <-");

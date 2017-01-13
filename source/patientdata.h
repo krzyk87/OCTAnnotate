@@ -360,6 +360,9 @@ public:
     double getPreretinalVolume();
     void calculateFoveaPitVolume();
     double getFoveaPitVolume();
+    void computeFoveaPitContour();
+    QList<QPoint> getFoveaPitContour();
+    QList<QPoint> getFoveaPitContour2();
 
     // fundus image
     QImage getFundusImage();
@@ -476,6 +479,8 @@ private:
     double retinaVolume;
     double preretinalVolume;
     double foveaPitVolume;
+    QList<QPoint> foveaPitContour;
+    QList<QPoint> foveaPitContour2;
 
     // fundus image
     QImage fundusImage;

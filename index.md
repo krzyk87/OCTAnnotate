@@ -6,7 +6,7 @@ Currently, the software supports manual annotation of 13 retinal layers (PCV, ER
 For more information please refere to the [User's Guide] (https://github.com/krzyk87/OCTAnnotate/blob/master/Users_guide_v1.0.pdf).
 
 ![Segmented OCT retina B-Scan](https://raw.githubusercontent.com/krzyk87/OCTAnnotate/master/images/bscan.png){:width="80%"}
-![Example of virtual map of preretinal space](https://raw.githubusercontent.com/krzyk87/OCTAnnotate/master/images/virtual_map.png)
+![Example of virtual map of preretinal space](https://raw.githubusercontent.com/krzyk87/OCTAnnotate/master/images/virtual_map.png){:width="80%"}
 
 ### Disclaimer
 Please note that this project is a "**work-in-progress**", meaning many features still needs to be implemented (see issues for the project source code). The automated segmentation of retina layers, vessels and pathologies is not yet implemented. For now this application is used mainly for investigational purposes - visual analysis of retina layers depth based on existing segmentations (such as those provided by OCTExplorer application). Additionaly, for now the software is compatibly only with Avanti RTvue 3D Retina scans. **If you wish to contribute to the project please contact us - your help will be welcome :)**

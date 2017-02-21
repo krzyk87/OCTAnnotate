@@ -5,7 +5,7 @@ Currently, the software supports manual annotation of 13 retinal layers (PCV, ER
 
 For more information please refere to the [User's Guide] (https://github.com/krzyk87/OCTAnnotate/blob/master/Users_guide_v1.0.pdf).
 
-![Segmented OCT retina B-Scan](/blob/master/images/bscan.png)
+![Segmented OCT retina B-Scan](krzyk87/OCTAnnotate/blob/master/images/bscan.png)
 ![Example of virtual map of preretinal space](https://github.com/krzyk87/OCTAnnotate/blob/master/images/virtual_map.png)
 
 ### Disclaimer

@@ -15,15 +15,12 @@ public:
     ~ReadWriteData();
 
     bool readPatientData();
-    void readGeneralExamData();
-    void readFileManualSegmentation(QFile *dataFile);
 
 signals:
     void finished();
     void errorOccured(QString err);
     void processingData(double,QString);
     void readingDataFinished(QString);
-    void savingDataFinished(QString);
 
 public slots:
     void process();
@@ -31,10 +28,6 @@ public slots:
     void setDataObject(PatientData *patientData);
     void setDirectoryOct(QDir *dataDir);
     void setOctFile(QFile *dataFile);
-    void setDirectoryManual(QDir *mDir);
-    void setDirectoryAuto(QDir *aDir);
-    void setManualFilePath(QString mfPath);
-    void setAutoFilePath(QString afPath);
     void addDirective(QString directive);
     void setShowMessage(bool show);
     void setDataSaveStrucure(QString structure);
@@ -43,24 +36,9 @@ private:
     void readOctExamData();
     void readOctExamFile();
     void readBinaryFile(QFile *dataFile, double *count, double *tasks);
-    void readFileAutoSegmentation(QFile *dataFile);
-
-    void saveGeneralExamData();
-    void saveManualSegmentationData();
-    void saveAutoSegmentationData();
-
-    QList<int> parseXmlVoxelSize(QXmlStreamReader& xml, bool isAuto = 0);
-    void parseXmlSurfaceLines(QXmlStreamReader& xml, bool isAuto = 0);
-    void parseUndefinedRegion(QXmlStreamReader& xml, bool isAuto = 0);
-
-    void copyAutoAsManual(QList<Layers> layersList);
 
     QDir *octDir;
     QFile *octFile;
-    QDir *manualDir;
-    QDir *autoDir;
-    QString manualFilePath;
-    QString autoFilePath;
     QList<QString> directives;
     PatientData *pData;
     bool showMessage;

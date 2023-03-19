@@ -17,7 +17,6 @@ SOURCES += main.cpp\
         octannotate.cpp \
     patientdata.cpp \
     qcustomplot.cpp \
-    autoasmanualdialog.cpp \
     calculate.cpp \
     readwritedata.cpp \
     settingsdialog.cpp
@@ -25,7 +24,6 @@ SOURCES += main.cpp\
 HEADERS  += octannotate.h \
     patientdata.h \
     qcustomplot.h \
-    autoasmanualdialog.h \
     calculate.h \
     readwritedata.h \
     settingsdialog.h

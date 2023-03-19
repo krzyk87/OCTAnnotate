@@ -38,22 +38,10 @@ QT_BEGIN_NAMESPACE
 class Ui_OCTAnnotate
 {
 public:
-    QAction *actionSaveOCTExam;
     QAction *actionLoadOCTSequence;
-    QAction *actionChangeLayerColor;
-    QAction *actionSetScanCenter;
     QAction *actionClose;
-    QAction *actionSaveAutoAnnotationsAs;
-    QAction *actionConvertAutoAnnotations;
-    QAction *actionReadManualAnnotations;
-    QAction *actionReadAutoSegmentation;
-    QAction *actionClose_auto_segmentation;
-    QAction *actionSetAutoSegmentationAsManual;
-    QAction *actionShowETDRSGrid;
     QAction *actionSettings;
-    QAction *actionShowCenterOnBscan;
     QAction *actionImageFlattening;
-    QAction *actionEditAnnotations;
     QAction *actionLoadOCTFile;
     QWidget *centralWidget;
     QHBoxLayout *horizontalLayout_11;
@@ -149,7 +137,6 @@ public:
     QLabel *fundusImageLabel;
     QMenuBar *menuBar;
     QMenu *menuPatient;
-    QMenu *menuAnnotations;
     QMenu *menuProgram;
     QStatusBar *statusBar;
     QToolBar *toolBar;
@@ -165,47 +152,15 @@ public:
         sizePolicy.setHeightForWidth(OCTAnnotate->sizePolicy().hasHeightForWidth());
         OCTAnnotate->setSizePolicy(sizePolicy);
         OCTAnnotate->setMinimumSize(QSize(1260, 900));
-        actionSaveOCTExam = new QAction(OCTAnnotate);
-        actionSaveOCTExam->setObjectName("actionSaveOCTExam");
-        actionSaveOCTExam->setEnabled(true);
         actionLoadOCTSequence = new QAction(OCTAnnotate);
         actionLoadOCTSequence->setObjectName("actionLoadOCTSequence");
-        actionChangeLayerColor = new QAction(OCTAnnotate);
-        actionChangeLayerColor->setObjectName("actionChangeLayerColor");
-        actionSetScanCenter = new QAction(OCTAnnotate);
-        actionSetScanCenter->setObjectName("actionSetScanCenter");
-        actionSetScanCenter->setCheckable(true);
-        actionSetScanCenter->setEnabled(false);
         actionClose = new QAction(OCTAnnotate);
         actionClose->setObjectName("actionClose");
-        actionSaveAutoAnnotationsAs = new QAction(OCTAnnotate);
-        actionSaveAutoAnnotationsAs->setObjectName("actionSaveAutoAnnotationsAs");
-        actionConvertAutoAnnotations = new QAction(OCTAnnotate);
-        actionConvertAutoAnnotations->setObjectName("actionConvertAutoAnnotations");
-        actionReadManualAnnotations = new QAction(OCTAnnotate);
-        actionReadManualAnnotations->setObjectName("actionReadManualAnnotations");
-        actionReadAutoSegmentation = new QAction(OCTAnnotate);
-        actionReadAutoSegmentation->setObjectName("actionReadAutoSegmentation");
-        actionClose_auto_segmentation = new QAction(OCTAnnotate);
-        actionClose_auto_segmentation->setObjectName("actionClose_auto_segmentation");
-        actionSetAutoSegmentationAsManual = new QAction(OCTAnnotate);
-        actionSetAutoSegmentationAsManual->setObjectName("actionSetAutoSegmentationAsManual");
-        actionShowETDRSGrid = new QAction(OCTAnnotate);
-        actionShowETDRSGrid->setObjectName("actionShowETDRSGrid");
-        actionShowETDRSGrid->setCheckable(true);
-        actionShowETDRSGrid->setChecked(true);
         actionSettings = new QAction(OCTAnnotate);
         actionSettings->setObjectName("actionSettings");
-        actionShowCenterOnBscan = new QAction(OCTAnnotate);
-        actionShowCenterOnBscan->setObjectName("actionShowCenterOnBscan");
-        actionShowCenterOnBscan->setCheckable(true);
-        actionShowCenterOnBscan->setChecked(true);
         actionImageFlattening = new QAction(OCTAnnotate);
         actionImageFlattening->setObjectName("actionImageFlattening");
         actionImageFlattening->setCheckable(true);
-        actionEditAnnotations = new QAction(OCTAnnotate);
-        actionEditAnnotations->setObjectName("actionEditAnnotations");
-        actionEditAnnotations->setCheckable(true);
         actionLoadOCTFile = new QAction(OCTAnnotate);
         actionLoadOCTFile->setObjectName("actionLoadOCTFile");
         centralWidget = new QWidget(OCTAnnotate);
@@ -678,8 +633,6 @@ public:
         menuBar->setGeometry(QRect(0, 0, 1260, 21));
         menuPatient = new QMenu(menuBar);
         menuPatient->setObjectName("menuPatient");
-        menuAnnotations = new QMenu(menuPatient);
-        menuAnnotations->setObjectName("menuAnnotations");
         menuProgram = new QMenu(menuBar);
         menuProgram->setObjectName("menuProgram");
         OCTAnnotate->setMenuBar(menuBar);
@@ -694,26 +647,12 @@ public:
         menuBar->addAction(menuPatient->menuAction());
         menuPatient->addAction(actionLoadOCTFile);
         menuPatient->addAction(actionLoadOCTSequence);
-        menuPatient->addAction(actionSaveOCTExam);
         menuPatient->addSeparator();
-        menuPatient->addAction(menuAnnotations->menuAction());
-        menuAnnotations->addAction(actionReadAutoSegmentation);
-        menuAnnotations->addAction(actionClose_auto_segmentation);
-        menuAnnotations->addAction(actionSaveAutoAnnotationsAs);
-        menuAnnotations->addAction(actionConvertAutoAnnotations);
-        menuAnnotations->addSeparator();
-        menuAnnotations->addAction(actionReadManualAnnotations);
-        menuAnnotations->addAction(actionSetAutoSegmentationAsManual);
-        menuProgram->addAction(actionChangeLayerColor);
-        menuProgram->addAction(actionSetScanCenter);
         menuProgram->addSeparator();
         menuProgram->addAction(actionSettings);
-        menuProgram->addAction(actionShowCenterOnBscan);
         menuProgram->addSeparator();
         menuProgram->addAction(actionClose);
         toolBar->addAction(actionImageFlattening);
-        toolBar->addAction(actionEditAnnotations);
-        toolBar->addAction(actionShowCenterOnBscan);
 
         retranslateUi(OCTAnnotate);
 
@@ -726,29 +665,14 @@ public:
     void retranslateUi(QMainWindow *OCTAnnotate)
     {
         OCTAnnotate->setWindowTitle(QCoreApplication::translate("OCTAnnotate", "OCTAnnotate", nullptr));
-        actionSaveOCTExam->setText(QCoreApplication::translate("OCTAnnotate", "Save OCT scan segmentations", nullptr));
-        actionLoadOCTSequence->setText(QCoreApplication::translate("OCTAnnotate", "Load OCT scan folder", nullptr));
-        actionChangeLayerColor->setText(QCoreApplication::translate("OCTAnnotate", "Change layer color", nullptr));
-        actionSetScanCenter->setText(QCoreApplication::translate("OCTAnnotate", "Set scan center", nullptr));
-        actionClose->setText(QCoreApplication::translate("OCTAnnotate", "Close", nullptr));
-        actionSaveAutoAnnotationsAs->setText(QCoreApplication::translate("OCTAnnotate", "Save automatic segmentation as...", nullptr));
-        actionConvertAutoAnnotations->setText(QCoreApplication::translate("OCTAnnotate", "Convert automatic segmentation from XML to TXT", nullptr));
-        actionReadManualAnnotations->setText(QCoreApplication::translate("OCTAnnotate", "Load manual segmentation", nullptr));
-        actionReadAutoSegmentation->setText(QCoreApplication::translate("OCTAnnotate", "Load auto segmentation", nullptr));
-        actionClose_auto_segmentation->setText(QCoreApplication::translate("OCTAnnotate", "Close auto segmentation", nullptr));
-        actionSetAutoSegmentationAsManual->setText(QCoreApplication::translate("OCTAnnotate", "Copy auto segmentation as manual", nullptr));
-        actionShowETDRSGrid->setText(QCoreApplication::translate("OCTAnnotate", "Show ETDRS grid", nullptr));
-        actionSettings->setText(QCoreApplication::translate("OCTAnnotate", "Settings", nullptr));
-        actionShowCenterOnBscan->setText(QCoreApplication::translate("OCTAnnotate", "Show scan center on cross-section", nullptr));
+        actionLoadOCTSequence->setText(QCoreApplication::translate("OCTAnnotate", "Za\305\202aduj skan OCT (katalog obraz\303\263w)", nullptr));
+        actionClose->setText(QCoreApplication::translate("OCTAnnotate", "Zamknij", nullptr));
+        actionSettings->setText(QCoreApplication::translate("OCTAnnotate", "Ustawienia", nullptr));
         actionImageFlattening->setText(QCoreApplication::translate("OCTAnnotate", "Image flattening", nullptr));
 #if QT_CONFIG(tooltip)
         actionImageFlattening->setToolTip(QCoreApplication::translate("OCTAnnotate", "Image flattening", nullptr));
 #endif // QT_CONFIG(tooltip)
-        actionEditAnnotations->setText(QCoreApplication::translate("OCTAnnotate", "Edit segmentations", nullptr));
-#if QT_CONFIG(tooltip)
-        actionEditAnnotations->setToolTip(QCoreApplication::translate("OCTAnnotate", "Edit Annotations", nullptr));
-#endif // QT_CONFIG(tooltip)
-        actionLoadOCTFile->setText(QCoreApplication::translate("OCTAnnotate", "Load OCT scan file (.oct)", nullptr));
+        actionLoadOCTFile->setText(QCoreApplication::translate("OCTAnnotate", "Za\305\202aduj skan OCT (plik .oct)", nullptr));
         label_2->setText(QCoreApplication::translate("OCTAnnotate", "Image:", nullptr));
         imageNumberLabel->setText(QString());
         zoomOutButton->setText(QCoreApplication::translate("OCTAnnotate", "-", nullptr));
@@ -817,8 +741,7 @@ public:
         brightnessResetButton->setText(QCoreApplication::translate("OCTAnnotate", "Brightness", nullptr));
         fundusImageLabel->setText(QString());
         tabWidget->setTabText(tabWidget->indexOf(tabOCTExam), QCoreApplication::translate("OCTAnnotate", "OCT cross-sections", nullptr));
-        menuPatient->setTitle(QCoreApplication::translate("OCTAnnotate", "Patient", nullptr));
-        menuAnnotations->setTitle(QCoreApplication::translate("OCTAnnotate", "Segmentations", nullptr));
+        menuPatient->setTitle(QCoreApplication::translate("OCTAnnotate", "Pacjent", nullptr));
         menuProgram->setTitle(QCoreApplication::translate("OCTAnnotate", "Program", nullptr));
         toolBar->setWindowTitle(QCoreApplication::translate("OCTAnnotate", "toolBar", nullptr));
     } // retranslateUi

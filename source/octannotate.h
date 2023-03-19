@@ -11,7 +11,6 @@
 #include "patientdata.h"
 #include "qcustomplot.h"
 #include <QtSql>
-#include "dbmanager.h"
 #include "settingsdialog.h"
 
 namespace Ui {
@@ -28,7 +27,6 @@ public:
 
 private slots:
     void on_actionClose_triggered();
-    void on_actionInfo_triggered();
 
 // Data
     void on_tabWidget_currentChanged();
@@ -38,31 +36,18 @@ private slots:
     void on_prevNormalImageButton_clicked();
     void on_currImageNumberLEdit_returnPressed();
     void on_currNormalImageNumberLEdit_returnPressed();
-    void on_currImageNumberLayersLEdit_returnPressed();
     void on_contrastSlider_valueChanged(int value);
     void on_brightnessSlider_valueChanged(int value);
     void on_contrastResetButton_clicked();
     void on_brightnessResetButton_clicked();
 
-    void on_actionSaveGeneralExam_triggered();
     void on_actionSaveOCTExam_triggered();
 
-    //void on_actionAddPatientNew_triggered();
-    //void on_actionLoadPatientGeneral_triggered();
     void on_actionLoadOCTSequence_triggered(QString scanFolderPath = "");
     void on_actionLoadOCTFile_triggered(QString scanFilePath = "");
     void on_actionReadManualAnnotations_triggered();
 
 // General exam
-    void on_visOPLEdit_textEdited();
-    void on_visOLLEdit_textEdited();
-    void on_snOPLEdit_textEdited();
-    void on_snOLLEdit_textEdited();
-
-    void on_mcVOPLEdit_textChanged();
-    void on_mcHOPLEdit_textChanged();
-    void on_mcVOLLEdit_textChanged();
-    void on_mcHOLLEdit_textChanged();
 
 // OCT exam
     void on_allLayersCBox_stateChanged(int state);
@@ -103,57 +88,20 @@ private slots:
     void on_actionShowCenterOnBscan_toggled(bool checked);
 
 // Virtual map
-    void on_computeVirtualMapButton_clicked();
-    void on_nextImageLayersButton_clicked();
-    void on_prevImageLayersButton_clicked();
-    void on_layer1CBox_currentIndexChanged(int index);
-    void on_layer2CBox_currentIndexChanged(int index);
-    void on_contactThresholdCBox_currentIndexChanged(int index);
-    void on_actionShowETDRSGrid_toggled(bool checked);
 
 // Auto annotations
     void on_actionReadAutoSegmentation_triggered(QString pathAutoSegment = "");
     void on_actionCloseAutoSegmentation_triggered();
     void on_actionSaveAutoAnnotationsAs_triggered();
     void on_actionConvertAutoAnnotations_triggered();
-    void on_actionFillFromILM_triggered();
-    void on_actionFillStraight_triggered();
     void on_actionSetAutoSegmentationAsManual_triggered();
     void on_actionSettings_triggered();
-    void on_actionComputeErrorAllScans_triggered();
-    void on_actionComputeStatistics_triggered();
-
-    void on_layerErrorCBox_currentIndexChanged(int index);
-    void on_plotLayersButton_clicked();
 
 // Database
-    void on_addPatientDBButton_clicked();
-    void on_editPatientDBButton_clicked();
-    void on_deletePatientDBButton_clicked();
-
-    void on_searchForScansButton_clicked();
-    void on_addScanFolderButton_clicked(QString folderPath = "");
-    void on_addScanFileButton_clicked(QString filePath = "");
-    void addScanToDB(QString octPath);
-    void createPreview(QString scanName, int scanWidth, int scanHeight, int scansNumber, int scansNumberAll, bool isBinary);
-
-    void on_searchPatientDBButton_clicked();
-    void on_showAllScansRButton_toggled();
-    void on_scanListGroupCBox_currentIndexChanged(int index);
-
-    void on_patientsListTableView_clicked(const QModelIndex &currentIndex);
-    void on_scansListTableView_doubleClicked(const QModelIndex &currentIndex);
-    void on_scansListTableView_clicked(const QModelIndex &index);
-
-    void on_batchProcessingButton_clicked();
-
 
 public slots:
     void on_errorOccured(QString);
     void on_processingData(double, QString msg = "");
-
-    void on_averageErrorCalculated(double);
-    void on_mseErrorCalculated(double);
 
     void on_readingDataFinished(QString data);
     void on_savingDataFinished(QString data);
@@ -168,12 +116,9 @@ protected:
 private:
     Ui::OCTAnnotate *ui;
     void loadConfigurations(SettingsDialog *sDialog);
-    void initializeModelPatients();
-    void initializeModelScans();
 
 // Data
     bool readPatientData(QDir *dir);
-    void readGeneralExamData();
     void readOctExamData();
     void readFileManualSegmentation(QFile *dataFile);
     void setScanCenter();
@@ -199,20 +144,8 @@ private:
     void saveLayerNormal(QPoint endPoint, QString action, QPoint prevPoint=QPoint(-1,-1));
 
 // draw Virtual map
-    void setupVirtualMapPlot(QCustomPlot *customPlot);
-    void setupVirtualMapContourPlot();
-    void setupImageLayersPlot();
     void setupBScanPlots();
-    void setupCircProfilePlot();
-    void setupVolumeGridPlot();
-    void resetImageLayersLabels();
-    void displayVirtualMap(QCustomPlot *customPlot, bool isAuto = false);
-    void displayVirtualMapContours();
-    void displayImageLayersPlot(int bscanNumber);
-    void displayCircProfile();
-    void displayVolumes();
 
-    void saveErrorToFile();
     QColor getLayerColor(Layers layer);
     QList<Layers> getLayersToDisplay();
     bool isLayerActive(Layers layer);
@@ -228,30 +161,19 @@ private:
     QDir examDir;
     QDir manualDir;
     QDir autoDir;
-    QString errorFilePath;
     static const QString settingsFilePath;
-
-    DbManager *patientsDB;
-    QSqlRelationalTableModel *modelPatients;
-    QSqlRelationalTableModel *modelScans;
 
     int currentImageNumber;
     int currentNormalImageNumber;
-    int currentImageLayersNumber;
-    bool generalDataModified;
     bool octDataModified;
     PatientData patientData;
     bool settingScanCenter;
-    bool showETDRSGrid;
     bool showCenterOnBscan;
-    bool showBscanOnErrorPlot;
     bool blockPCV;
     bool flattenImage;
     bool editAnnotations;
     QString dataSaveStructure;
 
-    QLabel *bscanLabel;
-    QLabel *bscan2Label;
     QScrollArea *scrollArea;
     QScrollArea *scrollArea2;
     QSize orgImageSize;
@@ -287,12 +209,6 @@ private:
     QColor chrColor;
     QPalette myPalette;
     Layers selectedLayer;
-    Layers vMapLayer1;
-    Layers vMapLayer2;
-    Layers selectedErrorLayer;
-
-    QList<double> thresholds;
-    double contactThreshold;
 
     QString appVersion;
     QProgressBar *progressBar;

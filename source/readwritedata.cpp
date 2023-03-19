@@ -327,63 +327,13 @@ void ReadWriteData::readGeneralExamData(){
         line = examText.readLine();
         if (line.contains("=")){
             QStringList data = line.split("=");
-            if (data.at(0) == "VIS_OP"){
-                pData->setVisOP(data.at(1));
-                emit processingData((++count)/tasks*100,"");
-            }
-            if (data.at(0) == "VIS_OL"){
-                pData->setVisOL(data.at(1));
-                emit processingData((++count)/tasks*100,"");
-            }
-            if (data.at(0) == "SN_OP"){
-                pData->setSnOP(data.at(1));
-                emit processingData((++count)/tasks*100,"");
-            }
-            if (data.at(0) == "SN_OL"){
-                pData->setSnOL(data.at(1));
-                emit processingData((++count)/tasks*100,"");
-            }
-            if (data.at(0).startsWith("amsler")){
-                pData->decodeAmslerData(data.at(0),data.at(1));
-                emit processingData((++count)/tasks*100,"");
-            }
-            if (data.at(0) == "amsler_R_comment"){
-                pData->setAmslerComment(data.at(1), "R");
-                emit processingData((++count)/tasks*100,"");
-            }
-            if (data.at(0) == "amsler_L_comment"){
-                pData->setAmslerComment(data.at(1), "L");
-                emit processingData((++count)/tasks*100,"");
-            }
-            if (data.at(0) == "MCV_OP"){
-                pData->setMcvOP(data.at(1));
-                emit processingData((++count)/tasks*100,"");
-            }
-            if (data.at(0) == "MCV_OL"){
-                pData->setMcvOL(data.at(1));
-                emit processingData((++count)/tasks*100,"");
-            }
-            if (data.at(0) == "MCH_OP"){
-                pData->setMchOP(data.at(1));
-                emit processingData((++count)/tasks*100,"");
-            }
-            if (data.at(0) == "MCH_OL"){
-                pData->setMchOL(data.at(1));
-                emit processingData((++count)/tasks*100,"");
-            }
+
             if (data.at(0) == "Birth_Date"){
                 pData->setBirthDate(QDate::fromString(data.at(1),"yyyy-MM-dd"));
                 emit processingData((++count)/tasks*100,"");
                 pData->setAge(pData->getExamDate().year() - pData->getBirthDate().year());
             }
-            if (data.at(0) == "Pathology_OP"){
-                pData->setPathologyOP(decodePathology(data.at(1)));
-                emit processingData((++count)/tasks*100,"");
-            }
-            if (data.at(0) == "Pathology_OL"){
-                pData->setPathologyOL(decodePathology(data.at(1)));
-                emit processingData((++count)/tasks*100,"");
-            }
+
         }
     } while(!line.isNull());
 
@@ -633,14 +583,14 @@ void ReadWriteData::readFileManualSegmentation(QFile *dataFile){
             while (!xml.atEnd() && !xml.hasError()){
                 QXmlStreamReader::TokenType token = xml.readNext();
                 if (token == QXmlStreamReader::StartElement){
-                    if (xml.name() == "scan_characteristics"){
+                    if (xml.name().toString() == "scan_characteristics"){
                         voxelSize = parseXmlVoxelSize(xml);
                         emit processingData((++count)/tasks*100,"");
-                    } else if (xml.name() == "surface"){
+                    } else if (xml.name().toString() == "surface"){
                         parseXmlSurfaceLines(xml);
                         count += bn;
                         emit processingData((count)/tasks*100,"");
-                    } else if (xml.name() == "undefined_region"){
+                    } else if (xml.name().toString() == "undefined_region"){
                         parseUndefinedRegion(xml);
                         emit processingData((++count)/tasks*100,"");
                     } else {
@@ -697,11 +647,6 @@ void ReadWriteData::readFileManualSegmentation(QFile *dataFile){
         QList<Layers> layers = getAllLayers();
         foreach (Layers layer, layers) {
             pData->smoothLayer(layer);
-            emit processingData((++count)/tasks*100,"");
-        }
-        emit processingData(count, "Trwa uzupełnianie danych...");
-        for (int i=0; i < pData->getBscansNumber(); i++){
-            pData->fillContactArea(i);
             emit processingData((++count)/tasks*100,"");
         }
         emit processingData(count, "Trwa obliczanie współczynników wypłaszczania warstw...");
@@ -777,13 +722,14 @@ void ReadWriteData::readFileAutoSegmentation(QFile *dataFile){
             while (!xml.atEnd() && !xml.hasError()){
                 QXmlStreamReader::TokenType token = xml.readNext();
                 if (token == QXmlStreamReader::StartElement){
-                    if (xml.name() == "scan_characteristics"){
+                    if (xml.name().toString()
+                            == "scan_characteristics"){
                         voxelSize = parseXmlVoxelSize(xml, 1);
                         emit processingData((++count)/tasks*100,"");
-                    } else if (xml.name() == "surface"){
+                    } else if (xml.name().toString() == "surface"){
                         parseXmlSurfaceLines(xml, 1);
                         emit processingData((++count)/tasks*100,"");
-                    } else if (xml.name() == "undefined_region"){
+                    } else if (xml.name().toString() == "undefined_region"){
                         parseUndefinedRegion(xml, 1);
                         emit processingData((++count)/tasks*100,"");
                     } else {
@@ -810,17 +756,17 @@ QList<int> ReadWriteData::parseXmlVoxelSize(QXmlStreamReader &xml, bool isAuto){
     QPoint center(-1,-1);
 
     xml.readNext();
-    while (!(xml.tokenType() == QXmlStreamReader::EndElement && xml.name() == "size")){
+    while (!(xml.tokenType() == QXmlStreamReader::EndElement && xml.name().toString() == "size")){
         if (xml.tokenType() == QXmlStreamReader::StartElement){
-            if (xml.name() == "x"){
+            if (xml.name().toString() == "x"){
                 xml.readNext();
                 voxel[0] = xml.text().toInt();
             }
-            if (xml.name() == "y"){
+            if (xml.name().toString() == "y"){
                 xml.readNext();
                 voxel[1] = xml.text().toInt();
             }
-            if (xml.name() == "z"){
+            if (xml.name().toString() == "z"){
                 xml.readNext();
                 voxel[2] = xml.text().toInt();
             }
@@ -829,16 +775,16 @@ QList<int> ReadWriteData::parseXmlVoxelSize(QXmlStreamReader &xml, bool isAuto){
     }
 
     if (!isAuto){
-        while(!(xml.tokenType() == QXmlStreamReader::StartElement && xml.name() == "scan_center")){
+        while(!(xml.tokenType() == QXmlStreamReader::StartElement && xml.name().toString() == "scan_center")){
             xml.readNext();
         }
-        while(!(xml.tokenType() == QXmlStreamReader::EndElement && xml.name() == "scan_center")){
+        while(!(xml.tokenType() == QXmlStreamReader::EndElement && xml.name().toString() == "scan_center")){
             if (xml.tokenType() == QXmlStreamReader::StartElement){
-                if (xml.name() == "x"){
+                if (xml.name().toString() == "x"){
                     xml.readNext();
                     center.setX(xml.text().toInt());
                 }
-                if (xml.name() == "y"){
+                if (xml.name().toString() == "y"){
                     xml.readNext();
                     center.setY(xml.text().toInt());
                 }
@@ -858,9 +804,9 @@ void ReadWriteData::parseXmlSurfaceLines(QXmlStreamReader &xml, bool isAuto){
     Layers layer = NONE;
 
     xml.readNext();
-    while (!(xml.tokenType() == QXmlStreamReader::EndElement && xml.name() == "surface")){
+    while (!(xml.tokenType() == QXmlStreamReader::EndElement && xml.name().toString() == "surface")){
         if (xml.tokenType() == QXmlStreamReader::StartElement){
-            if (xml.name() == "label"){
+            if (xml.name().toString() == "label"){
                 xml.readNext();
                 lineNumber = xml.text().toInt();
                 switch (lineNumber) {
@@ -908,12 +854,12 @@ void ReadWriteData::parseXmlSurfaceLines(QXmlStreamReader &xml, bool isAuto){
                     break;
                 }
             }
-            if ((xml.name() == "bscan") && (layer != NONE)){
+            if ((xml.name().toString() == "bscan") && (layer != NONE)){
                 xml.readNext();
                 counter = 0;
-                while (!(xml.tokenType() == QXmlStreamReader::EndElement && xml.name() == "bscan")){
+                while (!(xml.tokenType() == QXmlStreamReader::EndElement && xml.name().toString() == "bscan")){
                     if (xml.tokenType() == QXmlStreamReader::StartElement){
-                        if (xml.name() == "z"){
+                        if (xml.name().toString() == "z"){
                             xml.readNext();
                             if (isAuto){
                                 pData->setPointAuto(scanNumber,layer,QPoint(counter,xml.text().toInt()));
@@ -938,19 +884,19 @@ void ReadWriteData::parseUndefinedRegion(QXmlStreamReader &xml, bool isAuto){
     QList<Layers> allLayers = getAllLayers();
 
     xml.readNext();
-    while (!(xml.tokenType() == QXmlStreamReader::EndElement && xml.name() == "undefined_region")){
+    while (!(xml.tokenType() == QXmlStreamReader::EndElement && xml.name().toString() == "undefined_region")){
         if (xml.tokenType() == QXmlStreamReader::StartElement){
-            if (xml.name() == "ascan"){
+            if (xml.name().toString() == "ascan"){
                 xml.readNext();
                 x = -1;
                 y = -1;
-                while (!(xml.tokenType() == QXmlStreamReader::EndElement && xml.name() == "ascan")){
+                while (!(xml.tokenType() == QXmlStreamReader::EndElement && xml.name().toString() == "ascan")){
                     if (xml.tokenType() == QXmlStreamReader::StartElement){
-                        if (xml.name() == "x"){
+                        if (xml.name().toString() == "x"){
                             xml.readNext();
                             x = xml.text().toInt();
                         }
-                        if (xml.name() == "y"){
+                        if (xml.name().toString() == "y"){
                             xml.readNext();
                             y = xml.text().toInt();
                         }
@@ -988,41 +934,7 @@ void ReadWriteData::saveGeneralExamData(){
     }
 
     QTextStream stream(&examFile);
-    stream << "VIS_OP=" + pData->getVisOP() << endl;
-    emit processingData((++count)/tasks*100,"");
-    stream << "VIS_OL=" + pData->getVisOL() << endl;
-    emit processingData((++count)/tasks*100,"");
-    stream << "SN_OP=" + pData->getSnOP() << endl;
-    emit processingData((++count)/tasks*100,"");
-    stream << "SN_OL=" + pData->getSnOL() << endl;
-    emit processingData((++count)/tasks*100,"");
-    QList<AmslerDist> distR = pData->getAmslerDistList("R");
-    foreach (AmslerDist dist, distR) {
-        stream << pData->encodeAmslerData(dist, "R") << endl;
-    }
-    emit processingData((++count)/tasks*100,"");
-    QList<AmslerDist> distL = pData->getAmslerDistList("L");
-    foreach (AmslerDist dist, distL) {
-        stream << pData->encodeAmslerData(dist, "L") << endl;
-    }
-    emit processingData((++count)/tasks*100,"");
-    stream << "amsler_R_comment=" + pData->getAmslerComment("R") << endl;
-    emit processingData((++count)/tasks*100,"");
-    stream << "amsler_L_comment=" + pData->getAmslerComment("L") << endl;
-    emit processingData((++count)/tasks*100,"");
-    stream << "MCV_OP=" + pData->getMcvOP() << endl;
-    emit processingData((++count)/tasks*100,"");
-    stream << "MCV_OL=" + pData->getMcvOL() << endl;
-    emit processingData((++count)/tasks*100,"");
-    stream << "MCH_OP=" + pData->getMchOP() << endl;
-    emit processingData((++count)/tasks*100,"");
-    stream << "MCH_OL=" + pData->getMchOL() << endl;
-    emit processingData((++count)/tasks*100,"");
-    stream << "Pathology_OP=" + encodePathology(pData->getPathologyOP()) << endl;
-    emit processingData((++count)/tasks*100,"");
-    stream << "Pathology_OL=" + encodePathology(pData->getPathologyOL()) << endl;
-    emit processingData((++count)/tasks*100,"");
-    stream << "Birth_Date=" + pData->getBirthDate().toString("yyyy-MM-dd") << endl;
+    stream << "Birth_Date=" + pData->getBirthDate().toString("yyyy-MM-dd") << Qt::endl;
     emit processingData((++count)/tasks*100,"");
 
     if (examFile.isOpen())
@@ -1062,7 +974,7 @@ void ReadWriteData::saveManualSegmentationData(){
         if (dataSaveStrucure == "txt"){
             QTextStream stream(&octExamFile);
             QPoint center = pData->getScanCenter();
-            stream << "scanCenter=" + QString::number(center.x()) + "," + QString::number(center.y()) << endl;
+            stream << "scanCenter=" + QString::number(center.x()) + "," + QString::number(center.y()) << Qt::endl;
             emit processingData((++count)/tasks*100,"");
 
             QList<QPoint> pointsList;
@@ -1076,7 +988,7 @@ void ReadWriteData::saveManualSegmentationData(){
                     foreach (QPoint p, pointsList) {
                         stream << p.x() << "," << p.y() << ";";
                     }
-                    stream << endl;
+                    stream << Qt::endl;
                     emit processingData((++count)/tasks*100,"");
                 }
             }
@@ -1256,7 +1168,7 @@ void ReadWriteData::saveAutoSegmentationData(){
                     foreach (QPoint p, pointsList) {
                         autoSegmentText << p.x() << "," << p.y() << ";";
                     }
-                    autoSegmentText << endl;
+                    autoSegmentText << Qt::endl;
                     emit processingData((++count)/tasks*100,"");
                 }
             }

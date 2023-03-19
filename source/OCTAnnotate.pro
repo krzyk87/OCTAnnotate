@@ -7,6 +7,7 @@
 QT       += core gui xml sql
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets printsupport
+greaterThan(QT_MAJOR_VERSION, 6): QT += core5compat
 
 TARGET = OCTAnnotate
 TEMPLATE = app
@@ -15,36 +16,22 @@ TEMPLATE = app
 SOURCES += main.cpp\
         octannotate.cpp \
     patientdata.cpp \
-    newpatientdialog.cpp \
     qcustomplot.cpp \
     autoasmanualdialog.cpp \
-    settingsdialog.cpp \
     calculate.cpp \
     readwritedata.cpp \
-    computeerrorsettingsdialog.cpp \
-    dbmanager.cpp \
-    batchprocessingdialog.cpp \
-    infodialog.cpp
+    settingsdialog.cpp
 
 HEADERS  += octannotate.h \
     patientdata.h \
-    newpatientdialog.h \
     qcustomplot.h \
     autoasmanualdialog.h \
-    settingsdialog.h \
     calculate.h \
     readwritedata.h \
-    computeerrorsettingsdialog.h \
-    dbmanager.h \
-    batchprocessingdialog.h \
-    infodialog.h
+    settingsdialog.h
 
 FORMS    += octannotate.ui \
-    newpatientdialog.ui \
-    settingsdialog.ui \
-    computeerrorsettingsdialog.ui \
-    batchprocessingdialog.ui \
-    infodialog.ui
+    settingsdialog.ui
 
 #INCLUDEPATH += C:\\opencv\\mybuild\\install\\include
 

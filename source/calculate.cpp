@@ -7,16 +7,7 @@
 Calculate::Calculate(QObject *parent) :
     QObject(parent)
 {
-    errorCountProcAll = 0;
-    errorCountAll = 0;
-    mse = 0;
-    rmse = 0;
-    avg = 0;
-    dev = 0;
-    proc = 0;
-    sum = 0;
-    squareSum = 0;
-    squareDiffSum = 0;
+
 }
 
 void Calculate::process(){
@@ -35,83 +26,12 @@ void Calculate::process(){
         readAuto(str);
         emit processingData((double)(folderNumber*3 + 2)/count*100,"");
 
-        qDebug() << "calculate error folder: " << str;
-        calculateError(&patientData,true,true);
-        emit processingData((double)(folderNumber*3 + 3)/count*100,"");
-
-//        qDebug() << "calculating error deviation";
-//        calculateFolderDeviation(folderNumber);
         folderNumber++;
     }
 
-    double peaksnr = this->bscanHeight;
-    for (int i=0; i < allLayers.count(); i++){
-        if (errorLayerCount[i] != 0){
-            errorLayerMSE[i] = errorLayerSquareSum[i] / errorLayerCount[i];
-            errorLayerAvg[i] = errorLayerSum[i] / errorLayerCount[i];
-            errorLayerProc[i] = errorLayerCountProc[i] / errorLayerCount[i] * 100;
-            errorLayerPSNR[i] = 10 * qLn(peaksnr * peaksnr / errorLayerMSE[i]) / qLn(10);
-        }
-        errorLayerRMSE[i] = qSqrt(errorLayerMSE[i]);
-
-        squareSum += errorLayerSquareSum[i];
-        squareDiffSum += errorLayerSquareDiffSum[i];
-        sum += errorLayerSum[i];
-    }
-    if (errorCountAll != 0){
-        mse = squareSum / errorCountAll;
-        avg = sum / errorCountAll;
-        psnr = 10 * qLn(peaksnr * peaksnr / mse) / qLn(10);
-        proc = errorCountProcAll / errorCountAll * 100;
-    }
-    rmse = qSqrt(mse);
-    calculateLayersDeviation(true);
-    emit averageErrorCalculated(avg);
-    emit mseErrorCaluclated(mse);
 
     qDebug() << "End of calculations...";
     emit processingData(100, "End of calculations");
-
-    QFile errorSaveFile(examDataDir + autoFilePath + "error" + alg + ".txt");
-    if(errorSaveFile.open(QIODevice::WriteOnly)){
-        QTextStream stream(&errorSaveFile);
-        QString errPsnr = QString::number(psnr,0,2).replace(".",",");
-        QString errMse = QString::number(mse,0,2).replace(".",",");
-        QString errRmse = QString::number(rmse,0,2).replace(".",",");
-        QString errAvg = QString::number(avg,0,2).replace(".",",");
-        QString errDev = QString::number(dev,0,2).replace(".",",");
-        QString errProc = QString::number(proc,0,2).replace(".",",");
-        stream << "General results: " << endl;
-        stream << "Layer \t PSNR \t MSE \t RMSE \t AVG \t DEV \t PROC" << endl;
-        stream << "All: " << "\t" << errPsnr << "\t" << errMse << "\t" << errRmse << "\t" << errAvg << "\t" << errDev << "\t" << errProc << endl;
-        for (int i=0; i < allLayers.count(); i++) {
-            errPsnr = QString::number(errorLayerPSNR[i],0,2).replace(".",",");
-            errMse = QString::number(errorLayerMSE[i],0,2).replace(".",",");
-            errRmse = QString::number(errorLayerRMSE[i],0,2).replace(".",",");
-            errAvg = QString::number(errorLayerAvg[i],0,2).replace(".",",");
-            errDev = QString::number(errorLayerDev[i],0,2).replace(".",",");
-            errProc = QString::number(errorLayerProc[i],0,2).replace(".",",");
-            stream << encodeLayer(allLayers.at(i)) << "\t" << errPsnr << "\t" << errMse << "\t" << errRmse << "\t" << errAvg << "\t" << errDev << "\t" << errProc << endl;
-        }
-        stream << "Folder-detailed MSE:" << endl;
-        stream << "Folder:\t";
-        for (int j=0; j < folderCount; j++){
-            QString str = folderList[j].left(5);
-            stream << str << "\t";
-        }
-        stream << endl;
-        for (int i=0; i < layersCount; i++){
-            stream << encodeLayer(allLayers.at(i)) << "\t";
-            for (int j=0; j < folderCount; j++){
-                stream << QString::number(errorFolderMSE[i][j]).replace(".",",") << "\t";
-            }
-            stream << endl;
-        }
-        errorSaveFile.close();
-    }
-
-    qDebug() << "Data saved to file: " << errorSaveFile.fileName();
-    processingData(100,"Data saved to file: " + errorSaveFile.fileName());
 
     emit finished();
 }
@@ -127,65 +47,10 @@ void Calculate::processStatistics(){
         qDebug() << "reading manual segmentations: " << str;
         readManual(str);
         emit processingData((double)(folderNumber*4 + 1)/tasks*100,"");
-
-        qDebug() << "calculating volumes: " << str;
-        volumes[folderNumber] = patientData.getVolumeGrid();
-        orderVolumes(folderNumber);
-        emit processingData((double)(folderNumber*4 + 2)/tasks*100,"");
-
-        qDebug() << "calculating contact area: " << str;
-        contactAreas[folderNumber] = patientData.getContactAreaOM();
-        emit processingData((double)(folderNumber*4 + 3)/tasks*100,"");
-
-        qDebug() << "calculating retina depth: " << str;
-        retinaDepths[folderNumber] = patientData.getRetinaDepth();
-        emit processingData((double)(folderNumber*4 + 4)/tasks*100,"");
-        folderNumber++;
     }
 
     qDebug() << "End of calculations...";
     emit processingData(100, "End of calculations");
-
-    // save calculations to file...
-    QFile statisticsFile(examDataDir + "statistics.txt");
-    if(statisticsFile.open(QIODevice::WriteOnly)){
-        QTextStream stream(&statisticsFile);
-        stream << "Volume statistics: " << endl;
-        stream << "Folder\tCF\tIM_T\tIM_S\tIM_N\tIM_I\tOM_T\tOM_S\tOM_N\tOM_I\tVsum\tCA\tRD" << endl;
-        for (int i=0; i < folderCount; i++) {
-            stream << folderList[i] << "\t";
-            for (int j=0; j < volumes.at(i).count(); j++){
-                stream << QString::number(volumes.at(i)[j],0,2).replace(".",",") << "\t";
-            }
-            stream << QString::number(contactAreas[i],0,3).replace(".",",") << "\t" << QString::number(retinaDepths[i],0,3).replace(".",",") << endl;
-        }
-        statisticsFile.close();
-    }
-
-    qDebug() << "Data saved to file: " << statisticsFile.fileName();
-    processingData(100,"Data saved to file: " + statisticsFile.fileName());
-
-    // save calculations to file... [vectors_cavri.R]
-    QFile vectorsFile(examDataDir + "vectors_cavri.R");
-    if(vectorsFile.open(QIODevice::WriteOnly)){
-        QTextStream stream(&vectorsFile);
-        for (int i=0; i < folderCount; i++) {
-            stream << initials[i] << "_";
-            stream << pathology[i] << "=c(";
-            for (int j=0; j < volumes.at(i).count(); j++){
-                stream << QString::number(volumes.at(i)[j],0,2) << ",";
-            }
-            stream << QString::number(contactAreas[i],0,3) << ",";
-            stream << QString::number(retinaDepths[i],0,3) << ",";
-            stream << vis[i] << ",";
-            stream << age[i];
-            stream << ")" << endl;
-        }
-        vectorsFile.close();
-    }
-
-    qDebug() << "Data saved to file: " << vectorsFile.fileName();
-    processingData(100,"Data saved to file: " + vectorsFile.fileName());
 
     emit finished();
 }
@@ -208,7 +73,6 @@ void Calculate::readManual(QString folder){
     rwData->readGeneralExamData();
     patientData.resetBscansData();
     rwData->readFileManualSegmentation(&manualFile);
-    patientData.computeVirtualMap(PCV,ILM);
 
     foreach (Layers layer, allLayers) {
         for (int bscan=0; bscan<patientData.getBscansNumber(); bscan++){
@@ -221,13 +85,6 @@ void Calculate::readManual(QString folder){
     }
 
     initials.append(patientData.getLastName().left(1) + patientData.getFirstName().left(1));
-    if (patientData.getEye() == 0){ // OS
-        vis.append(patientData.getVisOL());
-        pathology.append(encodePathology(patientData.getPathologyOL()));
-    } else {
-        vis.append(patientData.getVisOP());
-        pathology.append(encodePathology(patientData.getPathologyOP()));
-    }
     age.append(patientData.getAge());
     centers[folderNumber] = patientData.getScanCenter();
 }
@@ -276,173 +133,6 @@ void Calculate::readAuto(QString folder){
         autoFile.close();
 }
 
-void Calculate::calculateError(PatientData *pData, bool etdrsOnly, bool multiscan){
-    QList<Layers> layersList = allLayers; //getLayersForError();
-    QList<QPoint> mPoints;
-    QList<QPoint> aPoints;
-
-    double errorAvg = 0.0;
-    double errorDev = 0.0;
-    double errorMSE = 0.0;
-    double errorRMSE = 0.0;
-    double errorPSNR = 0.0;
-    double errorProc = 0.0;
-
-    double errorVal = 0.0;
-    double errorSum = 0.0;
-    double errorSquareSum = 0.0;
-    double errorDiffSquareSum = 0.0;
-    double errorCount = 0.0;
-    double errorCountProc = 0.0;
-
-    QList<double> errLayerAvg;
-    QList<double> errLayerDev;
-    QList<double> errLayerMSE;
-    QList<double> errLayerRMSE;
-    QList<double> errLayerPSNR;
-    QList<double> errLayerProc;
-
-    QList<double> errLayerSum;
-    QList<double> errLayerSquareSum;
-    QList<double> errLayerDiffSquareSum;
-    QList<double> errLayerCount;
-    QList<double> errLayerCountProc;
-
-    int xc = pData->getScanCenter().x();
-    int yc = pData->getScanCenter().y();
-    if (xc == -1)
-        xc = pData->getBscanWidth() / 2;
-    if (yc == -1)
-        yc = pData->getBscansNumber() / 2;
-    double distance = 0.0;
-    double deltaX = (double)(pData->getVoxelWidth() / (pData->getBscanWidth() - 1));
-    double deltaY = (double)(pData->getVoxelHeight() / (pData->getBscansNumber() - 1));
-
-    foreach (Layers layer, layersList){
-        errLayerAvg.append(0);
-        errLayerDev.append(0);
-        errLayerMSE.append(0);
-        errLayerRMSE.append(0);
-        errLayerPSNR.append(0);
-        errLayerProc.append(0);
-
-        errLayerSum.append(0);
-        errLayerSquareSum.append(0);
-        errLayerDiffSquareSum.append(0);
-        errLayerCount.append(0);
-        errLayerCountProc.append(0);
-
-        int layerNr = layersList.indexOf(layer);
-
-        for (int scan=0; scan < pData->getBscansNumber(); scan++){
-            mPoints = pData->getLayerPoints(scan,layer,0,pData->getBscanWidth()-1);
-            aPoints = pData->getLayerPointsAuto(scan,layer,0,pData->getBscanWidth()-1);
-            for (int px=0; px < pData->getBscanWidth(); px++){
-                if (etdrsOnly){
-                    int x = px-xc;
-                    int y = scan-yc;
-                    distance = pData->calculateDistance(QPoint(xc,yc),QPoint(px,scan),deltaX,deltaY);
-                }
-                if ((mPoints[px].y() != -1) && (aPoints[px].y() != -1) && (distance <= 3.0)){
-                    errorVal = mPoints[px].y() - aPoints[px].y(); //  * voxelDepth * 1000 / bscanHeight;
-                    errorVal = qAbs(errorVal);
-                    if (errorVal <= 5)
-                        errorVal = 0;
-                    else{
-                        errorCountProc++;
-                        errLayerCountProc[layerNr]++;
-                    }
-
-                    errorSum += errorVal;
-                    errorSquareSum += qPow(errorVal,2);
-                    errorCount++;
-
-                    errLayerSum[layerNr] += errorVal;
-                    errLayerSquareSum[layerNr] += qPow(errorVal,2);
-                    errLayerCount[layerNr]++;
-                }
-            }
-        }
-        if (errLayerCount[layerNr] != 0){
-            errLayerAvg[layerNr] = errLayerSum[layerNr] / errLayerCount[layerNr];
-            errLayerMSE[layerNr] = errLayerSquareSum[layerNr] / errLayerCount[layerNr];
-            errLayerRMSE[layerNr] = qSqrt(errLayerMSE[layerNr]);
-            double peaksnr = pData->getBscanHeight();
-            errLayerPSNR[layerNr] = 10 * qLn(peaksnr * peaksnr / errLayerMSE[layerNr]) / qLn(10);
-            errLayerProc[layerNr] = errLayerCountProc[layerNr] / errLayerCount[layerNr] * 100;
-        }
-        if (multiscan){
-            errorLayerSum[layerNr] += errLayerSum[layerNr];
-            errorLayerSquareSum[layerNr] += errLayerSquareSum[layerNr];
-            errorLayerCount[layerNr] += errLayerCount[layerNr];
-            errorLayerCountProc[layerNr] += errLayerCountProc[layerNr];
-
-            errorFolderSum[layerNr][folderNumber] += errLayerSum[layerNr];
-            errorFolderSquareSum[layerNr][folderNumber] += errLayerSquareSum[layerNr];
-            errorFolderCount[layerNr][folderNumber] += errLayerCount[layerNr];
-            errorFolderCountProc[layerNr][folderNumber] += errLayerCountProc[layerNr];
-
-            errorFolderAvg[layerNr][folderNumber] = errLayerAvg[layerNr];
-            errorFolderMSE[layerNr][folderNumber] = errLayerMSE[layerNr];
-            errorFolderRMSE[layerNr][folderNumber] = errLayerRMSE[layerNr];
-            errorFolderPSNR[layerNr][folderNumber] = errLayerPSNR[layerNr];
-            errorFolderProc[layerNr][folderNumber] = errLayerProc[layerNr];
-        }
-    }
-
-    if (errorCount != 0){
-        errorAvg = errorSum / errorCount;
-        errorMSE = errorSquareSum / errorCount;
-        errorRMSE = qSqrt(errorMSE);
-        double peaksnr = pData->getBscanHeight();
-        errorPSNR = 10 * qLn(peaksnr * peaksnr / errorMSE) / qLn(10);
-        errorProc = errorCountProc / errorCount * 100;
-    }
-
-    foreach (Layers layer, layersList) {
-        int layerNr = layersList.indexOf(layer);
-        for (int scan=0; scan < pData->getBscansNumber(); scan++){
-            mPoints = pData->getLayerPoints(scan,layer,0,pData->getBscanWidth()-1);
-            aPoints = pData->getLayerPointsAuto(scan,layer,0,pData->getBscanWidth()-1);
-            for (int px=0; px < pData->getBscanWidth(); px++){
-                if (etdrsOnly){
-                    int x = px-xc;
-                    int y = scan-yc;
-                    distance = pData->calculateDistance(QPoint(xc,yc),QPoint(px,scan),deltaX,deltaY);
-                }
-                if ((mPoints[px].y() != -1) && (aPoints[px].y() != -1) && (distance <= 3.0)){
-                    errorVal = mPoints[px].y() - aPoints[px].y(); //  * voxelDepth * 1000 / bscanHeight;
-                    errorVal = qAbs(errorVal);
-                    if (errorVal <= 5)
-                        errorVal = 0;
-
-                    errorDiffSquareSum += qPow(errorVal - errorAvg,2);
-                    errLayerDiffSquareSum[layerNr] += qPow(errorVal - errLayerAvg[layerNr],2);
-                }
-            }
-        }
-        if (errLayerCount[layerNr] != 0){
-            errLayerDev[layerNr] = qSqrt(errLayerDiffSquareSum[layerNr] / errLayerCount[layerNr]);
-        }
-        pData->setErrorLayer(layer,errLayerAvg[layerNr],errLayerDev[layerNr],errLayerMSE[layerNr],errLayerRMSE[layerNr],errLayerPSNR[layerNr],errLayerProc[layerNr]);
-
-        if (multiscan){
-            errorFolderSquareDiffSum[layerNr] += errLayerDiffSquareSum[layerNr];
-            errorFolderDev[layerNr][folderNumber] = errLayerDev[layerNr];
-        }
-    }
-    if (errorCount != 0){
-        errorDev = qSqrt(errorDiffSquareSum / errorCount);
-    }
-
-    pData->setErrorAll(errorAvg,errorDev,errorMSE,errorRMSE,errorPSNR,errorProc);
-
-    if (multiscan){
-        errorCountAll += errorCount;
-        errorCountProcAll += errorCountProc;
-    }
-}
-
 void Calculate::calculateLayersDeviation(bool etdrsOnly){
     int mVal,aVal;
     double errVal;
@@ -462,8 +152,8 @@ void Calculate::calculateLayersDeviation(bool etdrsOnly){
             for (int bscan = 0; bscan < bscansCount; bscan++){
                 for (int i = 0; i < bscanWidth; i++){
                     if (etdrsOnly){
-                        int x = i-xc;
-                        int y = bscan-yc;
+//                        int x = i-xc;
+//                        int y = bscan-yc;
                         distance = patientData.calculateDistance(QPoint(xc,yc),QPoint(i,bscan),deltaX,deltaY);
                     }
                     mVal = manualSeg[folderNr].layers[layer].map[bscan].bscan[i];
@@ -474,15 +164,11 @@ void Calculate::calculateLayersDeviation(bool etdrsOnly){
                             errVal = 0;
                         }
                         errVal = qAbs(errVal);
-                        errorLayerSquareDiffSum[layer] += qPow(errVal - errorLayerAvg[layer],2);
-                        squareDiffSum += qPow(errVal - avg,2);
                     }
                 }
             }
-        }
-        errorLayerDev[layer] = qSqrt(errorLayerSquareDiffSum[layer] / errorLayerCount[layer]);
+        }   
     }
-    dev = qSqrt(squareDiffSum / errorCountAll);
 }
 
 void Calculate::setFolderList(QList<QString> list){
@@ -527,113 +213,18 @@ void Calculate::setupMatrixes(OCTDevice device){
     for (int l=0; l<folderCount; l++){
         manualSeg.append(rls);
         autoSeg.append(rls);
-        error.append(rls);
     }
-
-    errorLayerPSNR.clear();
-    errorLayerMSE.clear();
-    errorLayerRMSE.clear();
-    errorLayerAvg.clear();
-    errorLayerDev.clear();
-    errorLayerProc.clear();
-
-    errorLayerCount.clear();
-    errorLayerCountProc.clear();
-    errorLayerSum.clear();
-    errorLayerSquareSum.clear();
-    errorLayerSquareDiffSum.clear();
-
-    errorFolderPSNR.clear();
-    errorFolderMSE.clear();
-    errorFolderRMSE.clear();
-    errorFolderAvg.clear();
-    errorFolderDev.clear();
-    errorFolderProc.clear();
-    errorFolderSquareSum.clear();
-    errorFolderSquareDiffSum.clear();
-    errorFolderSum.clear();
-    errorFolderCount.clear();
-    errorFolderCountProc.clear();
 
     QList<double> row;
     for (int j=0; j<folderCount; j++){
         row.append(0);
     }
-    for (int i=0; i<layersCount; i++){
-        errorLayerPSNR.append(0);
-        errorLayerMSE.append(0);
-        errorLayerRMSE.append(0);
-        errorLayerAvg.append(0);
-        errorLayerDev.append(0);
-        errorLayerProc.append(0);
-        errorLayerCount.append(0);
-        errorLayerCountProc.append(0);
-        errorLayerSum.append(0);
-        errorLayerSquareSum.append(0);
-        errorLayerSquareDiffSum.append(0);
-
-        errorFolderPSNR.append(row);
-        errorFolderMSE.append(row);
-        errorFolderRMSE.append(row);
-        errorFolderAvg.append(row);
-        errorFolderDev.append(row);
-        errorFolderProc.append(row);
-        errorFolderCount.append(row);
-        errorFolderCountProc.append(row);
-        errorFolderSum.append(row);
-        errorFolderSquareSum.append(row);
-        errorFolderSquareDiffSum.append(row);
-    }
 
     // volume
-    volumes.clear();
-    QList<double> v;
-    for (int i=0; i < 10; i++){
-        v.append(0);
-    }
 
     for (int f=0; f < folderCount; f++){
-        volumes.append(v);
-        contactAreas.append(0);
-        retinaDepths.append(0);
         centers.append(QPoint(-1,-1));
     }
-}
-
-void Calculate::orderVolumes(int folderNr){
-    QList<double> vol = volumes[folderNr];
-    QList<double> newVol;
-    newVol.reserve(10);
-
-    newVol.append(vol[0]);  // CF
-
-    if (patientData.getEye() == 1){    // right eye
-        newVol.append(vol[2]);
-        newVol.append(vol[3]);
-        newVol.append(vol[4]);
-        newVol.append(vol[1]);
-        newVol.append(vol[6]);
-        newVol.append(vol[7]);
-        newVol.append(vol[8]);
-        newVol.append(vol[5]);
-//        labelLeft->setText("T <-");
-//        labelRight->setText("-> N");
-    } else if (patientData.getEye() == 0){ // left eye
-        newVol.append(vol[4]);
-        newVol.append(vol[3]);
-        newVol.append(vol[2]);
-        newVol.append(vol[1]);
-        newVol.append(vol[8]);
-        newVol.append(vol[7]);
-        newVol.append(vol[6]);
-        newVol.append(vol[5]);
-//        labelLeft->setText("N <-");
-//        labelRight->setText("-> T");
-    }
-
-    newVol.append(vol[9]);  // sum
-
-    volumes[folderNr] = newVol;
 }
 
 void Calculate::imageEnhancement(QImage *img, float contrast, int brightness){
@@ -647,6 +238,8 @@ void Calculate::imageEnhancement(QImage *img, float contrast, int brightness){
                 max = value;
         }
     }
+    if (max == 0)
+        max = 1;
     for (int i=0; i<img->width(); i++){
         for (int j=0; j<img->height(); j++){
             int value = QColor::fromRgb(img->pixel(i,j)).red();

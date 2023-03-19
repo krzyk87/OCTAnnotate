@@ -163,7 +163,7 @@ QList<QString> AutoAsManualDialog::getSelectedLayers(){
 }
 
 int AutoAsManualDialog::getSelectedScans(){
-    int result;
+    int result = 0;
 
     if (allScansRButton->isChecked())
         result = 0;

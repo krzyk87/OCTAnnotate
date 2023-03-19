@@ -61,8 +61,8 @@ void SettingsDialog::on_acceptButton_clicked()
 
     if (!ready){
         QMessageBox msg;
-        msg.setText("Ścieżki do plików nie mogą pozostać puste!");
-        msg.setInformativeText("Proszę uzupełnić wszystkie pola.");
+        msg.setText("File paths can not be empty!");
+        msg.setInformativeText("Please fill all of the fields.");
         msg.setStandardButtons(QMessageBox::Ok);
         msg.setIcon(QMessageBox::Critical);
         msg.exec();

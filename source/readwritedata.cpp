@@ -1,10 +1,12 @@
 #include "readwritedata.h"
+#include "calculate.h"
 
 #include <QTextStream>
 #include <QDir>
 #include <QColor>
 #include <QDebug>
 #include <QMessageBox>
+#include <QRegularExpression>
 //#include <QtXml>
 
 ReadWriteData::ReadWriteData(QObject *parent) : QObject(parent)
@@ -148,7 +150,7 @@ bool ReadWriteData::readPatientData(){
     } else {
         QString infoFilePath;
         QFile infoFile;
-        if (!pData->getIsBinary()){    // isBinary
+        if (!pData->getIsBinary()){    // !isBinary
             infoFilePath = octDir->absolutePath().append("/" + octDir->dirName() + ".txt");
             infoFile.setFileName(infoFilePath);
             if (!infoFile.exists()){
@@ -156,7 +158,7 @@ bool ReadWriteData::readPatientData(){
                 infoFile.setFileName(infoFilePath);
             }
             scanName = octDir->dirName();
-        } else {    // !isBinary
+        } else {    // isBinary
             infoFilePath = octFile->fileName();
             infoFilePath.chop(4);
             QFileInfo fileInfo(octFile->fileName());
@@ -173,16 +175,18 @@ bool ReadWriteData::readPatientData(){
 
             // Nazwisko, Imie _27_3D Retina_OS_2014-09-12_10.21.36_1
             QStringList fileName = scanName.split(",");
-            QStringList fileName2 = fileName.at(1).split(" ");
-            pData->setLastName(fileName.at(0).toUpper());
-            emit processingData((++count)/tasks*100,"");
-            pData->setFirstName(fileName2.at(1).toUpper());
-            emit processingData((++count)/tasks*100,"");
-            QStringList examCode = fileName2.at(3).split("_");
-            pData->setExamDate(QDate::fromString(examCode.at(2),"yyyy-MM-dd"));
-            emit processingData((++count)/tasks*100,"");
-            pData->setExamTime(QTime::fromString(examCode.at(3),"hh.mm.ss"));
-            emit processingData((++count)/tasks*100,"");
+            if (fileName.length() > 1){
+                QStringList fileName2 = fileName.at(1).split(" ");
+                pData->setLastName(fileName.at(0).toUpper());
+                emit processingData((++count)/tasks*100,"");
+                pData->setFirstName(fileName2.at(1).toUpper());
+                emit processingData((++count)/tasks*100,"");
+                QStringList examCode = fileName2.at(3).split("_");
+                pData->setExamDate(QDate::fromString(examCode.at(2),"yyyy-MM-dd"));
+                emit processingData((++count)/tasks*100,"");
+                pData->setExamTime(QTime::fromString(examCode.at(3),"hh.mm.ss"));
+                emit processingData((++count)/tasks*100,"");
+            }
 
             QTextStream infoText(&infoFile);
             bool scanLengthRead = false;
@@ -255,18 +259,26 @@ bool ReadWriteData::readPatientData(){
 
 void ReadWriteData::readOctExamData(){
     emit processingData(0, "Trwa pobieranie listy skanów...");
-    double tasks = pData->getBscansNumber()*3 + 1; // gdy contrast enhancement to 4 zamiast 3
+    double tasks = pData->getBscansNumber() + 2; // gdy contrast enhancement to 4 zamiast 3
     double count = 0;
     OCTDevice device = pData->getOCTDevice();
 
     // read exam images list
     QStringList imageList;
-    for (int i=0; i < pData->getBscansNumber(); i++){
-        if (device == COPERNICUS)
-            imageList.append(octDir->absolutePath().append("/skan") + QString::number(i) + ".bmp");
-        else if (device == AVANTI)
-            imageList.append(octDir->absolutePath().append("/Skan_nr_") + QString::number(i+1) + ".bmp");
-        emit processingData((++count)/tasks*100,"");
+    imageList.resize(pData->getBscansNumber());
+    QStringList filter;
+    filter << "*.bmp" << "*.tiff" << "*.jpeg" << "*.jpg";
+    QFileInfoList fileInfoList = octDir->entryInfoList(filter);
+    static QRegularExpression rg("[0-9]+");
+    QRegularExpressionMatch match;
+    foreach (const QFileInfo &fileInfo, fileInfoList) {
+        QString imageFileName = fileInfo.fileName();
+        match = rg.match(imageFileName);
+        if (match.hasMatch()){
+            int imageNumber = match.captured(0).toInt();
+//            qDebug() << imageFileName << ": " << QString::number(imageNumber);
+            imageList[imageNumber-1] = fileInfo.absoluteFilePath();
+        }
     }
     pData->setImageFileList(imageList);
     pData->resetBscansData();  // Bscans memory reset
@@ -277,39 +289,17 @@ void ReadWriteData::readOctExamData(){
         QImage img(imagePath);
         pData->setOCTdata(img, imageNumber);
         imageNumber++;
-        emit processingData((++count)/tasks*100,"");
+        emit processingData((++count)/tasks*100,"Trwa odczyt danych OCT...");
     }
 
     // read fundus image
-    emit processingData(++count, "Trwa odczyt obrazu fundus...");
-    QImage fundus = QImage(pData->getBscanWidth(), pData->getBscansNumber(), QImage::Format_Indexed8);
-    fundus.fill(0);
-
-    QString fundusFilePath = octDir->absolutePath().append("/fnds_rec.bmp");
-    if (QFile(fundusFilePath).exists()){
-        fundus = QImage(fundusFilePath);
-    }
-
-    if (device == COPERNICUS){
-        fundus = fundus.mirrored(false,true);
-    } else if (device == AVANTI){
-        // contrast enhancement
-//            for (int j=0; j<fundus.height(); j++){
-//                for (int i=0; i<fundus.width(); i++){
-//                    int value = QColor::fromRgb(fundus.pixel(i,j)).red();
-//                    value = value * 8;
-//                    value = qBound(0,value,255);
-//                    fundus.setPixel(i,j,value);
-//                }
-//                emit processingData((++count)/tasks*100,"");
-//            }
-    }
-    pData->setFundusImage(fundus);
+    emit processingData((++count)/tasks*100, "Trwa odczyt obrazu fundus...");
+    readFundusImage(device);
 }
 
 void ReadWriteData::readOctExamFile(){
     emit processingData(0, "Trwa pobieranie listy skanów...");
-    double tasks = pData->getBscansNumber()*4 + 1; // gdy contrast enhancement to 5 zamiast 4
+    double tasks = pData->getBscansNumber()*2 + 1; // gdy contrast enhancement to 5 zamiast 4
     double count = 0;
     OCTDevice device = pData->getOCTDevice();
 
@@ -334,34 +324,8 @@ void ReadWriteData::readOctExamFile(){
     readBinaryFile(octFile, &count, &tasks);
 
     // read fundus image
-    emit processingData(++count, "Trwa odczyt obrazu fundus...");
-    QImage fundus = QImage(pData->getBscanWidth(), pData->getBscansNumber(), QImage::Format_Indexed8);
-    fundus.fill(0);
-
-    QString fundusFilePathExpl = octDir->absolutePath().append("/../iowa/" + octDir->dirName() + "_Proj_Iowa.tif");
-    qDebug() << fundusFilePathExpl;
-    QString fundusFilePath = octDir->absolutePath().append("/fnds_rec.bmp");
-    if (QFile(fundusFilePathExpl).exists()){
-        fundus = QImage(fundusFilePathExpl);
-    } else if (QFile(fundusFilePath).exists()){
-        fundus = QImage(fundusFilePath);
-    }
-
-    if (device == COPERNICUS){
-        fundus = fundus.mirrored(false,true);
-    } else if (device == AVANTI){
-        // contrast enhancement
-//            for (int j=0; j<fundus.height(); j++){
-//                for (int i=0; i<fundus.width(); i++){
-//                    int value = QColor::fromRgb(fundus.pixel(i,j)).red();
-//                    value = value * 8;
-//                    value = qBound(0,value,255);
-//                    fundus.setPixel(i,j,value);
-//                }
-//                emit processingData((++count)/tasks*100,"");
-//            }
-    }
-    pData->setFundusImage(fundus);
+    emit processingData(++count/tasks*100, "Trwa odczyt obrazu fundus...");
+    readFundusImage(device);
 }
 
 void ReadWriteData::readBinaryFile(QFile *dataFile, double *count, double *tasks){
@@ -429,6 +393,32 @@ void ReadWriteData::readBinaryFile(QFile *dataFile, double *count, double *tasks
 
     *count = c;
     *tasks = t;
+}
+
+void ReadWriteData::readFundusImage(OCTDevice octDevice){
+    QImage fundus = QImage(pData->getBscanWidth(), pData->getBscansNumber(), QImage::Format_Indexed8);
+    fundus.fill(0);
+
+    QString fundusFilePath = octDir->absolutePath().append("/fnds_rec.bmp");    // fundus image in the sequence directory
+    QString fundusFilePathExpl = octDir->absolutePath().append("/../iowa/" + octDir->dirName() + "_Proj_Iowa.tif"); // fundus image form iowa directory
+    if (QFile(fundusFilePath).exists()){
+        fundus = QImage(fundusFilePath);
+    } else if (QFile(fundusFilePathExpl).exists()){
+        fundus = QImage(fundusFilePathExpl);
+    } else {
+        emit processingData(98, "Trwa tworzenie projekcji fundus z danych OCT...");
+        Calculate *calc = new Calculate();
+        fundus = calc->calculateFundus(pData->getOCTdata());
+    }
+
+    if (octDevice == COPERNICUS){
+        fundus = fundus.mirrored(false,true);
+    } else if (octDevice == AVANTI){
+        emit processingData(99, "Trwa poprawa kontrastu obrazu fundus...");
+        Calculate *calc = new Calculate();
+        calc->imageEnhancement(&fundus, 1.0, 0);
+    }
+    pData->setFundusImage(fundus);
 }
 
 // save patient's and exam data -------------------------------------------------------------------

@@ -145,7 +145,7 @@ void OCTAnnotate::delay( int secondsToWait )
 }
 
 // select OCT exam --------------------------------------------------------------------------------
-void OCTAnnotate::on_actionLoadOCTSequence_triggered(QString scanFolderPath)
+void OCTAnnotate::on_actionLoadOCTSequence_triggered()
 {
     bool selectNew = true;
 
@@ -157,9 +157,7 @@ void OCTAnnotate::on_actionLoadOCTSequence_triggered(QString scanFolderPath)
     }
 
     if (selectNew){
-        QString dirName = scanFolderPath;
-        if (dirName == "")
-            dirName = QFileDialog::getExistingDirectory(this, tr("Open Directory"), octDir.path(), QFileDialog::ShowDirsOnly);
+        QString dirName = QFileDialog::getExistingDirectory(this, tr("Open Directory"), octDir.path(), QFileDialog::ShowDirsOnly);
 
         qDebug() << "Opening scan: " << dirName;
 
@@ -196,7 +194,7 @@ void OCTAnnotate::on_actionLoadOCTSequence_triggered(QString scanFolderPath)
     }
 }
 
-void OCTAnnotate::on_actionLoadOCTFile_triggered(QString scanFilePath)
+void OCTAnnotate::on_actionLoadOCTFile_triggered()
 {
     bool selectNew = true;
 
@@ -208,9 +206,7 @@ void OCTAnnotate::on_actionLoadOCTFile_triggered(QString scanFilePath)
     }
 
     if (selectNew){
-        QString fileName = scanFilePath;
-        if (fileName == "")
-            fileName = QFileDialog::getOpenFileName(this, tr("Open OCT file"), octDir.absolutePath(), tr("Avanti RTvue raw OCT data file (*.OCT)"));
+        QString fileName = QFileDialog::getOpenFileName(this, tr("Open OCT file"), octDir.absolutePath(), tr("Avanti RTvue raw OCT data file (*.OCT)"));
 
         qDebug() << "Opening scan: " << fileName;
 

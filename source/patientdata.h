@@ -72,6 +72,7 @@ public:
     QTime getExamTime();
     void setOCTdata(QImage bscan, int bscanNumber);
     void setOCTdata(QList<QList<int> > bscan, int bscanNumber);
+    QList<QList<QList<int> > > getOCTdata();
     QList<QList<int> > getOCTdata(int bscanNumber);
     QImage getImage(int bscanNumber);
     QImage getNormalImage(int normalImageNumber);

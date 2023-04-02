@@ -41,8 +41,8 @@ private slots:
     void on_contrastResetButton_clicked();
     void on_brightnessResetButton_clicked();
 
-    void on_actionLoadOCTSequence_triggered(QString scanFolderPath = "");
-    void on_actionLoadOCTFile_triggered(QString scanFilePath = "");
+    void on_actionLoadOCTSequence_triggered();
+    void on_actionLoadOCTFile_triggered();
 
 // General exam
 

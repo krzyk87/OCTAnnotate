@@ -36,6 +36,7 @@ private:
     void readOctExamData();
     void readOctExamFile();
     void readBinaryFile(QFile *dataFile, double *count, double *tasks);
+    void readFundusImage(OCTDevice octDevice);
 
     QDir *octDir;
     QFile *octFile;

@@ -25,6 +25,7 @@ public slots:
     void imageEnhancement(QImage *img, float contrast, int brightness);
     void setFolderList(QList<QString> list);
     void setupMatrixes(OCTDevice device);
+    QImage calculateFundus(QList< QList< QList<int> > > octData);
 
 private:
     QList<QString> folderList;

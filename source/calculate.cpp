@@ -55,3 +55,48 @@ void Calculate::imageEnhancement(QImage *img, float contrast, int brightness){
         }
     }
 }
+
+QImage Calculate::calculateFundus(QList< QList< QList<int> > > octData)
+{
+    int scansNumber = octData.count();
+    int scanHeight = octData[0].count();
+    int scanWidth = octData[0][0].count();
+
+    int maxSum = 1;
+    QRgb rgbValue;
+    QList< QList<int> > fundusTemp;
+    fundusTemp.reserve(scansNumber);
+    QList<int> fundusColumn;
+    int sum, fundusValue;
+
+    QImage fundus(scanWidth,scansNumber,QImage::Format_Indexed8);
+
+    for (int y=0; y < scansNumber; y++){
+        fundusColumn.clear();
+        fundusColumn.reserve(scanWidth);
+
+        for (int x=0; x < scanWidth; x++){
+
+            sum = 0;
+            for (int z=0; z < scanHeight; z++){
+                sum += octData[y][z][x];
+            }
+            if (sum > maxSum){
+                maxSum = sum;
+            }
+            fundusColumn.append(sum);
+        }
+        fundusTemp.append(fundusColumn);
+    }
+    for (int y=0; y <scansNumber; y++){
+        for (int x=0; x < scanWidth; x++){
+            fundusValue = fundusTemp[y][x]*255 / (maxSum);
+            fundusValue = qBound(0,(int)fundusValue,255);
+            rgbValue = qRgb(fundusValue,fundusValue,fundusValue);
+            fundus.setColor(fundusValue,rgbValue);
+            fundus.setPixel(x,y,fundusValue);
+        }
+    }
+    return fundus;
+}
+

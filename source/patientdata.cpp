@@ -238,6 +238,11 @@ void PatientData::setOCTdata(QList<QList<int> > bscan, int bscanNumber){
     }
 }
 
+QList<QList<QList<int> > > PatientData::getOCTdata()
+{
+    return this->octdata;
+}
+
 QList<QList<int> > PatientData::getOCTdata(int bscanNumber)
 {
     QList<QList<int> > img = this->octdata.at(bscanNumber);

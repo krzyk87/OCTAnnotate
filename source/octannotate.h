@@ -112,7 +112,7 @@ private:
     void loadNormalImage(int normalImageNumber);
     void adjustScrollBar(QScrollBar *scrollBar, double factor);
     void rescaleImage();
-    void changeImageRange(int dir);
+//    void changeImageRange(int dir);
 
 // paint on OCT exam
 

@@ -289,6 +289,7 @@ void OCTAnnotate::loadImage(int imageNumber){
         // display image
         ui->bScanHCPlot->yAxis->setRange(bscanRange);
         ui->bScanHCPlot->axisRect()->setBackground(QPixmap::fromImage(newImage),true,Qt::IgnoreAspectRatio);
+        ui->bScanHCPlot->replot();
 
         ui->currImageNumberLEdit->setText(QString::number(currentImageNumber));
     } else {
@@ -324,6 +325,7 @@ void OCTAnnotate::loadNormalImage(int normalImageNumber){
     // display image
     ui->bScanVCPlot->yAxis->setRange(bscanRange);
     ui->bScanVCPlot->axisRect()->setBackground(QPixmap::fromImage(newImage),true,Qt::IgnoreAspectRatio);
+    ui->bScanVCPlot->replot();
     ui->currNormalImageNumberLEdit->setText(QString::number(currentNormalImageNumber));
 }
 
@@ -745,44 +747,44 @@ void OCTAnnotate::rescaleImage(){
     }
 }
 
-void OCTAnnotate::changeImageRange(int dir){
-    int imageHeight = patientData.getBscanHeight() / scales[scaleFactor];
-    QCPRange plotRange = ui->bScanHCPlot->yAxis->range();
-    QCPRange newRange;
-    bool rescale = false;
+//void OCTAnnotate::changeImageRange(int dir){
+//    int imageHeight = patientData.getBscanHeight() / scales[scaleFactor];
+//    QCPRange plotRange = ui->bScanHCPlot->yAxis->range();
+//    QCPRange newRange;
+//    bool rescale = false;
 
-    if ((dir > 0) && (plotRange.upper < patientData.getBscanHeight())){
-        double upper = qBound(0.0, plotRange.upper + 20, (double)patientData.getBscanHeight());
-        newRange = QCPRange(upper - imageHeight, upper);
-        rescale = true;
-    } else if ((dir < 0) && (plotRange.lower > 0)){
-        double lower = qBound(0.0, plotRange.lower - 20, (double)patientData.getBscanHeight());
-        newRange = QCPRange(lower, lower + imageHeight);
-        rescale = true;
-    }
+//    if ((dir > 0) && (plotRange.upper < patientData.getBscanHeight())){
+//        double upper = qBound(0.0, plotRange.upper + 20, (double)patientData.getBscanHeight());
+//        newRange = QCPRange(upper - imageHeight, upper);
+//        rescale = true;
+//    } else if ((dir < 0) && (plotRange.lower > 0)){
+//        double lower = qBound(0.0, plotRange.lower - 20, (double)patientData.getBscanHeight());
+//        newRange = QCPRange(lower, lower + imageHeight);
+//        rescale = true;
+//    }
 
-    if (rescale){
-        ui->bScanHCPlot->yAxis->setRange(newRange);
-        ui->bScanVCPlot->yAxis->setRange(newRange);
-        bscanRange = newRange;
+//    if (rescale){
+//        ui->bScanHCPlot->yAxis->setRange(newRange);
+//        ui->bScanVCPlot->yAxis->setRange(newRange);
+//        bscanRange = newRange;
 
-//        Calculate *calc = new Calculate();
-        QImage image(patientData.getImage(currentImageNumber));
-        QImage normalImage = patientData.getNormalImage(currentNormalImageNumber);
+////        Calculate *calc = new Calculate();
+//        QImage image(patientData.getImage(currentImageNumber));
+//        QImage normalImage = patientData.getNormalImage(currentNormalImageNumber);
 
-//        calc->imageEnhancement(&image, contrast, brightness);
-//        calc->imageEnhancement(&normalImage, contrast, brightness);
+////        calc->imageEnhancement(&image, contrast, brightness);
+////        calc->imageEnhancement(&normalImage, contrast, brightness);
 
-        double dy = qBound(0, patientData.getBscanHeight() - (int)newRange.upper, patientData.getBscanHeight()-imageHeight);
-        QImage newImage = image.copy(0, dy, patientData.getBscanWidth(), imageHeight);
-        ui->bScanHCPlot->axisRect()->setBackground(QPixmap::fromImage(newImage),true,Qt::IgnoreAspectRatio);
-        ui->bScanHCPlot->replot();
+//        double dy = qBound(0, patientData.getBscanHeight() - (int)newRange.upper, patientData.getBscanHeight()-imageHeight);
+//        QImage newImage = image.copy(0, dy, patientData.getBscanWidth(), imageHeight);
+//        ui->bScanHCPlot->axisRect()->setBackground(QPixmap::fromImage(newImage),true,Qt::IgnoreAspectRatio);
+//        ui->bScanHCPlot->replot();
 
-        QImage newNormalImage = normalImage.copy(0,dy,patientData.getBscansNumber(),imageHeight);
-        ui->bScanVCPlot->axisRect()->setBackground(QPixmap::fromImage(newNormalImage),true,Qt::IgnoreAspectRatio);
-        ui->bScanVCPlot->replot();
-    }
-}
+//        QImage newNormalImage = normalImage.copy(0,dy,patientData.getBscansNumber(),imageHeight);
+//        ui->bScanVCPlot->axisRect()->setBackground(QPixmap::fromImage(newNormalImage),true,Qt::IgnoreAspectRatio);
+//        ui->bScanVCPlot->replot();
+//    }
+//}
 
 void OCTAnnotate::adjustScrollBar(QScrollBar *scrollBar, double factor)
 {
@@ -919,7 +921,7 @@ void OCTAnnotate::on_readingDataFinished(QString data){
     // setup plots
     setupBScanPlots();
 
-    //on_tabWidget_currentChanged();
+    on_tabWidget_currentChanged();
 }
 
 // calculate statistics for CAVRI analysis -------------------------------------------------------

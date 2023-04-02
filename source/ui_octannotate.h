@@ -145,13 +145,13 @@ public:
     {
         if (OCTAnnotate->objectName().isEmpty())
             OCTAnnotate->setObjectName("OCTAnnotate");
-        OCTAnnotate->resize(1260, 900);
+        OCTAnnotate->resize(1260, 850);
         QSizePolicy sizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
         sizePolicy.setHorizontalStretch(0);
         sizePolicy.setVerticalStretch(0);
         sizePolicy.setHeightForWidth(OCTAnnotate->sizePolicy().hasHeightForWidth());
         OCTAnnotate->setSizePolicy(sizePolicy);
-        OCTAnnotate->setMinimumSize(QSize(1260, 900));
+        OCTAnnotate->setMinimumSize(QSize(1260, 850));
         actionLoadOCTSequence = new QAction(OCTAnnotate);
         actionLoadOCTSequence->setObjectName("actionLoadOCTSequence");
         actionClose = new QAction(OCTAnnotate);
@@ -358,6 +358,7 @@ public:
         verticalLayout_6->setObjectName("verticalLayout_6");
         editLayerGBox = new QGroupBox(tabOCTExam);
         editLayerGBox->setObjectName("editLayerGBox");
+        editLayerGBox->setEnabled(false);
         editLayerGBox->setMinimumSize(QSize(221, 311));
         editLayerGBox->setMaximumSize(QSize(221, 1000));
         pcvLayerRButton = new QRadioButton(editLayerGBox);
@@ -392,7 +393,7 @@ public:
         onlLayerRButton->setChecked(false);
         elmLayerRButton = new QRadioButton(editLayerGBox);
         elmLayerRButton->setObjectName("elmLayerRButton");
-        elmLayerRButton->setEnabled(true);
+        elmLayerRButton->setEnabled(false);
         elmLayerRButton->setGeometry(QRect(30, 200, 51, 21));
         elmLayerRButton->setChecked(false);
         inlColorLabel = new QLabel(editLayerGBox);
@@ -565,12 +566,14 @@ public:
         formLayout_4->setFieldGrowthPolicy(QFormLayout::ExpandingFieldsGrow);
         contrastResetButton = new QPushButton(tabOCTExam);
         contrastResetButton->setObjectName("contrastResetButton");
+        contrastResetButton->setEnabled(false);
         contrastResetButton->setMaximumSize(QSize(75, 23));
 
         formLayout_4->setWidget(0, QFormLayout::LabelRole, contrastResetButton);
 
         contrastSlider = new QSlider(tabOCTExam);
         contrastSlider->setObjectName("contrastSlider");
+        contrastSlider->setEnabled(false);
         QSizePolicy sizePolicy3(QSizePolicy::Fixed, QSizePolicy::Fixed);
         sizePolicy3.setHorizontalStretch(0);
         sizePolicy3.setVerticalStretch(0);
@@ -587,12 +590,14 @@ public:
 
         brightnessResetButton = new QPushButton(tabOCTExam);
         brightnessResetButton->setObjectName("brightnessResetButton");
+        brightnessResetButton->setEnabled(false);
         brightnessResetButton->setMaximumSize(QSize(75, 23));
 
         formLayout_4->setWidget(1, QFormLayout::LabelRole, brightnessResetButton);
 
         brightnessSlider = new QSlider(tabOCTExam);
         brightnessSlider->setObjectName("brightnessSlider");
+        brightnessSlider->setEnabled(false);
         sizePolicy3.setHeightForWidth(brightnessSlider->sizePolicy().hasHeightForWidth());
         brightnessSlider->setSizePolicy(sizePolicy3);
         brightnessSlider->setMinimumSize(QSize(140, 19));
@@ -652,7 +657,6 @@ public:
         menuProgram->addAction(actionSettings);
         menuProgram->addSeparator();
         menuProgram->addAction(actionClose);
-        toolBar->addAction(actionImageFlattening);
 
         retranslateUi(OCTAnnotate);
 

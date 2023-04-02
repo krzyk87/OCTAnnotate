@@ -338,6 +338,15 @@ void ReadWriteData::readOctExamFile(){
     QImage fundus = QImage(pData->getBscanWidth(), pData->getBscansNumber(), QImage::Format_Indexed8);
     fundus.fill(0);
 
+    QString fundusFilePathExpl = octDir->absolutePath().append("/../iowa/" + octDir->dirName() + "_Proj_Iowa.tif");
+    qDebug() << fundusFilePathExpl;
+    QString fundusFilePath = octDir->absolutePath().append("/fnds_rec.bmp");
+    if (QFile(fundusFilePathExpl).exists()){
+        fundus = QImage(fundusFilePathExpl);
+    } else if (QFile(fundusFilePath).exists()){
+        fundus = QImage(fundusFilePath);
+    }
+
     if (device == COPERNICUS){
         fundus = fundus.mirrored(false,true);
     } else if (device == AVANTI){

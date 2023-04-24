@@ -31,12 +31,12 @@ void ReadWriteData::process(){
                 break;
             }
         }
-        if (dir == "readOctExamData"){
-            this->readOctExamData();
+        if (dir == "readOctSequence"){
+            this->readOctSequence();
             emit readingDataFinished("");
         }
-        if (dir == "readOctExamFile"){
-            this->readOctExamFile();
+        if (dir == "readOctFile"){
+            this->readOctFile();
             emit readingDataFinished("");
         }
     }
@@ -257,7 +257,7 @@ bool ReadWriteData::readPatientData(){
     }
 }
 
-void ReadWriteData::readOctExamData(){
+void ReadWriteData::readOctSequence(){
     emit processingData(0, "Trwa pobieranie listy skanów...");
     double tasks = pData->getBscansNumber() + 2; // gdy contrast enhancement to 4 zamiast 3
     double count = 0;
@@ -277,7 +277,10 @@ void ReadWriteData::readOctExamData(){
         if (match.hasMatch()){
             int imageNumber = match.captured(0).toInt();
 //            qDebug() << imageFileName << ": " << QString::number(imageNumber);
-            imageList[imageNumber-1] = fileInfo.absoluteFilePath();
+            if (imageNumber <= pData->getBscansNumber())
+                imageList[imageNumber-1] = fileInfo.absoluteFilePath();
+            else
+                qDebug() << "image number out of range -> image " << QString::number(imageNumber) << " not loaded!";
         }
     }
     pData->setImageFileList(imageList);
@@ -297,7 +300,7 @@ void ReadWriteData::readOctExamData(){
     readFundusImage(device);
 }
 
-void ReadWriteData::readOctExamFile(){
+void ReadWriteData::readOctFile(){
     emit processingData(0, "Trwa pobieranie listy skanów...");
     double tasks = pData->getBscansNumber()*2 + 1; // gdy contrast enhancement to 5 zamiast 4
     double count = 0;

@@ -118,12 +118,22 @@ void OCTAnnotate::on_actionSettings_triggered()
 
 void OCTAnnotate::on_actionClose_triggered()
 {
-    QMessageBox msgBox;
-    QPushButton *saveButton = msgBox.addButton(" Zapisz i zamknij ", QMessageBox::YesRole);
-    QPushButton *cancelButton = msgBox.addButton(" Anuluj ", QMessageBox::RejectRole);
-    msgBox.addButton(" Wyjdź bez zapisywania ", QMessageBox::NoRole);
-
-    quit = true;
+     quit = true;
+    // TODO: uncomment when functionality for saving new segmentations will be added
+//    QMessageBox msgBox;
+//    QPushButton *saveButton = msgBox.addButton(" Zapisz i zamknij ", QMessageBox::YesRole);
+//    QPushButton *cancelButton = msgBox.addButton(" Anuluj ", QMessageBox::RejectRole);
+//    msgBox.addButton(" Wyjdź bez zapisywania ", QMessageBox::NoRole);
+//    if (octDataModified){
+//            msgBox.setText("Anotacje badania OCT zostały zmienione. Czy zapisać zmiany przed wyjściem?");
+//            msgBox.exec();
+//            if (msgBox.clickedButton() == saveButton){
+//                on_actionSaveOCTExam_triggered();
+//                delay(3);
+//            } else if (msgBox.clickedButton() == cancelButton) {
+//                quit = false;
+//            }
+//        }
 
     if (quit)
         qApp->quit();
@@ -149,12 +159,22 @@ void OCTAnnotate::on_actionLoadOCTSequence_triggered()
 {
     bool selectNew = true;
 
-    if (patientData.getIsLoaded()){
-        QMessageBox msgBox;
-        QPushButton *saveButton = msgBox.addButton(" Zapisz i wczytaj nowe badanie ", QMessageBox::YesRole);
-        QPushButton *cancelButton = msgBox.addButton(" Anuluj ", QMessageBox::RejectRole);
-        msgBox.addButton(" Wczytaj nowe badanie bez zapisywania ", QMessageBox::NoRole);
-    }
+    // TODO: uncomment when functionality for saving new segmentations will be added
+//    if (patientData.getIsLoaded()){
+//        QMessageBox msgBox;
+//        QPushButton *saveButton = msgBox.addButton(" Zapisz i wczytaj nowe badanie ", QMessageBox::YesRole);
+//        QPushButton *cancelButton = msgBox.addButton(" Anuluj ", QMessageBox::RejectRole);
+//        msgBox.addButton(" Wczytaj nowe badanie bez zapisywania ", QMessageBox::NoRole);
+//        if (octDataModified){
+//            msgBox.setText("Anotacje badania OCT zostały zmienione. Czy zapisać zmiany przed wczytaniem nowego badania?");
+//            msgBox.exec();
+//            if (msgBox.clickedButton() == saveButton){
+//                on_actionSaveOCTExam_triggered();
+//            } else if (msgBox.clickedButton() == cancelButton) {
+//                selectNew = false;
+//            }
+//        }
+//    }
 
     if (selectNew){
         QString dirName = QFileDialog::getExistingDirectory(this, tr("Open Directory"), octDir.path(), QFileDialog::ShowDirsOnly);
@@ -178,7 +198,7 @@ void OCTAnnotate::on_actionLoadOCTSequence_triggered()
             rwData->setDirectoryOct(&octDir);
             rwData->setDataSaveStrucure(dataSaveStructure);
             rwData->addDirective("readPatientData");
-            rwData->addDirective("readOctExamData");
+            rwData->addDirective("readOctSequence");
 
             QThread *thread = new QThread;
             rwData->moveToThread(thread);
@@ -198,12 +218,22 @@ void OCTAnnotate::on_actionLoadOCTFile_triggered()
 {
     bool selectNew = true;
 
-    if (patientData.getIsLoaded()){
-        QMessageBox msgBox;
-        QPushButton *saveButton = msgBox.addButton(" Zapisz i wczytaj nowe badanie ", QMessageBox::YesRole);
-        QPushButton *cancelButton = msgBox.addButton(" Anuluj ", QMessageBox::RejectRole);
-        msgBox.addButton(" Wczytaj nowe badanie bez zapisywania ", QMessageBox::NoRole);
-    }
+    // TODO: uncomment when functionality for saving new segmentations will be added
+//    if (patientData.getIsLoaded()){
+//        QMessageBox msgBox;
+//        QPushButton *saveButton = msgBox.addButton(" Zapisz i wczytaj nowe badanie ", QMessageBox::YesRole);
+//        QPushButton *cancelButton = msgBox.addButton(" Anuluj ", QMessageBox::RejectRole);
+//        msgBox.addButton(" Wczytaj nowe badanie bez zapisywania ", QMessageBox::NoRole);
+//        if (octDataModified){
+//            msgBox.setText("Anotacje badania OCT zostały zmienione. Czy zapisać zmiany przed wczytaniem nowego badania?");
+//            msgBox.exec();
+//            if (msgBox.clickedButton() == saveButton){
+//                on_actionSaveOCTExam_triggered();
+//            } else if (msgBox.clickedButton() == cancelButton) {
+//                selectNew = false;
+//            }
+//        }
+//    }
 
     if (selectNew){
         QString fileName = QFileDialog::getOpenFileName(this, tr("Open OCT file"), octDir.absolutePath(), tr("Avanti RTvue raw OCT data file (*.OCT)"));
@@ -228,7 +258,7 @@ void OCTAnnotate::on_actionLoadOCTFile_triggered()
             rwData->setOctFile(&octFile);
             rwData->setDataSaveStrucure(dataSaveStructure);
             rwData->addDirective("readPatientData");
-            rwData->addDirective("readOctExamFile");
+            rwData->addDirective("readOctFile");
 
             QThread *thread = new QThread;
             rwData->moveToThread(thread);
@@ -896,7 +926,7 @@ void OCTAnnotate::on_readingDataFinished(QString data){
     if (data == "autoOnly")
         msg = "Wczytano dane automatycznej segmentacji";
 
-//    QMessageBox::information(this, "Odczyt danych OCT", msg);
+    QMessageBox::information(this, "Odczyt danych OCT", msg);
 
     currentImageNumber = patientData.getBscansNumber()/2;   // middle B-scan
     currentNormalImageNumber = patientData.getBscanWidth()/2;

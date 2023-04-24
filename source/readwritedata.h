@@ -33,8 +33,8 @@ public slots:
     void setDataSaveStrucure(QString structure);
 
 private:
-    void readOctExamData();
-    void readOctExamFile();
+    void readOctSequence();
+    void readOctFile();
     void readBinaryFile(QFile *dataFile, double *count, double *tasks);
     void readFundusImage(OCTDevice octDevice);
 

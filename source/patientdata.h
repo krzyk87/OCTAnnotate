@@ -83,6 +83,7 @@ public:
     double getDepthCoeff();
 
     // annotations
+    void resetManualAnnotations();
 
     // auto annotations
 

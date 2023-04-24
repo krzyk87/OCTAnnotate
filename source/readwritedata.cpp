@@ -14,6 +14,7 @@ ReadWriteData::ReadWriteData(QObject *parent) : QObject(parent)
     pData = new PatientData();
     directives.clear();
     octDir = new QDir(".");
+    manualFilePath = "";
     showMessage = true;
 }
 
@@ -39,6 +40,25 @@ void ReadWriteData::process(){
             this->readOctFile();
             emit readingDataFinished("");
         }
+        if (dir == "readManualSegmentationData"){
+            QFile manualFile(manualFilePath);
+//            readFileManualSegmentation(&manualFile);
+//            emit readingDataFinished("manualOnly");
+        }
+        // TODO: unomment below lines when adding functionalities for automatic segmentation
+//        if (dir == "readAutoSegmentationData"){
+//            QFile autoFile(autoFilePath);
+//            readFileAutoSegmentation(&autoFile);
+//            emit readingDataFinished("autoOnly");
+//        }
+//        if (dir == "copyAutoAsManualAll"){
+//            this->copyAutoAsManual(getAllLayers());
+//        }
+//        if (dir == "copyAutoAsManualPCV"){
+//            QList<Layers> list;
+//            list.append(PCV);
+//            this->copyAutoAsManual(list);
+//        }
     }
     qDebug() << "Finished processing scan: " + octDir->dirName();
     emit finished();
@@ -66,6 +86,10 @@ void ReadWriteData::setDirectoryOct(QDir *dataDir){
 
 void ReadWriteData::setOctFile(QFile *dataFile){
     octFile = dataFile;
+}
+
+void ReadWriteData::setManualFilePath(QString mfPath){
+    this->manualFilePath = mfPath;
 }
 
 // read patient's and exam data -------------------------------------------------------------------
@@ -298,6 +322,11 @@ void ReadWriteData::readOctSequence(){
     // read fundus image
     emit processingData((++count)/tasks*100, "Trwa odczyt obrazu fundus...");
     readFundusImage(device);
+
+//    // read oct exam data if exists
+//    QString octExamFilePath = manualDir->path().append("/" + octDir->dirName() + ".mvri");
+//    QFile octExamFile(octExamFilePath);
+//    readFileManualSegmentation(&octExamFile);
 }
 
 void ReadWriteData::readOctFile(){

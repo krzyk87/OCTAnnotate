@@ -43,6 +43,7 @@ private slots:
 
     void on_actionLoadOCTSequence_triggered();
     void on_actionLoadOCTFile_triggered();
+    void loadOCT(bool isBinary);
 
 // General exam
 

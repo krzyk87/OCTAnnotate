@@ -28,6 +28,7 @@ public slots:
     void setDataObject(PatientData *patientData);
     void setDirectoryOct(QDir *dataDir);
     void setOctFile(QFile *dataFile);
+    void setManualFilePath(QString mfPath);
     void addDirective(QString directive);
     void setShowMessage(bool show);
     void setDataSaveStrucure(QString structure);
@@ -40,6 +41,7 @@ private:
 
     QDir *octDir;
     QFile *octFile;
+    QString manualFilePath;
     QList<QString> directives;
     PatientData *pData;
     bool showMessage;

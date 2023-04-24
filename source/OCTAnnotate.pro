@@ -14,6 +14,8 @@ TEMPLATE = app
 
 
 SOURCES += main.cpp\
+    functions.cpp \
+    layer.cpp \
         octannotate.cpp \
     patientdata.cpp \
     qcustomplot.cpp \
@@ -22,6 +24,9 @@ SOURCES += main.cpp\
     settingsdialog.cpp
 
 HEADERS  += octannotate.h \
+    enums.h \
+    functions.h \
+    layer.h \
     patientdata.h \
     qcustomplot.h \
     calculate.h \

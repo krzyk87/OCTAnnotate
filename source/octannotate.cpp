@@ -157,64 +157,15 @@ void OCTAnnotate::delay( int secondsToWait )
 // select OCT exam --------------------------------------------------------------------------------
 void OCTAnnotate::on_actionLoadOCTSequence_triggered()
 {
-    bool selectNew = true;
-
-    // TODO: uncomment when functionality for saving new segmentations will be added
-//    if (patientData.getIsLoaded()){
-//        QMessageBox msgBox;
-//        QPushButton *saveButton = msgBox.addButton(" Zapisz i wczytaj nowe badanie ", QMessageBox::YesRole);
-//        QPushButton *cancelButton = msgBox.addButton(" Anuluj ", QMessageBox::RejectRole);
-//        msgBox.addButton(" Wczytaj nowe badanie bez zapisywania ", QMessageBox::NoRole);
-//        if (octDataModified){
-//            msgBox.setText("Anotacje badania OCT zostały zmienione. Czy zapisać zmiany przed wczytaniem nowego badania?");
-//            msgBox.exec();
-//            if (msgBox.clickedButton() == saveButton){
-//                on_actionSaveOCTExam_triggered();
-//            } else if (msgBox.clickedButton() == cancelButton) {
-//                selectNew = false;
-//            }
-//        }
-//    }
-
-    if (selectNew){
-        QString dirName = QFileDialog::getExistingDirectory(this, tr("Open Directory"), octDir.path(), QFileDialog::ShowDirsOnly);
-
-        qDebug() << "Opening scan: " << dirName;
-
-        if (!dirName.isEmpty()){
-            octDir = QDir(dirName);
-            scanName = octDir.dirName();
-
-            patientData = PatientData();
-            patientData.setIsBinary(false);
-
-            ui->statusBar->showMessage("Trwa odczyt danych badania OCT...");
-            progressBar->setMaximum(100);
-            progressBar->setVisible(true);
-            progressBar->setValue(0);
-
-            ReadWriteData *rwData = new ReadWriteData();
-            rwData->setDataObject(&patientData);
-            rwData->setDirectoryOct(&octDir);
-            rwData->setDataSaveStrucure(dataSaveStructure);
-            rwData->addDirective("readPatientData");
-            rwData->addDirective("readOctSequence");
-
-            QThread *thread = new QThread;
-            rwData->moveToThread(thread);
-            connect(thread, SIGNAL(started()), rwData, SLOT(process()));
-            connect(rwData, SIGNAL(errorOccured(QString)), this, SLOT(on_errorOccured(QString)));
-            connect(rwData, SIGNAL(processingData(double,QString)), this, SLOT(on_processingData(double,QString)));
-            connect(rwData, SIGNAL(readingDataFinished(QString)), this, SLOT(on_readingDataFinished(QString)));
-            connect(rwData, SIGNAL(finished()), thread, SLOT(quit()));
-            connect(rwData, SIGNAL(finished()), rwData, SLOT(deleteLater()));
-            connect(thread, SIGNAL(finished()), thread, SLOT(deleteLater()));
-            thread->start();
-        }
-    }
+    loadOCT(false);
 }
 
 void OCTAnnotate::on_actionLoadOCTFile_triggered()
+{
+    loadOCT(true);
+}
+
+void OCTAnnotate::loadOCT(bool isBinary)
 {
     bool selectNew = true;
 
@@ -236,17 +187,29 @@ void OCTAnnotate::on_actionLoadOCTFile_triggered()
 //    }
 
     if (selectNew){
-        QString fileName = QFileDialog::getOpenFileName(this, tr("Open OCT file"), octDir.absolutePath(), tr("Avanti RTvue raw OCT data file (*.OCT)"));
+        QString selectedScanName = "";
+        if (isBinary)
+            selectedScanName = QFileDialog::getOpenFileName(this, tr("Open OCT file"), octDir.absolutePath(), tr("Avanti RTvue raw OCT data file (*.OCT)"));
+        else
+            selectedScanName = QFileDialog::getExistingDirectory(this, tr("Open Directory"), octDir.path(), QFileDialog::ShowDirsOnly);
 
-        qDebug() << "Opening scan: " << fileName;
+        qDebug() << "Opening scan: " << selectedScanName;   // QFileInfo(selectedScanName).fileName();
 
-        if (!fileName.isEmpty()){
-            octFile.setFileName(fileName);
-            QFileInfo fileInfo(octFile);
-            scanName = fileInfo.fileName();
+        if (!selectedScanName.isEmpty()){
+            if (isBinary){
+                octFile.setFileName(selectedScanName);
+                QFileInfo fileInfo(octFile);
+                scanName = fileInfo.fileName();
+            } else {
+                octDir = QDir(selectedScanName);
+                scanName = octDir.dirName();
+            }
 
             patientData = PatientData();
-            patientData.setIsBinary(true);
+
+//            scan = new Scan(AVANTI);
+//            scan->setIsBinary(isBinary);
+            patientData.setIsBinary(isBinary);
 
             ui->statusBar->showMessage("Trwa odczyt danych badania OCT...");
             progressBar->setMaximum(100);
@@ -255,10 +218,16 @@ void OCTAnnotate::on_actionLoadOCTFile_triggered()
 
             ReadWriteData *rwData = new ReadWriteData();
             rwData->setDataObject(&patientData);
-            rwData->setOctFile(&octFile);
+            if (isBinary)
+                rwData->setOctFile(&octFile);
+            else
+                rwData->setDirectoryOct(&octDir);
             rwData->setDataSaveStrucure(dataSaveStructure);
             rwData->addDirective("readPatientData");
-            rwData->addDirective("readOctFile");
+            if (isBinary)
+                rwData->addDirective("readOctFile");
+            else
+                rwData->addDirective("readOctSequence");
 
             QThread *thread = new QThread;
             rwData->moveToThread(thread);
@@ -481,9 +450,23 @@ void OCTAnnotate::on_tabWidget_currentChanged()
 
 bool OCTAnnotate::eventFilter(QObject *target, QEvent *event){
     if (patientData.getIsLoaded()){ // !patientData.getImageFileList().isEmpty()){
-        QPoint currPoint;
+//        QPoint currPoint;
 
-//        if (target == ui->bScanHCPlot) {
+        if (target == ui->fundusImageLabel){
+            if (event->type() == QEvent::MouseButtonPress){
+                QMouseEvent *mouseEvent = static_cast<QMouseEvent*>(event);
+
+                currentImageNumber = mouseEvent->pos().y() * patientData.getBscansNumber() / ui->fundusImageLabel->height();
+                currentNormalImageNumber = mouseEvent->pos().x() * patientData.getBscanWidth() / ui->fundusImageLabel->width();
+
+                loadImage(currentImageNumber);
+                loadNormalImage(currentNormalImageNumber);
+
+                fundusAnnotate = true; // ,selectedErrorLayer);
+            }
+        }
+        // TODO: uncomment and edit blow code for manual drawing of retina layers
+//        else if (target == ui->bScanHCPlot) {
 //            QMouseEvent *mouseEvent = static_cast<QMouseEvent*>(event);
 //            currPoint.setX(ui->bScanHCPlot->xAxis->pixelToCoord(mouseEvent->pos().x()));
 //            currPoint.setY(patientData.getBscanHeight() - ui->bScanHCPlot->yAxis->pixelToCoord(mouseEvent->pos().y()));
@@ -506,18 +489,6 @@ bool OCTAnnotate::eventFilter(QObject *target, QEvent *event){
 //                changeImageRange(numSteps.y());
 //            }
 
-//        } else if (target == ui->fundusImageLabel){
-//            if (event->type() == QEvent::MouseButtonPress){
-//                QMouseEvent *mouseEvent = static_cast<QMouseEvent*>(event);
-
-//                currentImageNumber = mouseEvent->pos().y() * patientData.getBscansNumber() / ui->fundusImageLabel->height();
-//                currentNormalImageNumber = mouseEvent->pos().x() * patientData.getBscanWidth() / ui->fundusImageLabel->width();
-
-//                loadImage(currentImageNumber);
-//                loadNormalImage(currentNormalImageNumber);
-
-//                fundusAnnotate = true; // ,selectedErrorLayer);
-//            }
 //        }
     }
     return false;

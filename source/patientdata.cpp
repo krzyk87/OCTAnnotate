@@ -1,13 +1,10 @@
 #include "patientdata.h"
+//#include "layer.h"
 #include <QPainter>
 #include <qmath.h>
 #include <math.h>
 #include <QDebug>
 #include "functions.h"
-
-// ----------------------------------------------------------------------------
-// AmslerDist class -----------------------------------------------------------
-// ----------------------------------------------------------------------------
 
 // ----------------------------------------------------------------------------
 // PatientData class ----------------------------------------------------------
@@ -77,7 +74,6 @@ void PatientData::resetManualAnnotations(){
     for (int i=0; i<this->bscansNumber; i++){
         foreach (Layers layer, layerList) {
             this->Bscans[i].layers[(int)layer].resetPoints();
-            this->Bscans[i].layers[(int)layer].countAnnotatedPixels();
         }
     }
 
@@ -106,11 +102,6 @@ void PatientData::setPoint(int bscanNumber, Layers layer, QPoint p)
     this->manualAnnotations = true;
 }
 
-void PatientData::countAnnotatedPixelsInLayer(int bscanNumber, Layers layer)
-{
-    this->Bscans[bscanNumber].layers[(int)layer].countAnnotatedPixels();
-}
-
 double PatientData::calculateDistance(QPoint p1, QPoint p2, double dx, double dy){
     double deltaX = p1.x() - p2.x();
     double deltaY = p1.y() - p2.y();
@@ -127,7 +118,20 @@ double PatientData::calculateDistance(QPoint p1, QPoint p2, double dx, double dy
 // OCT Exam Data --------------------------------------------------------------
 void PatientData::resetBscansData(){
 
-    // clear memory
+    // clear annotations memory
+    this->Bscans.clear();
+
+    // create empty B-scan "b"
+    Bscan b;
+    QList<Layers> layerList = getAllLayers();
+    foreach (Layers layer, layerList) {
+        b.layers.append(Layer(this->bscanWidth, this->bscansNumber, (int)layer));
+    }
+    // create list of empty B-scans
+    this->Bscans.reserve(this->bscansNumber);
+    for (int i=0; i < this->bscansNumber; i++){
+        this->Bscans.append(b);
+    }
 
     // reset octData
     QList<int> row;
@@ -290,8 +294,6 @@ QImage PatientData::getImage(int bscanNumber)
 
 // General Exam Data ----------------------------------------------------------
 
-
-// Amsler image ---------------------------------------------------------------
 
 // Patient's Information -----------------------------------------------------
 int PatientData::getEye(){

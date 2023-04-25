@@ -35,18 +35,18 @@ void ReadWriteData::process(){
         }
         if (dir == "readOctSequence"){
             this->readOctSequence();
-            emit readingDataFinished("");
+            emit readingDataFinished("octSequence");
         }
         if (dir == "readOctFile"){
             this->readOctFile();
-            emit readingDataFinished("");
+            emit readingDataFinished("octFile");
         }
         if (dir == "readManualSegmentationData"){
             QFile manualFile(manualFilePath);
             readFileManualSegmentation(&manualFile);
             emit readingDataFinished("manualOnly");
         }
-        // TODO: unomment below lines when adding functionalities for automatic segmentation
+        // TODO: uncomment below lines when adding functionalities for automatic segmentation
 //        if (dir == "readAutoSegmentationData"){
 //            QFile autoFile(autoFilePath);
 //            readFileAutoSegmentation(&autoFile);
@@ -325,10 +325,10 @@ void ReadWriteData::readOctSequence(){
     emit processingData((++count)/tasks*100, "Trwa odczyt obrazu fundus...");
     readFundusImage(device);
 
-//    // read oct exam data if exists
+    // read oct exam data if exists
 //    QString octExamFilePath = manualDir->path().append("/" + octDir->dirName() + ".mvri");
-//    QFile octExamFile(octExamFilePath);
-//    readFileManualSegmentation(&octExamFile);
+    QFile octExamFile(manualFilePath);
+    readFileManualSegmentation(&octExamFile);
 }
 
 void ReadWriteData::readOctFile(){
@@ -460,7 +460,9 @@ void ReadWriteData::readFileManualSegmentation(QFile *dataFile)
 {
     QString line;
     QPoint p(-1,-1);
-    double tasks = 1 + 13*pData->getBscansNumber() + 13 + pData->getBscansNumber();
+    QList<Layers> allLayers = getAllLayers();
+    int layersCount = allLayers.count();
+    double tasks = 1 + layersCount*pData->getBscansNumber() + layersCount;
     double count = 0;
     emit processingData(0, "Trwa odczyt danych ręcznej segmentacji...");
 
@@ -472,11 +474,10 @@ void ReadWriteData::readFileManualSegmentation(QFile *dataFile)
         QTextStream octSegmentText(dataFile);
         line = octSegmentText.readLine();
 
-        if (line.contains("<?")){
+        if (line.contains("<?")){   // read as xml
             dataFile->reset();
-            // read as xml
             int bn = pData->getBscansNumber();
-            tasks = 1 + 13*bn + 1 + 3*bn;
+            QString version = "";
             QList<int> voxelSize;
             QXmlStreamReader xml(dataFile);
             xml.readNextStartElement();
@@ -486,8 +487,10 @@ void ReadWriteData::readFileManualSegmentation(QFile *dataFile)
                     if (xml.name().toString() == "scan_characteristics"){
                         voxelSize = parseXmlVoxelSize(xml);
                         emit processingData((++count)/tasks*100,"");
+                    } else if (xml.name().toString() == "executable"){
+                        version = parseXmlExeVersion(xml);
                     } else if (xml.name().toString() == "surface"){
-                        parseXmlSurfaceLines(xml);
+                        parseXmlSurfaceLines(xml, version);
                         count += bn;
                         emit processingData((count)/tasks*100,"");
                     } else if (xml.name().toString() == "undefined_region"){
@@ -499,8 +502,7 @@ void ReadWriteData::readFileManualSegmentation(QFile *dataFile)
                 }
             }
         } else {
-            if (line.contains("=")){
-                // read as txt
+            if (line.contains("=")){    // read as txt
                 QStringList data = line.split("=");
                 if ((data.at(0) == "scanCenter") && (data.at(1) != "")){
                     QStringList point = data.at(1).split(",");
@@ -534,7 +536,6 @@ void ReadWriteData::readFileManualSegmentation(QFile *dataFile)
                                     pData->setPoint(bscanNumber, layer, p);
                                 }
                             }
-                            pData->countAnnotatedPixelsInLayer(bscanNumber, layer);
                             emit processingData((++count)/tasks*100,"");
                         }
                     }
@@ -615,12 +616,41 @@ QList<int> ReadWriteData::parseXmlVoxelSize(QXmlStreamReader &xml, bool isAuto)
     return voxel;
 }
 
-void ReadWriteData::parseXmlSurfaceLines(QXmlStreamReader &xml, bool isAuto)
+QString ReadWriteData::parseXmlExeVersion(QXmlStreamReader &xml)
+{
+    // TODO: use QVersion variable
+    QString appName = "";
+
+    xml.readNext();
+    while (!(xml.tokenType() == QXmlStreamReader::StartElement && (xml.name().toString() == "name"))) {
+        xml.readNext();
+    }
+    xml.readNext();
+    appName = xml.text().toString();
+
+    xml.readNext();
+    while(!(xml.tokenType() == QXmlStreamReader::StartElement && (xml.name().toString() == "version"))){
+        xml.readNext();
+    }
+    xml.readNext();
+    QString verStr = xml.text().toString();
+    verStr = verStr.remove(1,1);
+    verStr = verStr.remove(2,1);
+
+    return (appName + "_" + verStr);
+}
+
+void ReadWriteData::parseXmlSurfaceLines(QXmlStreamReader &xml, QString versionName, bool isAuto)
 {
     int counter = 0;
     int lineNumber = 0;
     int scanNumber = 0; // y
     Layers layer = NONE;
+    if (versionName.isEmpty())
+        versionName = "OCTAnnotate_175";
+    QStringList versionList = versionName.split("_");
+    QString versionApp = versionList.at(0);
+    int versionNr = versionList.at(1).toInt();
 
     xml.readNext();
     while (!(xml.tokenType() == QXmlStreamReader::EndElement && (xml.name().toString() == "surface"))){
@@ -628,49 +658,141 @@ void ReadWriteData::parseXmlSurfaceLines(QXmlStreamReader &xml, bool isAuto)
          if (xml.name().toString() == "label"){
              xml.readNext();
              lineNumber = xml.text().toInt();
-             switch (lineNumber) {
-             case -1:
-                 layer = PCV;
-                 break;
-             case 0:
-                 layer = ERM_UP;
-                 break;
-             case 1:
-                 layer = ILM;
-                 break;
-             case 2:
-                 layer = NFL_GCL;
-                 break;
-             case 3:
-                 layer = GCL_IPL;
-                 break;
-             case 4:
-                 layer = IPL_INL;
-                 break;
-             case 5:
-                 layer = INL_OPL;
-                 break;
-             case 6:
-                 layer = OPL_ONL;
-                 break;
-             case 7:
-                 layer = ELM;
-                 break;
-             case 10:
-                 layer = MEZ;
-                 break;
-             case 11:
-                 layer = IS_OS;
-                 break;
-             case 14:
-                 layer = OS_RPE;
-                 break;
-             case 15:
-                 layer = RPE_CHR;
-                 break;
-             default:
-                 layer = NONE;
-                 break;
+             if (((versionApp == "OCTLayerSeg") && versionNr >= 380) || ((versionApp == "OCTAnnotate") && (versionNr >= 181))){
+                 switch (lineNumber) {
+                 case 5:
+                     layer = PCV;
+                     break;
+                 case 6:
+                     layer = ERM_UP;    // IB_ERM, 9: OB_ERM
+                     break;
+                 case 10:
+                     layer = ILM;
+                     break;
+                 case 20:
+                     layer = NFL_GCL;
+                     break;
+                 case 30:
+                     layer = GCL_IPL;
+                     break;
+                 case 40:
+                     layer = IPL_INL;
+                     break;
+                 case 50:
+                     layer = INL_OPL;
+                     break;
+                 case 60:
+                     layer = OPL_ONL;
+                     break;
+                 case 70:
+                     layer = ELM;
+                     break;
+                 case 100:
+                     layer = MEZ;
+                     break;
+                 case 110:
+                     layer = IS_OS;     // 120: IB_OPR
+                     break;
+                 case 140:
+                     layer = OS_RPE;    // IB_RPE
+                     break;
+                 case 150:
+                     layer = RPE_CHR;   // OB_RPE
+                     break;
+                 default:
+                     layer = NONE;
+                     break;
+                 }
+             } else if ((versionApp == "OCTAnnotate") && (versionNr == 180)){
+                 switch (lineNumber) {
+                 case -1:
+                     layer = PCV;
+                     break;
+                 case 0:
+                     layer = ERM_UP;    // IB_ERM, 1: OB_ERM
+                     break;
+                 case 2:
+                     layer = ILM;
+                     break;
+                 case 3:
+                     layer = NFL_GCL;
+                     break;
+                 case 4:
+                     layer = GCL_IPL;
+                     break;
+                 case 5:
+                     layer = IPL_INL;
+                     break;
+                 case 6:
+                     layer = INL_OPL;
+                     break;
+                 case 7:
+                     layer = OPL_ONL;
+                     break;
+                 case 8:
+                     layer = ELM;
+                     break;
+                 case 10:
+                     layer = MEZ;
+                     break;
+                 case 11:
+                     layer = IS_OS;     // 13: IB_OPR
+                     break;
+                 case 14:
+                     layer = OS_RPE;    // IB_RPE
+                     break;
+                 case 15:
+                     layer = RPE_CHR;   // OB_RPE
+                     break;
+                 default:
+                     layer = NONE;
+                     break;
+                 }
+             } else {   // up to OCTLayerSeg 3.6, OCTAnnotate 1.7 or lower
+                 switch (lineNumber) {
+                 case -1:
+                     layer = PCV;
+                     break;
+                 case 0:
+                     layer = ERM_UP;    // OB_ERM
+                     break;
+                 case 1:
+                     layer = ILM;
+                     break;
+                 case 2:
+                     layer = NFL_GCL;
+                     break;
+                 case 3:
+                     layer = GCL_IPL;
+                     break;
+                 case 4:
+                     layer = IPL_INL;
+                     break;
+                 case 5:
+                     layer = INL_OPL;
+                     break;
+                 case 6:
+                     layer = OPL_ONL;
+                     break;
+                 case 7:
+                     layer = ELM;
+                     break;
+                 case 10:
+                     layer = MEZ;
+                     break;
+                 case 11:
+                     layer = IS_OS;     // 12: IB_OPR
+                     break;
+                 case 13:
+                     layer = OS_RPE;    // IB_RPE
+                     break;
+                 case 15:
+                     layer = RPE_CHR;   // OB_RPE
+                     break;
+                 default:
+                     layer = NONE;
+                     break;
+                 }
              }
          }
          if ((xml.name().toString() == "bscan") && (layer != NONE)){

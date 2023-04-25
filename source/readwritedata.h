@@ -41,7 +41,8 @@ private:
     void readFundusImage(OCTDevice octDevice);
 
     QList<int> parseXmlVoxelSize(QXmlStreamReader& xml, bool isAuto = 0);
-    void parseXmlSurfaceLines(QXmlStreamReader& xml, bool isAuto = 0);
+    QString parseXmlExeVersion(QXmlStreamReader &xml);
+    void parseXmlSurfaceLines(QXmlStreamReader& xml, QString versionName, bool isAuto = 0);
     void parseUndefinedRegion(QXmlStreamReader& xml, bool isAuto = 0);
 
 

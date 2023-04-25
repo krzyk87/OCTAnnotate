@@ -103,6 +103,7 @@ OCTAnnotate::~OCTAnnotate()
 // initialization ---------------------------------------------------------------------------------
 void OCTAnnotate::loadConfigurations(SettingsDialog *sDialog){
 
+    octDir = QDir(sDialog->getPathOctData());
     examDir = QDir(sDialog->getPathExamData());
 
     dataSaveStructure = sDialog->getDataSaveStructure();
@@ -229,7 +230,6 @@ void OCTAnnotate::loadOCT(bool isBinary)
                 rwData->addDirective("readOctFile");
             else
                 rwData->addDirective("readOctSequence");
-            rwData->addDirective("readManualSegmentationData");
 
             QThread *thread = new QThread;
             rwData->moveToThread(thread);

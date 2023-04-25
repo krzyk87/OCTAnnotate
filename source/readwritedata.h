@@ -48,6 +48,7 @@ private:
 
     QDir *octDir;
     QFile *octFile;
+    QString scanName;
     QString manualFilePath;
     QList<QString> directives;
     PatientData *pData;

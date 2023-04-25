@@ -15,6 +15,7 @@ ReadWriteData::ReadWriteData(QObject *parent) : QObject(parent)
     pData = new PatientData();
     directives.clear();
     octDir = new QDir(".");
+    scanName = "";
     manualFilePath = "";
     showMessage = true;
 }
@@ -61,7 +62,7 @@ void ReadWriteData::process(){
 //            this->copyAutoAsManual(list);
 //        }
     }
-    qDebug() << "Finished processing scan: " + octDir->dirName();
+    qDebug() << "Finished processing scan: " + scanName;
     emit finished();
 }
 
@@ -288,6 +289,7 @@ void ReadWriteData::readOctSequence(){
     double tasks = pData->getBscansNumber() + 2; // gdy contrast enhancement to 4 zamiast 3
     double count = 0;
     OCTDevice device = pData->getOCTDevice();
+    scanName = octDir->dirName();
 
     // read exam images list
     QStringList imageList;
@@ -326,7 +328,6 @@ void ReadWriteData::readOctSequence(){
     readFundusImage(device);
 
     // read oct exam data if exists
-//    QString octExamFilePath = manualDir->path().append("/" + octDir->dirName() + ".mvri");
     QFile octExamFile(manualFilePath);
     readFileManualSegmentation(&octExamFile);
 }
@@ -338,7 +339,7 @@ void ReadWriteData::readOctFile(){
     OCTDevice device = pData->getOCTDevice();
 
     QFileInfo octFileInfo(*octFile);
-    QString scanName = octFileInfo.fileName();
+    scanName = octFileInfo.fileName();
     scanName.chop(4);
 
     // read exam images list    // this is not necessary, but based on existing imageFileList other functions in this application work
@@ -360,6 +361,10 @@ void ReadWriteData::readOctFile(){
     // read fundus image
     emit processingData(++count/tasks*100, "Trwa odczyt obrazu fundus...");
     readFundusImage(device);
+
+    // read oct exam data if exists
+    QFile octExamFile(manualFilePath);
+    readFileManualSegmentation(&octExamFile);
 }
 
 void ReadWriteData::readBinaryFile(QFile *dataFile, double *count, double *tasks){
@@ -466,7 +471,7 @@ void ReadWriteData::readFileManualSegmentation(QFile *dataFile)
     double count = 0;
     emit processingData(0, "Trwa odczyt danych ręcznej segmentacji...");
 
-    if (!dataFile->open(QIODevice::ReadWrite)){
+    if (!dataFile->exists() || !dataFile->open(QIODevice::ReadWrite)){
         emit errorOccured(tr("Nie można otworzyć pliku z ręczną segmentacją warstw: ") + dataFile->fileName());
     } else {
         pData->resetManualAnnotations();

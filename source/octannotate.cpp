@@ -201,6 +201,7 @@ void OCTAnnotate::loadOCT(bool isBinary)
                 octFile.setFileName(selectedScanName);
                 QFileInfo fileInfo(octFile);
                 scanName = fileInfo.fileName();
+                scanName.chop(4);
             } else {
                 octDir = QDir(selectedScanName);
                 scanName = octDir.dirName();

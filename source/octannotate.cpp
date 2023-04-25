@@ -223,11 +223,13 @@ void OCTAnnotate::loadOCT(bool isBinary)
             else
                 rwData->setDirectoryOct(&octDir);
             rwData->setDataSaveStrucure(dataSaveStructure);
+            rwData->setManualFilePath(examDir.absolutePath().append("/mvri/" + scanName + ".mvri"));
             rwData->addDirective("readPatientData");
             if (isBinary)
                 rwData->addDirective("readOctFile");
             else
                 rwData->addDirective("readOctSequence");
+            rwData->addDirective("readManualSegmentationData");
 
             QThread *thread = new QThread;
             rwData->moveToThread(thread);

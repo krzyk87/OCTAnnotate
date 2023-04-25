@@ -3,6 +3,7 @@
 #include <qmath.h>
 #include <math.h>
 #include <QDebug>
+#include "functions.h"
 
 // ----------------------------------------------------------------------------
 // AmslerDist class -----------------------------------------------------------
@@ -37,6 +38,8 @@ PatientData::PatientData()
     this->depthCoeff = 0.0;
     this->examDate = QDate(2015,1,1);
 
+    this->manualAnnotations = false;
+
     this->fundusImage = QImage();
 }
 
@@ -69,6 +72,17 @@ void PatientData::setFundusImage(QImage newImage){
 
 
 // Annotations ----------------------------------------------------------------
+void PatientData::resetManualAnnotations(){
+    QList<Layers> layerList = getAllLayers();
+    for (int i=0; i<this->bscansNumber; i++){
+        foreach (Layers layer, layerList) {
+            this->Bscans[i].layers[(int)layer].resetPoints();
+            this->Bscans[i].layers[(int)layer].countAnnotatedPixels();
+        }
+    }
+
+    this->manualAnnotations = false;
+}
 
 // Auto annotations -----------------------------------------------------------
 
@@ -84,6 +98,17 @@ double PatientData::getAreaUnit(){
 
 double PatientData::getDepthCoeff(){
     return this->depthCoeff;
+}
+
+void PatientData::setPoint(int bscanNumber, Layers layer, QPoint p)
+{
+    this->Bscans[bscanNumber].layers[(int)layer].setPoint(p);
+    this->manualAnnotations = true;
+}
+
+void PatientData::countAnnotatedPixelsInLayer(int bscanNumber, Layers layer)
+{
+    this->Bscans[bscanNumber].layers[(int)layer].countAnnotatedPixels();
 }
 
 double PatientData::calculateDistance(QPoint p1, QPoint p2, double dx, double dy){
@@ -339,4 +364,14 @@ OCTDevice PatientData::getOCTDevice(){
 
 void PatientData::setOCTDevice(OCTDevice newOCTDevice){
     this->octDevice = newOCTDevice;
+}
+
+void PatientData::setScanCenter(QPoint p)
+{
+    this->scanCenter = p;
+}
+
+QPoint PatientData::getScanCenter()
+{
+    return this->scanCenter;
 }

@@ -1,5 +1,6 @@
 #include "readwritedata.h"
 #include "calculate.h"
+#include "functions.h"
 
 #include <QTextStream>
 #include <QDir>
@@ -42,8 +43,8 @@ void ReadWriteData::process(){
         }
         if (dir == "readManualSegmentationData"){
             QFile manualFile(manualFilePath);
-//            readFileManualSegmentation(&manualFile);
-//            emit readingDataFinished("manualOnly");
+            readFileManualSegmentation(&manualFile);
+            emit readingDataFinished("manualOnly");
         }
         // TODO: unomment below lines when adding functionalities for automatic segmentation
 //        if (dir == "readAutoSegmentationData"){
@@ -281,6 +282,7 @@ bool ReadWriteData::readPatientData(){
     }
 }
 
+// read OCT files and images ----------------------------------------------------------------------
 void ReadWriteData::readOctSequence(){
     emit processingData(0, "Trwa pobieranie listy skanów...");
     double tasks = pData->getBscansNumber() + 2; // gdy contrast enhancement to 4 zamiast 3
@@ -451,6 +453,283 @@ void ReadWriteData::readFundusImage(OCTDevice octDevice){
         calc->imageEnhancement(&fundus, 1.0, 0);
     }
     pData->setFundusImage(fundus);
+}
+
+// read annotation data ---------------------------------------------------------------------------
+void ReadWriteData::readFileManualSegmentation(QFile *dataFile)
+{
+    QString line;
+    QPoint p(-1,-1);
+    double tasks = 1 + 13*pData->getBscansNumber() + 13 + pData->getBscansNumber();
+    double count = 0;
+    emit processingData(0, "Trwa odczyt danych ręcznej segmentacji...");
+
+    if (!dataFile->open(QIODevice::ReadWrite)){
+        emit errorOccured(tr("Nie można otworzyć pliku z ręczną segmentacją warstw: ") + dataFile->fileName());
+    } else {
+        pData->resetManualAnnotations();
+
+        QTextStream octSegmentText(dataFile);
+        line = octSegmentText.readLine();
+
+        if (line.contains("<?")){
+            dataFile->reset();
+            // read as xml
+            int bn = pData->getBscansNumber();
+            tasks = 1 + 13*bn + 1 + 3*bn;
+            QList<int> voxelSize;
+            QXmlStreamReader xml(dataFile);
+            xml.readNextStartElement();
+            while (!xml.atEnd() && !xml.hasError()){
+                QXmlStreamReader::TokenType token = xml.readNext();
+                if (token == QXmlStreamReader::StartElement){
+                    if (xml.name().toString() == "scan_characteristics"){
+                        voxelSize = parseXmlVoxelSize(xml);
+                        emit processingData((++count)/tasks*100,"");
+                    } else if (xml.name().toString() == "surface"){
+                        parseXmlSurfaceLines(xml);
+                        count += bn;
+                        emit processingData((count)/tasks*100,"");
+                    } else if (xml.name().toString() == "undefined_region"){
+                        parseUndefinedRegion(xml);
+                        emit processingData((++count)/tasks*100,"");
+                    } else {
+                        continue;
+                    }
+                }
+            }
+        } else {
+            if (line.contains("=")){
+                // read as txt
+                QStringList data = line.split("=");
+                if ((data.at(0) == "scanCenter") && (data.at(1) != "")){
+                    QStringList point = data.at(1).split(",");
+                    QPoint center = QPoint(point.at(0).toInt(), point.at(1).toInt());
+                    if (center.x() == -1){
+                        if (pData->getOCTDevice() == COPERNICUS)
+                            center.setX(pData->getBscanWidth() / 2);
+                        else if (pData->getOCTDevice() == AVANTI)
+                            center.setX(pData->getBscanWidth() / 2);
+                    }
+                    if (center.y() == -1)
+                        center.setY(pData->getBscansNumber() / 2);
+                    pData->setScanCenter(center);
+                    emit processingData((++count)/tasks*100,"");
+                }
+                do {
+                    line = octSegmentText.readLine();
+                    if (line.contains("=")){
+                        QStringList data = line.split("=");
+                        if (data.at(1) != ""){
+                            QStringList code = data.at(0).split("_");   // PCV_i...
+                            Layers layer = decodeLayer(code.at(0));
+                            int bscanNumber = code.at(1).toInt();
+
+                            QStringList points = data.at(1).split(";");
+                            for (int j=0; j < points.count(); j++){
+                                QString p_str = points.at(j);
+                                if (p_str != ""){
+                                    p.setX(p_str.split(",").at(0).toInt());
+                                    p.setY(p_str.split(",").at(1).toInt());
+                                    pData->setPoint(bscanNumber, layer, p);
+                                }
+                            }
+                            pData->countAnnotatedPixelsInLayer(bscanNumber, layer);
+                            emit processingData((++count)/tasks*100,"");
+                        }
+                    }
+                } while(!line.isNull());
+            }
+        }
+
+//        // check if no holes in the dataset
+//        emit processingData(count, "Trwa wygładzanie warstw...");
+//        QList<Layers> layers = getAllLayers();
+//        foreach (Layers layer, layers) {
+//            pData->smoothLayer(layer);
+//            emit processingData((++count)/tasks*100,"");
+//        }
+//        emit processingData(count, "Trwa uzupełnianie danych...");
+//        for (int i=0; i < pData->getBscansNumber(); i++){
+//            pData->fillContactArea(i);
+//            emit processingData((++count)/tasks*100,"");
+//        }
+//        emit processingData(count, "Trwa obliczanie współczynników wypłaszczania warstw...");
+//        for (int i=0; i < pData->getBscansNumber(); i++){
+//            pData->calculateFlatDifferencesRPE(i);
+//            emit processingData((++count)/tasks*100,"");
+//        }
+    }
+
+    if (dataFile->isOpen())
+        dataFile->close();
+}
+
+QList<int> ReadWriteData::parseXmlVoxelSize(QXmlStreamReader &xml, bool isAuto)
+{
+    QList<int> voxel;
+    voxel.append(0);
+    voxel.append(0);
+    voxel.append(0);
+    QPoint center(-1,-1);
+
+    xml.readNext();
+    while (!((xml.tokenType() == QXmlStreamReader::EndElement) && (xml.name().toString() == "size"))){
+        if (xml.tokenType() == QXmlStreamReader::StartElement){
+            if (xml.name().toString() == "x"){
+                xml.readNext();
+                voxel[0] = xml.text().toInt();
+            }
+            if (xml.name().toString() == "y"){
+                xml.readNext();
+                voxel[1] = xml.text().toInt();
+            }
+            if (xml.name().toString() == "z"){
+                xml.readNext();
+                voxel[2] = xml.text().toInt();
+            }
+        }
+        xml.readNext();
+    }
+
+    if (!isAuto){
+        while(!(xml.tokenType() == QXmlStreamReader::StartElement && (xml.name().toString() == "scan_center"))){
+            xml.readNext();
+        }
+        while(!(xml.tokenType() == QXmlStreamReader::EndElement && (xml.name().toString() == "scan_center"))){
+            if (xml.tokenType() == QXmlStreamReader::StartElement){
+                if (xml.name().toString() == "x"){
+                    xml.readNext();
+                    center.setX(xml.text().toInt());
+                }
+                if (xml.name().toString() == "y"){
+                    xml.readNext();
+                    center.setY(xml.text().toInt());
+                }
+            }
+            xml.readNext();
+        }
+        pData->setScanCenter(center);
+    }
+
+    return voxel;
+}
+
+void ReadWriteData::parseXmlSurfaceLines(QXmlStreamReader &xml, bool isAuto)
+{
+    int counter = 0;
+    int lineNumber = 0;
+    int scanNumber = 0; // y
+    Layers layer = NONE;
+
+    xml.readNext();
+    while (!(xml.tokenType() == QXmlStreamReader::EndElement && (xml.name().toString() == "surface"))){
+     if (xml.tokenType() == QXmlStreamReader::StartElement){
+         if (xml.name().toString() == "label"){
+             xml.readNext();
+             lineNumber = xml.text().toInt();
+             switch (lineNumber) {
+             case -1:
+                 layer = PCV;
+                 break;
+             case 0:
+                 layer = ERM_UP;
+                 break;
+             case 1:
+                 layer = ILM;
+                 break;
+             case 2:
+                 layer = NFL_GCL;
+                 break;
+             case 3:
+                 layer = GCL_IPL;
+                 break;
+             case 4:
+                 layer = IPL_INL;
+                 break;
+             case 5:
+                 layer = INL_OPL;
+                 break;
+             case 6:
+                 layer = OPL_ONL;
+                 break;
+             case 7:
+                 layer = ELM;
+                 break;
+             case 10:
+                 layer = MEZ;
+                 break;
+             case 11:
+                 layer = IS_OS;
+                 break;
+             case 14:
+                 layer = OS_RPE;
+                 break;
+             case 15:
+                 layer = RPE_CHR;
+                 break;
+             default:
+                 layer = NONE;
+                 break;
+             }
+         }
+         if ((xml.name().toString() == "bscan") && (layer != NONE)){
+             xml.readNext();
+             counter = 0;
+             while (!(xml.tokenType() == QXmlStreamReader::EndElement && (xml.name().toString() == "bscan"))){
+                 if (xml.tokenType() == QXmlStreamReader::StartElement){
+                     if (xml.name().toString() == "z"){
+                         xml.readNext();
+                         pData->setPoint(scanNumber,layer,QPoint(counter,xml.text().toInt()));
+                         counter++;
+                     }
+                 }
+                 xml.readNext();
+             }
+             scanNumber++;
+    //                emit processingData((scanNumber)/pData->getBscansNumber()*100,"");
+         }
+     }
+     xml.readNext();
+    }
+}
+
+void ReadWriteData::parseUndefinedRegion(QXmlStreamReader &xml, bool isAuto)
+{
+    int x,y;
+    QList<Layers> allLayers = getAllLayers();
+
+    xml.readNext();
+    while (!(xml.tokenType() == QXmlStreamReader::EndElement && (xml.name().toString() == "undefined_region"))){
+        if (xml.tokenType() == QXmlStreamReader::StartElement){
+            if (xml.name().toString() == "ascan"){
+                xml.readNext();
+                x = -1;
+                y = -1;
+                while (!(xml.tokenType() == QXmlStreamReader::EndElement && (xml.name().toString() == "ascan"))){
+                    if (xml.tokenType() == QXmlStreamReader::StartElement){
+                        if (xml.name().toString() == "x"){
+                            xml.readNext();
+                            x = xml.text().toInt();
+                        }
+                        if (xml.name().toString() == "y"){
+                            xml.readNext();
+                            y = xml.text().toInt();
+                        }
+                    }
+                    if (x != -1 && y != -1){
+                        foreach (Layers layer, allLayers) {
+                            pData->setPoint(y,layer,QPoint(x,-1));
+                        }
+                        x = -1;
+                        y = -1;
+                    }
+                    xml.readNext();
+                }
+            }
+        }
+        xml.readNext();
+    }
 }
 
 // save patient's and exam data -------------------------------------------------------------------

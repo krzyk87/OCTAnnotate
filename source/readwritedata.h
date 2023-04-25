@@ -15,6 +15,7 @@ public:
     ~ReadWriteData();
 
     bool readPatientData();
+    void readFileManualSegmentation(QFile *dataFile);
 
 signals:
     void finished();
@@ -38,6 +39,11 @@ private:
     void readOctFile();
     void readBinaryFile(QFile *dataFile, double *count, double *tasks);
     void readFundusImage(OCTDevice octDevice);
+
+    QList<int> parseXmlVoxelSize(QXmlStreamReader& xml, bool isAuto = 0);
+    void parseXmlSurfaceLines(QXmlStreamReader& xml, bool isAuto = 0);
+    void parseUndefinedRegion(QXmlStreamReader& xml, bool isAuto = 0);
+
 
     QDir *octDir;
     QFile *octFile;

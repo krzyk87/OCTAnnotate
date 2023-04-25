@@ -8,15 +8,10 @@
 #include <QPoint>
 #include <QImage>
 #include <QMap>
-
-enum OCTDevice{
-    COPERNICUS = 0,
-    AVANTI = 1
-};
+#include "enums.h"
+#include "layer.h"
 
 // AmslerDist -----------------------------------------------------------------
-
-// Layer ----------------------------------------------------------------------
 
 // PatientData ----------------------------------------------------------------
 class PatientData
@@ -66,6 +61,8 @@ public:
     void setVoxelDepth(float depth);
     OCTDevice getOCTDevice();
     void setOCTDevice(OCTDevice newOCTDevice);
+    void setScanCenter(QPoint p);
+    QPoint getScanCenter();
     void setExamDate(QDate newExamDate);
     QDate getExamDate();
     void setExamTime(QTime newExamTime);
@@ -83,6 +80,8 @@ public:
     double getDepthCoeff();
 
     // annotations
+    void setPoint(int bscanNumber, Layers layer, QPoint p);
+    void countAnnotatedPixelsInLayer(int bscanNumber, Layers layer);
     void resetManualAnnotations();
 
     // auto annotations
@@ -126,6 +125,7 @@ private:
     double voxelHeight;
     double voxelDepth;
     OCTDevice octDevice;
+    QPoint scanCenter;
     int eye;
     QDate examDate;
     QTime examTime;
@@ -138,6 +138,11 @@ private:
     double depthCoeff;
 
     // annotations
+    struct Bscan{
+        QList<Layer> layers;
+    };
+    QList<Bscan> Bscans;
+    bool manualAnnotations;
 
     // VMT virtual map
 

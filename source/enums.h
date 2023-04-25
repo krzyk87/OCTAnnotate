@@ -1,6 +1,11 @@
 #ifndef ENUMS_H
 #define ENUMS_H
 
+enum OCTDevice{
+    COPERNICUS = 0,
+    AVANTI = 1
+};
+
 enum Layers{
     NONE = -1,
     PCV = 0,

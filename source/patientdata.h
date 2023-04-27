@@ -8,8 +8,6 @@
 #include <QPoint>
 #include <QImage>
 #include <QMap>
-#include "enums.h"
-#include "layer.h"
 
 // AmslerDist -----------------------------------------------------------------
 
@@ -28,80 +26,11 @@ public:
     void setBirthDate(QDate newDate);
     int getGender();
     void setGender(int newGender);
-    int getEye();
-    void setEye(int newEye);
     int getAge();
     void setAge(int newAge);
 
     // general exam
 
-    // amsler image
-
-    // oct exam
-    bool getIsLoaded() const;
-    void setIsLoaded(bool value);
-    bool getIsBinary() const;
-    void setIsBinary(bool value);
-    void resetBscansData();
-    QStringList getImageFileList();
-    void setImageFileList(QStringList newList);
-    int getBscansNumber();
-    void setBscansNumber(int number);
-    int getBscansNumberAll();
-    void setBscansNumberAll(int number);
-    int getBscanWidth();
-    void setBscanWidth(int width);
-    int getBscanHeight();
-    void setBscanHeight(int height);
-    double getVoxelWidth();
-    void setVoxelWidth(float width);
-    double getVoxelHeight();
-    void setVoxelHeight(float height);
-    double getVoxelDepth();
-    void setVoxelDepth(float depth);
-    OCTDevice getOCTDevice();
-    void setOCTDevice(OCTDevice newOCTDevice);
-    void setScanCenter(QPoint p);
-    QPoint getScanCenter();
-    void setExamDate(QDate newExamDate);
-    QDate getExamDate();
-    void setExamTime(QTime newExamTime);
-    QTime getExamTime();
-    void setOCTdata(QImage bscan, int bscanNumber);
-    void setOCTdata(QList<QList<int> > bscan, int bscanNumber);
-    QList<QList<QList<int> > > getOCTdata();
-    QList<QList<int> > getOCTdata(int bscanNumber);
-    QImage getImage(int bscanNumber);
-    QImage getNormalImage(int normalImageNumber);
-
-    // ratios
-    void calculateRatios();
-    double getAreaUnit();
-    double getDepthCoeff();
-
-    // annotations
-    void setPoint(int bscanNumber, Layers layer, QPoint p);
-    void countAnnotatedPixelsInLayer(int bscanNumber, Layers layer);
-    void resetManualAnnotations();
-
-    // auto annotations
-
-    // virtual map
-
-    // virtual map statistics - contact area
-    double calculateDistance(QPoint p1, QPoint p2, double dx = 0, double dy = 0);
-
-    // virtual map statistics - circular profile curve
-
-    // virtual map statistics - volume
-
-    // retina depth
-
-    // retina volume
-
-    // fundus image
-    QImage getFundusImage();
-    void setFundusImage(QImage newImage);
 
 private:
     // patient's information
@@ -113,45 +42,6 @@ private:
 
     // general exam
 
-    // amsler image
-
-    // oct exam
-    QStringList imageFileList;
-    int bscansNumber;
-    int bscansNumberAll;
-    int bscanWidth;
-    int bscanHeight;
-    double voxelWidth;
-    double voxelHeight;
-    double voxelDepth;
-    OCTDevice octDevice;
-    QPoint scanCenter;
-    int eye;
-    QDate examDate;
-    QTime examTime;
-    QList< QList< QList<int> > > octdata;   // image intensitites
-    bool isLoaded;
-    bool isBinary;
-
-    // ratios
-    double areaUnit;
-    double depthCoeff;
-
-    // annotations
-    struct Bscan{
-        QList<Layer> layers;
-    };
-    QList<Bscan> Bscans;
-    bool manualAnnotations;
-
-    // VMT virtual map
-
-    // statistical data
-
-    // retina depth
-
-    // fundus image
-    QImage fundusImage;
 };
 
 #endif // PATIENTDATA_H

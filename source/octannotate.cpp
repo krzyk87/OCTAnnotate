@@ -34,6 +34,7 @@ OCTAnnotate::OCTAnnotate(QWidget *parent) : QMainWindow(parent),
     // setup patients database
 
     patientData = PatientData();
+    scan =  new Scan();
     scanName = "";
 
     currentImageNumber = 0;
@@ -171,7 +172,7 @@ void OCTAnnotate::loadOCT(bool isBinary)
     bool selectNew = true;
 
     // TODO: uncomment when functionality for saving new segmentations will be added
-//    if (patientData.getIsLoaded()){
+//    if (scan->getIsLoaded()){
 //        QMessageBox msgBox;
 //        QPushButton *saveButton = msgBox.addButton(" Zapisz i wczytaj nowe badanie ", QMessageBox::YesRole);
 //        QPushButton *cancelButton = msgBox.addButton(" Anuluj ", QMessageBox::RejectRole);
@@ -208,10 +209,8 @@ void OCTAnnotate::loadOCT(bool isBinary)
             }
 
             patientData = PatientData();
-
-//            scan = new Scan(AVANTI);
-//            scan->setIsBinary(isBinary);
-            patientData.setIsBinary(isBinary);
+            scan = new Scan();
+            scan->setIsBinary(isBinary);
 
             ui->statusBar->showMessage("Trwa odczyt danych badania OCT...");
             progressBar->setMaximum(100);
@@ -219,7 +218,7 @@ void OCTAnnotate::loadOCT(bool isBinary)
             progressBar->setValue(0);
 
             ReadWriteData *rwData = new ReadWriteData();
-            rwData->setDataObject(&patientData);
+            rwData->setDataObject(&patientData, scan);
             if (isBinary)
                 rwData->setOctFile(&octFile);
             else
@@ -248,24 +247,18 @@ void OCTAnnotate::loadOCT(bool isBinary)
 
 // load image -------------------------------------------------------------------------------------
 void OCTAnnotate::loadImage(int imageNumber){
-    QFileInfo imageFileInfo;
+    //QFileInfo imageFileInfo;
     QImage image;
 
     // load image
-    if (patientData.getIsBinary()){ // isBinary
-        image = patientData.getImage(imageNumber);
-    } else {
-        image = QImage(patientData.getImageFileList().at(imageNumber));
-        imageFileInfo.setFile(patientData.getImageFileList().at(imageNumber));
-        ui->imageNumberLabel->setText(imageFileInfo.fileName());
-    }
+    image = scan->getImage(imageNumber);
 
     if (!image.isNull()){
         orgImageSize = image.size();
 
         currentImageNumber = imageNumber;
         // enable / disable buttons
-        if (currentImageNumber >= (patientData.getBscansNumber() - 1))
+        if (currentImageNumber >= (scan->getBscansNumber() - 1))
             ui->nextImageButton->setEnabled(false);
         else
             ui->nextImageButton->setEnabled(true);
@@ -280,9 +273,9 @@ void OCTAnnotate::loadImage(int imageNumber){
 
         // rescale image
         scaleFactor = qBound(0,scaleFactor,scales.count()-1);
-        int imageHeight = patientData.getBscanHeight() / scales[scaleFactor];
-        double dy = qBound(0, patientData.getBscanHeight() - (int)bscanRange.upper, patientData.getBscanHeight()-imageHeight);
-        QImage newImage = image.copy(0, dy, patientData.getBscanWidth(), imageHeight);
+        int imageHeight = scan->getBscanHeight() / scales[scaleFactor];
+        double dy = qBound(0, scan->getBscanHeight() - (int)bscanRange.upper, scan->getBscanHeight()-imageHeight);
+        QImage newImage = image.copy(0, dy, scan->getBscanWidth(), imageHeight);
 
         // display image
         ui->bScanHCPlot->yAxis->setRange(bscanRange);
@@ -296,12 +289,12 @@ void OCTAnnotate::loadImage(int imageNumber){
 }
 
 void OCTAnnotate::loadNormalImage(int normalImageNumber){
-    QImage normalImage = patientData.getNormalImage(normalImageNumber);
+    QImage normalImage = scan->getNormalImage(normalImageNumber);
 
     currentNormalImageNumber = normalImageNumber;
 
     // enable / disable buttons
-    if (currentNormalImageNumber >= (patientData.getBscanWidth() - 1))
+    if (currentNormalImageNumber >= (scan->getBscanWidth() - 1))
         ui->nextNormalImageButton->setEnabled(false);
     else
         ui->nextNormalImageButton->setEnabled(true);
@@ -316,9 +309,9 @@ void OCTAnnotate::loadNormalImage(int normalImageNumber){
 
     // scale
     scaleFactor = qBound(0,scaleFactor,scales.count()-1);
-    int imageHeight = patientData.getBscanHeight() / scales[scaleFactor];
-    double dy = qBound(0, patientData.getBscanHeight() - (int)bscanRange.upper, patientData.getBscanHeight()-imageHeight);
-    QImage newImage = normalImage.copy(0, dy, patientData.getBscansNumber(), imageHeight);
+    int imageHeight = scan->getBscanHeight() / scales[scaleFactor];
+    double dy = qBound(0, scan->getBscanHeight() - (int)bscanRange.upper, scan->getBscanHeight()-imageHeight);
+    QImage newImage = normalImage.copy(0, dy, scan->getBscansNumber(), imageHeight);
 
     // display image
     ui->bScanVCPlot->yAxis->setRange(bscanRange);
@@ -329,8 +322,8 @@ void OCTAnnotate::loadNormalImage(int normalImageNumber){
 
 void OCTAnnotate::on_nextImageButton_clicked()
 {
-    if (patientData.getIsLoaded()){ // !patientData.getImageFileList().isEmpty()){
-        if (currentImageNumber < (patientData.getBscansNumber() - 1)){
+    if (scan->getIsLoaded()){ // !patientData.getImageFileList().isEmpty()){
+        if (currentImageNumber < (scan->getBscansNumber() - 1)){
             loadImage(currentImageNumber + 1);
             loadNormalImage(currentNormalImageNumber);
             fundusAnnotate = true;
@@ -339,7 +332,7 @@ void OCTAnnotate::on_nextImageButton_clicked()
 }
 
 void OCTAnnotate::on_prevImageButton_clicked(){
-    if (patientData.getIsLoaded()){ // !patientData.getImageFileList().isEmpty()){
+    if (scan->getIsLoaded()){ // !patientData.getImageFileList().isEmpty()){
         if (currentImageNumber > 0){
             loadImage(currentImageNumber - 1);
             loadNormalImage(currentNormalImageNumber);
@@ -350,8 +343,8 @@ void OCTAnnotate::on_prevImageButton_clicked(){
 
 void OCTAnnotate::on_nextNormalImageButton_clicked()
 {
-    if (patientData.getIsLoaded()){ // !patientData.getImageFileList().isEmpty()){
-        if (currentNormalImageNumber < (patientData.getBscanWidth() - 1)){
+    if (scan->getIsLoaded()){ // !patientData.getImageFileList().isEmpty()){
+        if (currentNormalImageNumber < (scan->getBscanWidth() - 1)){
             loadNormalImage(currentNormalImageNumber + 1);
             loadImage(currentImageNumber);
             fundusAnnotate = true;
@@ -361,7 +354,7 @@ void OCTAnnotate::on_nextNormalImageButton_clicked()
 
 void OCTAnnotate::on_prevNormalImageButton_clicked()
 {
-    if (patientData.getIsLoaded()){ // !patientData.getImageFileList().isEmpty()){
+    if (scan->getIsLoaded()){ // !patientData.getImageFileList().isEmpty()){
         if (currentNormalImageNumber > 0){
             loadNormalImage(currentNormalImageNumber - 1);
             loadImage(currentImageNumber);
@@ -372,12 +365,12 @@ void OCTAnnotate::on_prevNormalImageButton_clicked()
 
 void OCTAnnotate::on_currImageNumberLEdit_returnPressed()
 {
-    if (patientData.getIsLoaded()){ // !patientData.getImageFileList().isEmpty()){
+    if (scan->getIsLoaded()){ // !patientData.getImageFileList().isEmpty()){
         int value = ui->currImageNumberLEdit->text().toInt();
         if (value < 0)
             value = 0;
-        if (value >= patientData.getBscansNumber())
-            value = patientData.getBscansNumber()-1;
+        if (value >= scan->getBscansNumber())
+            value = scan->getBscansNumber()-1;
 
         loadImage(value);
         fundusAnnotate = true;
@@ -387,12 +380,12 @@ void OCTAnnotate::on_currImageNumberLEdit_returnPressed()
 
 void OCTAnnotate::on_currNormalImageNumberLEdit_returnPressed()
 {
-    if (patientData.getIsLoaded()){ // !patientData.getImageFileList().isEmpty()){
+    if (scan->getIsLoaded()){ // !patientData.getImageFileList().isEmpty()){
         int value = ui->currNormalImageNumberLEdit->text().toInt();
         if (value < 0)
             value = 0;
-        if (value >= patientData.getBscanWidth())
-            value = patientData.getBscanWidth()-1;
+        if (value >= scan->getBscanWidth())
+            value = scan->getBscanWidth()-1;
 
         loadNormalImage(value);
         fundusAnnotate = true;
@@ -404,7 +397,7 @@ void OCTAnnotate::on_currNormalImageNumberLEdit_returnPressed()
 void OCTAnnotate::on_contrastSlider_valueChanged(int value)
 {
     contrast = (float)value / 10.0;
-    if (patientData.getIsLoaded()){ // !patientData.getImageFileList().isEmpty()){
+    if (scan->getIsLoaded()){ // !patientData.getImageFileList().isEmpty()){
         loadImage(currentImageNumber);
         loadNormalImage(currentNormalImageNumber);
     }
@@ -413,7 +406,7 @@ void OCTAnnotate::on_contrastSlider_valueChanged(int value)
 void OCTAnnotate::on_brightnessSlider_valueChanged(int value)
 {
     brightness = value;
-    if (patientData.getIsLoaded()){ // !patientData.getImageFileList().isEmpty()){
+    if (scan->getIsLoaded()){ // !patientData.getImageFileList().isEmpty()){
         loadImage(currentImageNumber);
         loadNormalImage(currentNormalImageNumber);
     }
@@ -436,10 +429,10 @@ void OCTAnnotate::on_tabWidget_currentChanged()
     QWidget *currWidget = ui->tabWidget->currentWidget();
 
     if (currWidget == ui->tabOCTExam){    // OCT Exam Tab
-        if (patientData.getIsLoaded()){ // !patientData.getImageFileList().isEmpty()){
+        if (scan->getIsLoaded()){ // !patientData.getImageFileList().isEmpty()){
             loadImage(currentImageNumber);
             loadNormalImage(currentNormalImageNumber);
-            ui->fundusImageLabel->setPixmap(QPixmap::fromImage(patientData.getFundusImage())); // fundus
+            ui->fundusImageLabel->setPixmap(QPixmap::fromImage(scan->getFundusImage())); // fundus
             fundusAnnotate = true;
         }
     }
@@ -452,15 +445,15 @@ void OCTAnnotate::on_tabWidget_currentChanged()
 // draw / erase bscan layers ----------------------------------------------------------------------
 
 bool OCTAnnotate::eventFilter(QObject *target, QEvent *event){
-    if (patientData.getIsLoaded()){ // !patientData.getImageFileList().isEmpty()){
+    if (scan->getIsLoaded()){ // !patientData.getImageFileList().isEmpty()){
 //        QPoint currPoint;
 
         if (target == ui->fundusImageLabel){
             if (event->type() == QEvent::MouseButtonPress){
                 QMouseEvent *mouseEvent = static_cast<QMouseEvent*>(event);
 
-                currentImageNumber = mouseEvent->pos().y() * patientData.getBscansNumber() / ui->fundusImageLabel->height();
-                currentNormalImageNumber = mouseEvent->pos().x() * patientData.getBscanWidth() / ui->fundusImageLabel->width();
+                currentImageNumber = mouseEvent->pos().y() * scan->getBscansNumber() / ui->fundusImageLabel->height();
+                currentNormalImageNumber = mouseEvent->pos().x() * scan->getBscanWidth() / ui->fundusImageLabel->width();
 
                 loadImage(currentImageNumber);
                 loadNormalImage(currentNormalImageNumber);
@@ -515,8 +508,8 @@ void OCTAnnotate::keyPressEvent(QKeyEvent *keyEvent){
 
 void OCTAnnotate::paintEvent(QPaintEvent *){
     if (fundusAnnotate){ // display annotation of fundus image (current B-skan line)
-        if (patientData.getIsLoaded()){ // !patientData.getImageFileList().isEmpty()){
-            QPixmap fundusPixMap = QPixmap::fromImage(patientData.getFundusImage());
+        if (scan->getIsLoaded()){ // !patientData.getImageFileList().isEmpty()){
+            QPixmap fundusPixMap = QPixmap::fromImage(scan->getFundusImage());
             QPainter painter(&fundusPixMap);
 
             // draw line with current scan
@@ -695,7 +688,7 @@ void OCTAnnotate::on_chrLayerRButton_clicked()
 // bscan scale / zoom -----------------------------------------------------------------------------
 void OCTAnnotate::on_zoomInButton_clicked()
 {
-    if (patientData.getIsLoaded()){ // !patientData.getImageFileList().isEmpty()){
+    if (scan->getIsLoaded()){ // !patientData.getImageFileList().isEmpty()){
         scaleFactor++;
         rescaleImage();
     }
@@ -703,7 +696,7 @@ void OCTAnnotate::on_zoomInButton_clicked()
 
 void OCTAnnotate::on_zoomOutButton_clicked()
 {
-    if (patientData.getIsLoaded()){ // !patientData.getImageFileList().isEmpty()){
+    if (scan->getIsLoaded()){ // !patientData.getImageFileList().isEmpty()){
         scaleFactor--;
         rescaleImage();
     }
@@ -712,26 +705,26 @@ void OCTAnnotate::on_zoomOutButton_clicked()
 void OCTAnnotate::rescaleImage(){
     scaleFactor = qBound(0,scaleFactor,scales.count()-1);
 
-    int imageHeight = patientData.getBscanHeight() / scales[scaleFactor];
-    double y2 = (int)((double)(patientData.getBscanHeight() - imageHeight) / 2.0);
-    double y1 = (double)patientData.getBscanHeight() - y2;
+    int imageHeight = scan->getBscanHeight() / scales[scaleFactor];
+    double y2 = (int)((double)(scan->getBscanHeight() - imageHeight) / 2.0);
+    double y1 = (double)scan->getBscanHeight() - y2;
     double offset = 0;//bscanRange.lower;
     bscanRange = QCPRange(y1-offset,y2-offset);
     ui->bScanHCPlot->yAxis->setRange(bscanRange);
     ui->bScanVCPlot->yAxis->setRange(bscanRange);
 
-    QImage image(patientData.getImage(currentImageNumber));
-    QImage normalImage = patientData.getNormalImage(currentNormalImageNumber);
+    QImage image(scan->getImage(currentImageNumber));
+    QImage normalImage = scan->getNormalImage(currentNormalImageNumber);
 
 //    Calculate *calc = new Calculate();
 //    calc->imageEnhancement(&image, contrast, brightness);
 //    calc->imageEnhancement(&normalImage, contrast, brightness);
 
-    QImage newImage = image.copy(0,bscanRange.lower,patientData.getBscanWidth(),imageHeight);
+    QImage newImage = image.copy(0,bscanRange.lower,scan->getBscanWidth(),imageHeight);
     ui->bScanHCPlot->axisRect()->setBackground(QPixmap::fromImage(newImage),true,Qt::IgnoreAspectRatio);
     ui->bScanHCPlot->replot();
 
-    QImage newNormalImage = normalImage.copy(0,bscanRange.lower,patientData.getBscansNumber(),imageHeight);
+    QImage newNormalImage = normalImage.copy(0,bscanRange.lower,scan->getBscansNumber(),imageHeight);
     ui->bScanVCPlot->axisRect()->setBackground(QPixmap::fromImage(newNormalImage),true,Qt::IgnoreAspectRatio);
     ui->bScanVCPlot->replot();
 
@@ -803,9 +796,9 @@ void OCTAnnotate::setupBScanPlots(){
     // configure axis
     ui->bScanHCPlot->xAxis->setLabel("B-scan pixel (horizontal direction)");
     ui->bScanHCPlot->yAxis->setLabel("B-scan pixel (vertical direction)");
-    if (patientData.getIsLoaded()){ // !patientData.getImageFileList().isEmpty()){
-        ui->bScanHCPlot->xAxis->setRange(0,patientData.getBscanWidth());
-        ui->bScanHCPlot->yAxis->setRange(0,patientData.getBscanHeight());
+    if (scan->getIsLoaded()){ // !patientData.getImageFileList().isEmpty()){
+        ui->bScanHCPlot->xAxis->setRange(0,scan->getBscanWidth());
+        ui->bScanHCPlot->yAxis->setRange(0,scan->getBscanHeight());
     } else {
         ui->bScanHCPlot->xAxis->setRange(0,800);
         ui->bScanHCPlot->yAxis->setRange(0,1010);
@@ -830,9 +823,9 @@ void OCTAnnotate::setupBScanPlots(){
 
     ui->bScanVCPlot->xAxis->setLabel("B-scan cross-section");
     ui->bScanVCPlot->yAxis->setLabel("B-scan pixel (vertical direction)");
-    if (patientData.getIsLoaded()){ // !patientData.getImageFileList().isEmpty()){
-        ui->bScanVCPlot->xAxis->setRange(0,patientData.getBscansNumber());
-        ui->bScanVCPlot->yAxis->setRange(0,patientData.getBscanHeight());
+    if (scan->getIsLoaded()){ // !patientData.getImageFileList().isEmpty()){
+        ui->bScanVCPlot->xAxis->setRange(0,scan->getBscansNumber());
+        ui->bScanVCPlot->yAxis->setRange(0,scan->getBscanHeight());
     } else {
         ui->bScanVCPlot->xAxis->setRange(0,100);
         ui->bScanVCPlot->yAxis->setRange(0,1010);
@@ -882,7 +875,7 @@ void OCTAnnotate::on_processingData(double procent, QString msg){
 
 void OCTAnnotate::on_readingDataFinished(QString data){
 
-    patientData.setIsLoaded(true);
+    scan->setIsLoaded(true);
 
     if ((data != "manualOnly") && (data != "autoOnly")){
         // display patients data
@@ -902,11 +895,11 @@ void OCTAnnotate::on_readingDataFinished(QString data){
 
     QMessageBox::information(this, "Odczyt danych OCT", msg);
 
-    currentImageNumber = patientData.getBscansNumber()/2;   // middle B-scan
-    currentNormalImageNumber = patientData.getBscanWidth()/2;
+    currentImageNumber = scan->getBscansNumber()/2;   // middle B-scan
+    currentNormalImageNumber = scan->getBscanWidth()/2;
 
     // enable navigation buttons
-    if (currentImageNumber < (patientData.getBscansNumber()-1)){
+    if (currentImageNumber < (scan->getBscansNumber()-1)){
         ui->nextImageButton->setEnabled(true);
     } else {
         ui->nextImageButton->setEnabled(false);

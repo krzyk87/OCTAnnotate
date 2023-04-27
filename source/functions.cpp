@@ -1,4 +1,5 @@
 #include "functions.h"
+#include "qmath.h"
 
 Layers decodeLayer(QString layer){
     Layers l = NONE;
@@ -97,4 +98,17 @@ QList<Layers> getAllLayers(){
     list.append(OS_RPE);
     list.append(RPE_CHR);
     return list;
+}
+
+double calculateDistance(QPoint p1, QPoint p2, double dx, double dy){
+    double deltaX = p1.x() - p2.x();
+    double deltaY = p1.y() - p2.y();
+    if (dx != 0){
+        deltaX = deltaX * dx;
+    }
+    if (dy != 0){
+        deltaY = deltaY * dy;
+    }
+    double dist = qSqrt(qPow(deltaX,2) + qPow(deltaY,2));
+    return dist;
 }

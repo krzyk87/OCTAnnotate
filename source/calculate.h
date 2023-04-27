@@ -4,6 +4,7 @@
 #include <QtCore>
 #include <QObject>
 #include "patientdata.h"
+#include "scan.h"
 
 class Calculate : public QObject
 {

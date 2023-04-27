@@ -16,21 +16,20 @@ Layer::Layer(int bscanWidth, int bscansNumber, int index)
     resetPoints();
 }
 
-void Layer::setPoint(QPoint p){
-    if (p.y() == -1)
-        this->points[p.x()] = QPoint(-1,-1);
-    else
-        this->points[p.x()] = p;
-}
-
-
 void Layer::resetPoints(){
-    QPoint p(-1,-1);
 
     this->points.clear();
 
-    this->points.reserve(this->bscanWidth);
+    QList<int> pList;
     for (int i=0; i<this->bscanWidth; i++){
-        this->points.append(p);
+        pList.append(-1);
     }
+    this->points.reserve(this->bscansNumber);
+    for (int i=0; i < this->bscansNumber; i++){
+        this->points.append(pList);
+    }
+}
+
+void Layer::setPoint(int bscanNumber, int xPos, int zPos){
+    this->points[bscanNumber][xPos] = zPos;
 }

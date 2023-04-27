@@ -11,6 +11,7 @@
 #include "patientdata.h"
 #include "qcustomplot.h"
 #include <QtSql>
+#include "scan.h"
 #include "settingsdialog.h"
 
 namespace Ui {
@@ -122,6 +123,7 @@ private:
 
     void delay( int secondsToWait );
 
+// variables
     bool quit;
     QString scanName;
     QDir octDir;
@@ -129,9 +131,11 @@ private:
     QDir examDir;
     static const QString settingsFilePath;
 
+    PatientData patientData;
+    Scan *scan;
+
     int currentImageNumber;
     int currentNormalImageNumber;
-    PatientData patientData;
     bool showCenterOnBscan;
     QString dataSaveStructure;
 

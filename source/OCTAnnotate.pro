@@ -17,20 +17,24 @@ SOURCES += main.cpp\
     functions.cpp \
     layer.cpp \
         octannotate.cpp \
+    octdata.cpp \
     patientdata.cpp \
     qcustomplot.cpp \
     calculate.cpp \
     readwritedata.cpp \
+    scan.cpp \
     settingsdialog.cpp
 
 HEADERS  += octannotate.h \
     enums.h \
     functions.h \
     layer.h \
+    octdata.h \
     patientdata.h \
     qcustomplot.h \
     calculate.h \
     readwritedata.h \
+    scan.h \
     settingsdialog.h
 
 FORMS    += octannotate.ui \

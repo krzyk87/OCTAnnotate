@@ -3,7 +3,6 @@
 
 #include <QString>
 #include <QList>
-#include <QPoint>
 #include "enums.h"
 
 class Layer
@@ -11,7 +10,7 @@ class Layer
 public:
     Layer(int bscanWidth, int bscansNumber, int index);
 
-    void setPoint(QPoint p);
+    void setPoint(int bscanNumber, int xPos, int zPos);
     void resetPoints();
 
 private:
@@ -21,7 +20,7 @@ private:
     int bscanWidth;
     int bscansNumber;
 
-    QList<QPoint> points;
+    QList<QList<int> > points;
 };
 
 #endif // LAYER_H

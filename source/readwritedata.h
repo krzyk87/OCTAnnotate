@@ -6,6 +6,7 @@
 #include <QXmlStreamReader>
 
 #include "patientdata.h"
+#include "scan.h"
 
 class ReadWriteData : public QObject
 {
@@ -26,7 +27,7 @@ signals:
 public slots:
     void process();
 
-    void setDataObject(PatientData *patientData);
+    void setDataObject(PatientData *patientData, Scan *tscan);
     void setDirectoryOct(QDir *dataDir);
     void setOctFile(QFile *dataFile);
     void setManualFilePath(QString mfPath);
@@ -52,6 +53,8 @@ private:
     QString manualFilePath;
     QList<QString> directives;
     PatientData *pData;
+    Scan *scan;
+    QString appVersion;
     bool showMessage;
     QString dataSaveStrucure;
 };

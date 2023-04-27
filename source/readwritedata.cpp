@@ -1,6 +1,7 @@
 #include "readwritedata.h"
 #include "calculate.h"
 #include "functions.h"
+#include "scan.h"
 
 #include <QTextStream>
 #include <QDir>
@@ -13,11 +14,16 @@
 ReadWriteData::ReadWriteData(QObject *parent) : QObject(parent)
 {
     pData = new PatientData();
+    scan = new Scan();
+
     directives.clear();
     octDir = new QDir(".");
+    octFile = new QFile();
     scanName = "";
     manualFilePath = "";
+    appVersion = "";
     showMessage = true;
+    dataSaveStrucure = "xml";
 }
 
 ReadWriteData::~ReadWriteData()
@@ -66,8 +72,9 @@ void ReadWriteData::process(){
     emit finished();
 }
 
-void ReadWriteData::setDataObject(PatientData *patientData){
+void ReadWriteData::setDataObject(PatientData *patientData, Scan *tscan){
     pData = patientData;
+    scan = tscan;
 }
 
 void ReadWriteData::addDirective(QString directive){
@@ -102,81 +109,89 @@ bool ReadWriteData::readPatientData(){
     double count = 0;
 
     QString scanName;
+    QString iniFilePath;
+    QFile iniFile;
+    QFile infoFile;
+    QString infoFilePath;
 
-    // read info.ini file
-    QString iniFilePath = octDir->absolutePath().append("/info.ini");
-    QFile iniFile(iniFilePath);
-    if (iniFile.open(QIODevice::ReadOnly)){     // COPERNICUS <<-------------------------------
-        fileOpened = true;
-        pData->setOCTDevice(COPERNICUS);
-        emit processingData((++count)/tasks*100,"");
+    QStringList scanNameParts;
+    QStringList filesList;
+    QImage firstImg;
 
-        QTextStream iniText(&iniFile);
-        int year = 2000;
-        int month = 1;
-        int day = 1;
-        do {
-            line = iniText.readLine();
-            if (line.contains("=")){
-                QStringList data = line.split("=");
-                if (data.at(0) == "last name"){  // get patient last name
-                    pData->setLastName(data.at(1));
-                    emit processingData((++count)/tasks*100,"");
-                }
-                if (data.at(0) == "first name"){ // get patient fist name
-                    pData->setFirstName(data.at(1));
-                    emit processingData((++count)/tasks*100,"");
-                }
-                if (data.at(0) == "dob_y"){  // get patient birth year
-                    year = data.at(1).toInt();
-                }
-                if (data.at(0) == "dob_m"){  // get patient birth month
-                    month = data.at(1).toInt();
-                }
-                if (data.at(0) == "dob_d"){  // get patient birth day
-                    day = data.at(1).toInt();
-                }
-                if (data.at(0) == "gender"){
-                    if (data.at(1).toInt() == 1)
-                        pData->setGender(1); // male
-                    else
-                        pData->setGender(0); // female
-                    emit processingData((++count)/tasks*100,"");
-                }
-                if (data.at(0) == "ilbskan"){
-                    pData->setBscansNumber(data.at(1).toInt());
-                    emit processingData((++count)/tasks*100,"");
-                }
-                if (data.at(0) == "ilaskan"){
-                    pData->setBscanWidth(data.at(1).toInt());
-                    pData->setBscanHeight(1010);
-                    emit processingData((++count)/tasks*100,"");
-                }
-                if (data.at(0) == "eye"){
-                    pData->setEye(data.at(1).toInt());
-                    emit processingData((++count)/tasks*100,"");
-                }
-                if (data.at(0) == "date"){
-                    pData->setExamDate(QDate::fromString(data.at(1),"yyyy-MM-dd"));
-                    emit processingData((++count)/tasks*100,"");
-                }
-                if (data.at(0) == "time"){
-                    pData->setExamTime(QTime::fromString(data.at(1),"hh:mm:ss"));
-                    emit processingData((++count)/tasks*100,"");
-                }
-            }
-        } while (!line.isNull());
-        pData->setBirthDate(QDate(year,month,day));
-        emit processingData((++count)/tasks*100,"");
-        pData->setAge(pData->getExamDate().year() - pData->getBirthDate().year());
-        emit processingData((++count)/tasks*100,"");
-        if (iniFile.isOpen())
-            iniFile.close();
+    switch (scan->getOCTDevice()){
+    case COPERNICUS:                // COPERNICUS <<-------------------------------
+        // read info.ini file
+        iniFilePath = octDir->absolutePath().append("/info.ini");
+        iniFile.setFileName(iniFilePath);
+        if (iniFile.open(QIODevice::ReadOnly)){
+            fileOpened = true;
+            emit processingData((++count)/tasks*100,"");
 
-    } else {
-        QString infoFilePath;
-        QFile infoFile;
-        if (!pData->getIsBinary()){    // !isBinary
+            QTextStream iniText(&iniFile);
+            int year = 2000;
+            int month = 1;
+            int day = 1;
+            do {
+                line = iniText.readLine();
+                if (line.contains("=")){
+                    QStringList data = line.split("=");
+                    if (data.at(0) == "last name"){  // get patient last name
+                        pData->setLastName(data.at(1));
+                        emit processingData((++count)/tasks*100,"");
+                    }
+                    if (data.at(0) == "first name"){ // get patient fist name
+                        pData->setFirstName(data.at(1));
+                        emit processingData((++count)/tasks*100,"");
+                    }
+                    if (data.at(0) == "dob_y"){  // get patient birth year
+                        year = data.at(1).toInt();
+                    }
+                    if (data.at(0) == "dob_m"){  // get patient birth month
+                        month = data.at(1).toInt();
+                    }
+                    if (data.at(0) == "dob_d"){  // get patient birth day
+                        day = data.at(1).toInt();
+                    }
+                    if (data.at(0) == "gender"){
+                        if (data.at(1).toInt() == 1)
+                            pData->setGender(1); // male
+                        else
+                            pData->setGender(0); // female
+                        emit processingData((++count)/tasks*100,"");
+                    }
+                    if (data.at(0) == "ilbskan"){
+                        scan->setBscansNumber(data.at(1).toInt());
+                        emit processingData((++count)/tasks*100,"");
+                    }
+                    if (data.at(0) == "ilaskan"){
+                        scan->setBscanWidth(data.at(1).toInt());
+                        scan->setBscanHeight(1010);
+                        emit processingData((++count)/tasks*100,"");
+                    }
+                    if (data.at(0) == "eye"){
+                        scan->setEye(data.at(1).toInt());
+                        emit processingData((++count)/tasks*100,"");
+                    }
+                    if (data.at(0) == "date"){
+                        scan->setExamDate(QDate::fromString(data.at(1),"yyyy-MM-dd"));
+                        emit processingData((++count)/tasks*100,"");
+                    }
+                    if (data.at(0) == "time"){
+                        scan->setExamTime(QTime::fromString(data.at(1),"hh:mm:ss"));
+                        emit processingData((++count)/tasks*100,"");
+                    }
+                }
+            } while (!line.isNull());
+            pData->setBirthDate(QDate(year,month,day));
+            emit processingData((++count)/tasks*100,"");
+            pData->setAge(scan->getExamDate().year() - pData->getBirthDate().year());
+            emit processingData((++count)/tasks*100,"");
+            if (iniFile.isOpen())
+                iniFile.close();
+        }
+        break;
+    case AVANTI:                    // AVANTI <<-------------------------------
+        if (!scan->getIsBinary()){    // !isBinary
             infoFilePath = octDir->absolutePath().append("/" + octDir->dirName() + ".txt");
             infoFile.setFileName(infoFilePath);
             if (!infoFile.exists()){
@@ -194,9 +209,8 @@ bool ReadWriteData::readPatientData(){
             infoFile.setFileName(infoFilePath);
         }
 
-        if (infoFile.open(QIODevice::ReadOnly)){    // AVANTI <<-------------------------------
+        if (infoFile.open(QIODevice::ReadOnly)){
             fileOpened = true;
-            pData->setOCTDevice(AVANTI);
             emit processingData((++count)/tasks*100,"");
 
             // Nazwisko, Imie _27_3D Retina_OS_2014-09-12_10.21.36_1
@@ -208,10 +222,13 @@ bool ReadWriteData::readPatientData(){
                 pData->setFirstName(fileName2.at(1).toUpper());
                 emit processingData((++count)/tasks*100,"");
                 QStringList examCode = fileName2.at(3).split("_");
-                pData->setExamDate(QDate::fromString(examCode.at(2),"yyyy-MM-dd"));
+                scan->setExamDate(QDate::fromString(examCode.at(2),"yyyy-MM-dd"));
                 emit processingData((++count)/tasks*100,"");
-                pData->setExamTime(QTime::fromString(examCode.at(3),"hh.mm.ss"));
+                scan->setExamTime(QTime::fromString(examCode.at(3),"hh.mm.ss"));
                 emit processingData((++count)/tasks*100,"");
+            } else {
+                // File name does not contain exam info
+                count += 4;
             }
 
             QTextStream infoText(&infoFile);
@@ -224,46 +241,46 @@ bool ReadWriteData::readPatientData(){
                 if (line.contains("=")){
                     QStringList data = line.split("=");
                     if (data.at(0) == "XY Scan Length" && !scanLengthRead){
-                        pData->setBscanWidth(data.at(1).toInt());
+                        scan->setBscanWidth(data.at(1).toInt());
                         scanLengthRead = true;
                         emit processingData((++count)/tasks*100,"");
                     }
                     if (data.at(0) == "XY Scan Usage" && !scanUsageRead){
-                        pData->setBscansNumber(data.at(1).toInt());
+                        scan->setBscansNumber(data.at(1).toInt());
                         scanUsageRead = true;
                         emit processingData((++count)/tasks*100,"");
                     }
                     if (data.at(0) == "Frames Per Data Group"){
-                        pData->setBscansNumberAll(data.at(1).toInt());
+                        scan->setBscansNumberAll(data.at(1).toInt());
                         emit processingData((++count)/tasks*100,"");
                     }
                     if (data.at(0) == "OCT Window Height"){
-                        pData->setBscanHeight(data.at(1).toInt());
+                        scan->setBscanHeight(data.at(1).toInt());
                         emit processingData((++count)/tasks*100,"");
                     }
                     if (data.at(0) == "Scan Depth"){ //Scan Depth=2.401 mm
                         QStringList val = data.at(1).split(" ");
-                        pData->setVoxelDepth(val.at(0).toFloat());
+                        scan->setScanDepth(val.at(0).toDouble());
                         emit processingData((++count)/tasks*100,"");
                     }
                     if (data.at(0) == "XY Scan Size1" && !scanWidth){   //XY Scan Size1= 12.00 mm
                         QStringList val = data.at(1).split(" ");
-                        pData->setVoxelWidth(val.at(1).toFloat());
+                        scan->setScanWidth(val.at(1).toDouble());
                         emit processingData((++count)/tasks*100,"");
                         scanWidth = true;
                     }
                     if (data.at(0) == "XY Scan Interval1" && !scanHeight){ //XY Scan Interval1= 0.028 mm
                         QStringList val = data.at(1).split(" ");
-                        QString v = QString::number(val.at(1).toFloat(),'f',3);
-                        pData->setVoxelHeight(v.toFloat() * pData->getBscansNumber());
+                        QString v = QString::number(val.at(1).toDouble(),'f',3);
+                        scan->setScanHeight(v.toDouble() * scan->getBscansNumber());
                         emit processingData((++count)/tasks*100,"");
                         scanHeight = true;
                     }
                     if (data.at(0) == "Eye Scanned"){
                         if (data.at(1) == "OD"){
-                            pData->setEye(1);
+                            scan->setEye(1);
                         } else if (data.at(1) == "OS"){
-                            pData->setEye(0);
+                            scan->setEye(0);
                         }
                         emit processingData((++count)/tasks*100,"");
                     }
@@ -271,7 +288,8 @@ bool ReadWriteData::readPatientData(){
             } while (!line.isNull());
             if (infoFile.isOpen())
                 infoFile.close();
-        }
+        } // TODO: allow reading in scan cross sections (not binary) without info file
+        break;
     }
 
     if (!fileOpened){
@@ -286,14 +304,14 @@ bool ReadWriteData::readPatientData(){
 // read OCT files and images ----------------------------------------------------------------------
 void ReadWriteData::readOctSequence(){
     emit processingData(0, "Trwa pobieranie listy skanów...");
-    double tasks = pData->getBscansNumber() + 2; // gdy contrast enhancement to 4 zamiast 3
+    double tasks = scan->getBscansNumber() + 2; // gdy contrast enhancement to 4 zamiast 3
     double count = 0;
-    OCTDevice device = pData->getOCTDevice();
+    OCTDevice device = scan->getOCTDevice();
     scanName = octDir->dirName();
 
     // read exam images list
     QStringList imageList;
-    imageList.resize(pData->getBscansNumber());
+    imageList.resize(scan->getBscansNumber());
     QStringList filter;
     filter << "*.bmp" << "*.tiff" << "*.jpeg" << "*.jpg";
     QFileInfoList fileInfoList = octDir->entryInfoList(filter);
@@ -305,20 +323,21 @@ void ReadWriteData::readOctSequence(){
         if (match.hasMatch()){
             int imageNumber = match.captured(0).toInt();
 //            qDebug() << imageFileName << ": " << QString::number(imageNumber);
-            if (imageNumber <= pData->getBscansNumber())
+            if (imageNumber <= scan->getBscansNumber())
                 imageList[imageNumber-1] = fileInfo.absoluteFilePath();
             else
                 qDebug() << "image number out of range -> image " << QString::number(imageNumber) << " not loaded!";
         }
     }
-    pData->setImageFileList(imageList);
-    pData->resetBscansData();  // Bscans memory reset
+    scan->resetBscansData();  // Bscans memory reset
 
     emit processingData((count)/tasks*100,"Trwa odczyt danych OCT...");
     int imageNumber = 0;
     foreach (QString imagePath, imageList) {
         QImage img(imagePath);
-        pData->setOCTdata(img, imageNumber);
+        if (img.format() != QImage::Format_Indexed8)
+            img = img.convertToFormat(QImage::Format_Indexed8);
+        scan->setOCTdata(img, imageNumber);
         imageNumber++;
         emit processingData((++count)/tasks*100,"Trwa odczyt danych OCT...");
     }
@@ -334,25 +353,15 @@ void ReadWriteData::readOctSequence(){
 
 void ReadWriteData::readOctFile(){
     emit processingData(0, "Trwa pobieranie listy skanów...");
-    double tasks = pData->getBscansNumber()*2 + 1; // gdy contrast enhancement to 5 zamiast 4
+    double tasks = scan->getBscansNumber()*2 + 1; // gdy contrast enhancement to 5 zamiast 4
     double count = 0;
-    OCTDevice device = pData->getOCTDevice();
+    OCTDevice device = scan->getOCTDevice();
 
     QFileInfo octFileInfo(*octFile);
     scanName = octFileInfo.fileName();
     scanName.chop(4);
 
-    // read exam images list    // this is not necessary, but based on existing imageFileList other functions in this application work
-    QStringList imageList;
-    for (int i=0; i < pData->getBscansNumber(); i++){
-        if (device == COPERNICUS)
-            imageList.append(scanName + "/skan" + QString::number(i) + ".bmp");
-        else if (device == AVANTI)
-            imageList.append(scanName + "/Skan_nr_" + QString::number(i+1) + ".bmp");
-        emit processingData((++count)/tasks*100,"");
-    }
-    pData->setImageFileList(imageList);
-    pData->resetBscansData();  // Bscans memory reset
+    scan->resetBscansData();  // Bscans memory reset
 
     // read OCT file
     emit processingData((count)/tasks*100,"Trwa odczyt danych OCT...");
@@ -386,13 +395,13 @@ void ReadWriteData::readBinaryFile(QFile *dataFile, double *count, double *tasks
     in.setFloatingPointPrecision(QDataStream::SinglePrecision);
     in.setByteOrder(QDataStream::LittleEndian);
 
-    for (int p=0; p < pData->getBscansNumber(); p++){
+    for (int p=0; p < scan->getBscansNumber(); p++){
         QList< QList<float> > img;
         float max = 0;
 
-        for (int i=0; i < pData->getBscanWidth(); i++){
+        for (int i=0; i < scan->getBscanWidth(); i++){
             QList<float> column;
-            for (int j=0; j < pData->getBscanHeight(); j++){
+            for (int j=0; j < scan->getBscanHeight(); j++){
                 float val = 0;
                 in >> val;
                 column.append(val);
@@ -412,13 +421,13 @@ void ReadWriteData::readBinaryFile(QFile *dataFile, double *count, double *tasks
 
     // normalize data
     float min = 800;
-    for (int p=0; p < pData->getBscansNumber(); p++){
+    for (int p=0; p < scan->getBscansNumber(); p++){
         QList< QList<int> > img;
 
-        for (int w=0; w < pData->getBscanWidth(); w++){
+        for (int w=0; w < scan->getBscanWidth(); w++){
             QList<int> column;
 
-            for (int r=pData->getBscanHeight()-1; r >= 0; r--){
+            for (int r=scan->getBscanHeight()-1; r >= 0; r--){
                 float tmp = octDataTemp[p][w][r];
                 tmp = (tmp-min)/(maxList[p]-min);
                 tmp = qBound(0,(int)(tmp*255),255);
@@ -426,7 +435,7 @@ void ReadWriteData::readBinaryFile(QFile *dataFile, double *count, double *tasks
             }
             img.append(column);
         }
-        pData->setOCTdata(img, p);
+        scan->setOCTdata(img, p);
         emit processingData((++c)/t*100,"Reading in binary data... (normalization)");
     }
 
@@ -435,7 +444,7 @@ void ReadWriteData::readBinaryFile(QFile *dataFile, double *count, double *tasks
 }
 
 void ReadWriteData::readFundusImage(OCTDevice octDevice){
-    QImage fundus = QImage(pData->getBscanWidth(), pData->getBscansNumber(), QImage::Format_Indexed8);
+    QImage fundus = QImage(scan->getBscanWidth(), scan->getBscansNumber(), QImage::Format_Indexed8);
     fundus.fill(0);
 
     QString fundusFilePath = octDir->absolutePath().append("/fnds_rec.bmp");    // fundus image in the sequence directory
@@ -447,7 +456,7 @@ void ReadWriteData::readFundusImage(OCTDevice octDevice){
     } else {
         emit processingData(98, "Trwa tworzenie projekcji fundus z danych OCT...");
         Calculate *calc = new Calculate();
-        fundus = calc->calculateFundus(pData->getOCTdata());
+        fundus = calc->calculateFundus(scan->getOCTdata());
     }
 
     if (octDevice == COPERNICUS){
@@ -457,31 +466,30 @@ void ReadWriteData::readFundusImage(OCTDevice octDevice){
         Calculate *calc = new Calculate();
         calc->imageEnhancement(&fundus, 1.0, 0);
     }
-    pData->setFundusImage(fundus);
+    scan->setFundusImage(fundus);
 }
 
 // read annotation data ---------------------------------------------------------------------------
 void ReadWriteData::readFileManualSegmentation(QFile *dataFile)
 {
     QString line;
-    QPoint p(-1,-1);
     QList<Layers> allLayers = getAllLayers();
     int layersCount = allLayers.count();
-    double tasks = 1 + layersCount*pData->getBscansNumber() + layersCount;
+    double tasks = 1 + layersCount*scan->getBscansNumber() + layersCount;
     double count = 0;
     emit processingData(0, "Trwa odczyt danych ręcznej segmentacji...");
 
     if (!dataFile->exists() || !dataFile->open(QIODevice::ReadWrite)){
         emit errorOccured(tr("Nie można otworzyć pliku z ręczną segmentacją warstw: ") + dataFile->fileName());
     } else {
-        pData->resetManualAnnotations();
+        scan->resetManualAnnotations();
 
         QTextStream octSegmentText(dataFile);
         line = octSegmentText.readLine();
 
         if (line.contains("<?")){   // read as xml
             dataFile->reset();
-            int bn = pData->getBscansNumber();
+            int bn = scan->getBscansNumber();
             QString version = "";
             QList<int> voxelSize;
             QXmlStreamReader xml(dataFile);
@@ -513,14 +521,14 @@ void ReadWriteData::readFileManualSegmentation(QFile *dataFile)
                     QStringList point = data.at(1).split(",");
                     QPoint center = QPoint(point.at(0).toInt(), point.at(1).toInt());
                     if (center.x() == -1){
-                        if (pData->getOCTDevice() == COPERNICUS)
-                            center.setX(pData->getBscanWidth() / 2);
-                        else if (pData->getOCTDevice() == AVANTI)
-                            center.setX(pData->getBscanWidth() / 2);
+                        if (scan->getOCTDevice() == COPERNICUS)
+                            center.setX(scan->getBscanWidth() / 2);
+                        else if (scan->getOCTDevice() == AVANTI)
+                            center.setX(scan->getBscanWidth() / 2);
                     }
                     if (center.y() == -1)
-                        center.setY(pData->getBscansNumber() / 2);
-                    pData->setScanCenter(center);
+                        center.setY(scan->getBscansNumber() / 2);
+                    scan->setScanCenter(center);
                     emit processingData((++count)/tasks*100,"");
                 }
                 do {
@@ -536,9 +544,7 @@ void ReadWriteData::readFileManualSegmentation(QFile *dataFile)
                             for (int j=0; j < points.count(); j++){
                                 QString p_str = points.at(j);
                                 if (p_str != ""){
-                                    p.setX(p_str.split(",").at(0).toInt());
-                                    p.setY(p_str.split(",").at(1).toInt());
-                                    pData->setPoint(bscanNumber, layer, p);
+                                    scan->setPoint(layer, bscanNumber, p_str.split(",").at(0).toInt(), p_str.split(",").at(1).toInt());
                                 }
                             }
                             emit processingData((++count)/tasks*100,"");
@@ -552,17 +558,17 @@ void ReadWriteData::readFileManualSegmentation(QFile *dataFile)
 //        emit processingData(count, "Trwa wygładzanie warstw...");
 //        QList<Layers> layers = getAllLayers();
 //        foreach (Layers layer, layers) {
-//            pData->smoothLayer(layer);
+//            scan->smoothLayer(layer);
 //            emit processingData((++count)/tasks*100,"");
 //        }
 //        emit processingData(count, "Trwa uzupełnianie danych...");
-//        for (int i=0; i < pData->getBscansNumber(); i++){
-//            pData->fillContactArea(i);
+//        for (int i=0; i < scan->getBscansNumber(); i++){
+//            scan->fillContactArea(i);
 //            emit processingData((++count)/tasks*100,"");
 //        }
 //        emit processingData(count, "Trwa obliczanie współczynników wypłaszczania warstw...");
-//        for (int i=0; i < pData->getBscansNumber(); i++){
-//            pData->calculateFlatDifferencesRPE(i);
+//        for (int i=0; i < scan->getBscansNumber(); i++){
+//            scan->calculateFlatDifferencesRPE(i);
 //            emit processingData((++count)/tasks*100,"");
 //        }
     }
@@ -615,7 +621,7 @@ QList<int> ReadWriteData::parseXmlVoxelSize(QXmlStreamReader &xml, bool isAuto)
             }
             xml.readNext();
         }
-        pData->setScanCenter(center);
+        scan->setScanCenter(center);
     }
 
     return voxel;
@@ -807,7 +813,7 @@ void ReadWriteData::parseXmlSurfaceLines(QXmlStreamReader &xml, QString versionN
                  if (xml.tokenType() == QXmlStreamReader::StartElement){
                      if (xml.name().toString() == "z"){
                          xml.readNext();
-                         pData->setPoint(scanNumber,layer,QPoint(counter,xml.text().toInt()));
+                         scan->setPoint(layer, scanNumber, counter, xml.text().toInt());
                          counter++;
                      }
                  }
@@ -846,7 +852,7 @@ void ReadWriteData::parseUndefinedRegion(QXmlStreamReader &xml, bool isAuto)
                     }
                     if (x != -1 && y != -1){
                         foreach (Layers layer, allLayers) {
-                            pData->setPoint(y,layer,QPoint(x,-1));
+                            scan->setPoint(layer, y, x, -1);
                         }
                         x = -1;
                         y = -1;

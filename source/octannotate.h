@@ -49,6 +49,7 @@ private slots:
 // General exam
 
 // OCT exam
+    void setLayerVisibility(bool st, QRadioButton* button, LayerName layer);
     void on_allLayersCBox_stateChanged(int state);
     void on_pcvLayerCBox_stateChanged(int state);
     void on_ermLayerCBox_stateChanged(int state);
@@ -114,9 +115,14 @@ private:
     void loadNormalImage(int normalImageNumber);
     void adjustScrollBar(QScrollBar *scrollBar, double factor);
     void rescaleImage();
-//    void changeImageRange(int dir);
+    void changeImageRange(int dir);
 
 // paint on OCT exam
+    QColor getLayerColor(LayerName layer);
+    QList<LayerName> getLayersToDisplay();
+
+    void displayAnnotations(QList<int> flatDiff = QList<int>());
+    void displayNormalAnnotations(QList<int> flatDiff = QList<int>());
 
 // draw Virtual map
     void setupBScanPlots();
@@ -148,8 +154,6 @@ private:
     float contrast;
     int brightness;
 
-    int myPenWidth;
-    QColor myPenColor;
     bool fundusAnnotate;
     QColor pcvColor;
     QColor ermColor;

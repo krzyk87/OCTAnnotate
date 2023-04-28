@@ -1,8 +1,9 @@
 #include "octannotate.h"
+#include "functions.h"
 #include "ui_octannotate.h"
 #include "settingsdialog.h"
 //#include "qmath.h"
-#include "calculate.h"
+//#include "calculate.h"
 #include "readwritedata.h"
 
 //#include <QFileDialog>
@@ -54,23 +55,44 @@ OCTAnnotate::OCTAnnotate(QWidget *parent) : QMainWindow(parent),
     ui->bScanHCPlot->installEventFilter(this);
     ui->bScanVCPlot->installEventFilter(this);
 
-    myPenColor = Qt::red;
-    myPenWidth = 2;
     fundusAnnotate = false;
 
     ui->pcvLayerRButton->setChecked(true);
+    // TODO: create a LayerColor class to store and get colors for lines and labels
     pcvColor = Qt::green;
+    ermColor = Qt::white;
     ilmColor = Qt::red; // darkRed
+    gclColor = Qt::blue; // cyan
+    iplColor = Qt::darkYellow;
+    inlColor = Qt::blue;
+    oplColor = Qt::magenta;
+    onlColor = Qt::yellow; // darkGreen
+    elmColor = Qt::yellow;
+    mezColor = Qt::green; // darkCyan
+    iosColor = Qt::green; // darkMagenta
+    rpeColor = Qt::blue;
     chrColor = QColor(255,85,0); // darkBlue
-    myPalette.setColor(QPalette::Window, pcvColor);
-    ui->pcvColorLabel->setAutoFillBackground(true);
-    ui->pcvColorLabel->setPalette(myPalette);
-    myPalette.setColor(QPalette::Window, ilmColor);
-    ui->ilmColorLabel->setAutoFillBackground(true);
-    ui->ilmColorLabel->setPalette(myPalette);
-    myPalette.setColor(QPalette::Window, chrColor);
-    ui->chrColorLabel->setAutoFillBackground(true);
-    ui->chrColorLabel->setPalette(myPalette);
+    QMap<LayerName, QLabel*> colorLabels;
+    colorLabels[PCV] = ui->pcvColorLabel;
+    colorLabels[ERM_UP] = ui->ermColorLabel;
+    colorLabels[ILM] = ui->ilmColorLabel;
+    colorLabels[NFL_GCL] = ui->gclColorLabel;
+    colorLabels[GCL_IPL] = ui->iplColorLabel;
+    colorLabels[IPL_INL] = ui->inlColorLabel;
+    colorLabels[INL_OPL] = ui->oplColorLabel;
+    colorLabels[OPL_ONL] = ui->onlColorLabel;
+    colorLabels[ELM] = ui->elmColorLabel;
+    colorLabels[MEZ] = ui->mezColorLabel;
+    colorLabels[IS_OS] = ui->iosColorLabel;
+    colorLabels[OS_RPE] = ui->rpeColorLabel;
+    colorLabels[RPE_CHR] = ui->chrColorLabel;
+    QMapIterator<LayerName, QLabel*> iter(colorLabels);
+    while (iter.hasNext()) {
+        iter.next();
+        myPalette.setColor(QPalette::Window, getLayerColor(iter.key()));
+        iter.value()->setAutoFillBackground(true);
+        iter.value()->setPalette(myPalette);
+    }
 
     setupBScanPlots();
 
@@ -219,7 +241,7 @@ void OCTAnnotate::loadOCT(bool isBinary)
             progressBar->setVisible(true);
             progressBar->setValue(0);
 
-            ReadWriteData *rwData = new ReadWriteData(this);
+            ReadWriteData *rwData = new ReadWriteData();
             rwData->setDataObject(&patientData, scan);
             if (isBinary)
                 rwData->setOctFile(&octFile);
@@ -282,6 +304,7 @@ void OCTAnnotate::loadImage(int imageNumber){
         // display image
         ui->bScanHCPlot->yAxis->setRange(bscanRange);
         ui->bScanHCPlot->axisRect()->setBackground(QPixmap::fromImage(newImage),true,Qt::IgnoreAspectRatio);
+        displayAnnotations();
         ui->bScanHCPlot->replot();
 
         ui->currImageNumberLEdit->setText(QString::number(currentImageNumber));
@@ -318,7 +341,9 @@ void OCTAnnotate::loadNormalImage(int normalImageNumber){
     // display image
     ui->bScanVCPlot->yAxis->setRange(bscanRange);
     ui->bScanVCPlot->axisRect()->setBackground(QPixmap::fromImage(newImage),true,Qt::IgnoreAspectRatio);
+    displayNormalAnnotations();
     ui->bScanVCPlot->replot();
+
     ui->currNormalImageNumberLEdit->setText(QString::number(currentNormalImageNumber));
 }
 
@@ -464,30 +489,30 @@ bool OCTAnnotate::eventFilter(QObject *target, QEvent *event){
             }
         }
         // TODO: uncomment and edit blow code for manual drawing of retina layers
-//        else if (target == ui->bScanHCPlot) {
+        else if (target == ui->bScanHCPlot) {
 //            QMouseEvent *mouseEvent = static_cast<QMouseEvent*>(event);
 //            currPoint.setX(ui->bScanHCPlot->xAxis->pixelToCoord(mouseEvent->pos().x()));
 //            currPoint.setY(patientData.getBscanHeight() - ui->bScanHCPlot->yAxis->pixelToCoord(mouseEvent->pos().y()));
 
-//            if (event->type() == QEvent::Wheel){
-//                QWheelEvent *wheelEvent = static_cast<QWheelEvent*>(event);
-//                QPoint numSteps = wheelEvent->angleDelta() / 8 / 15;
+            if (event->type() == QEvent::Wheel){
+                QWheelEvent *wheelEvent = static_cast<QWheelEvent*>(event);
+                QPoint numSteps = wheelEvent->angleDelta() / 8 / 15;
 
-//                changeImageRange(numSteps.y());
-//            }
-//        } else if (target == ui->bScanVCPlot){
+                changeImageRange(numSteps.y());
+            }
+        } else if (target == ui->bScanVCPlot){
 //            QMouseEvent *mouseEvent = static_cast<QMouseEvent*>(event);
 //            currPoint.setX(ui->bScanVCPlot->xAxis->pixelToCoord(mouseEvent->pos().x()));
 //            currPoint.setY(patientData.getBscanHeight() - ui->bScanVCPlot->yAxis->pixelToCoord(mouseEvent->pos().y()));
 
-//            if (event->type() == QEvent::Wheel){
-//                QWheelEvent *wheelEvent = static_cast<QWheelEvent*>(event);
-//                QPoint numSteps = wheelEvent->angleDelta() / 8 / 15;
+            if (event->type() == QEvent::Wheel){
+                QWheelEvent *wheelEvent = static_cast<QWheelEvent*>(event);
+                QPoint numSteps = wheelEvent->angleDelta() / 8 / 15;
 
-//                changeImageRange(numSteps.y());
-//            }
+                changeImageRange(numSteps.y());
+            }
 
-//        }
+        }
     }
     return false;
 }
@@ -515,13 +540,11 @@ void OCTAnnotate::paintEvent(QPaintEvent *){
             QPainter painter(&fundusPixMap);
 
             // draw line with current scan
-            myPenColor = Qt::green;
-            painter.setPen(QPen(myPenColor, myPenWidth, Qt::SolidLine, Qt::RoundCap, Qt::RoundJoin));
+            painter.setPen(QPen(Qt::green, 2, Qt::SolidLine, Qt::RoundCap, Qt::RoundJoin));
             QPoint startPoint = QPoint(0,currentImageNumber);
             QPoint endPoint = QPoint(fundusPixMap.width(), currentImageNumber);
             painter.drawLine(startPoint,endPoint);
-            myPenColor = Qt::blue;
-            painter.setPen(QPen(myPenColor, myPenWidth, Qt::SolidLine, Qt::RoundCap, Qt::RoundJoin));
+            painter.setPen(QPen(Qt::blue, 2, Qt::SolidLine, Qt::RoundCap, Qt::RoundJoin));
             startPoint = QPoint(currentNormalImageNumber,0);
             endPoint = QPoint(currentNormalImageNumber,fundusPixMap.height());
             painter.drawLine(startPoint,endPoint);
@@ -570,55 +593,100 @@ void OCTAnnotate::on_allLayersCBox_stateChanged(int state)
     }
 }
 
-void OCTAnnotate::on_pcvLayerCBox_stateChanged(int state){
+void OCTAnnotate::setLayerVisibility(bool st, QRadioButton *button, LayerName layer)
+{
+    int graphID = getAllLayers().indexOf(layer);
 
+    if (st){    // get new values to display
+        // bscan image
+        QList<int> flatDiff;
+        for (int col=0; col < scan->getBscanWidth(); col++){
+            flatDiff.append(0);
+        }
+
+        QVector<double> z = scan->getLayerPointsVector(layer, currentImageNumber, false);
+        QVector<double> x(z.length());
+        for (int i=0; i<z.length(); i++){
+            x[i] = i;
+            z[i] -= flatDiff[i];
+        }
+        int graphID = getAllLayers().indexOf(layer);
+        ui->bScanHCPlot->graph(graphID)->setData(x,z);
+
+        // normal image
+        QList<int> flatDiffNormal;
+        for (int col=0; col < scan->getBscansNumber(); col++){
+            flatDiffNormal.append(0);
+        }
+
+        z = scan->getLayerPointsVector(layer, currentNormalImageNumber, true);
+        x.resize(z.length());
+        for (int i=0; i<z.length(); i++){
+            x[i] = i;
+            z[i] -= flatDiffNormal[i];
+        }
+        ui->bScanVCPlot->graph(graphID)->setData(x,z);
+    }
+
+    ui->bScanHCPlot->graph(graphID)->setVisible(st);
+    ui->bScanHCPlot->replot();
+
+    ui->bScanVCPlot->graph(graphID)->setVisible(st);
+    ui->bScanVCPlot->replot();
+
+    button->setEnabled(st);
+}
+
+void OCTAnnotate::on_pcvLayerCBox_stateChanged(int state){
+    setLayerVisibility(state != 0, ui->pcvLayerRButton, PCV);
 }
 
 void OCTAnnotate::on_ermLayerCBox_stateChanged(int state){
-
+    setLayerVisibility(state != 0, ui->ermLayerRButton, ERM_UP);
 }
 
 void OCTAnnotate::on_ilmLayerCBox_stateChanged(int state) {
+    setLayerVisibility(state != 0, ui->ilmLayerRButton, ILM);
 }
 
 void OCTAnnotate::on_gclLayerCBox_stateChanged(int state){
-
+    setLayerVisibility(state != 0, ui->gclLayerRButton, NFL_GCL);
 }
 
 void OCTAnnotate::on_iplLayerCBox_stateChanged(int state){
-
+    setLayerVisibility(state != 0, ui->iplLayerRButton, GCL_IPL);
 }
 
 void OCTAnnotate::on_inlLayerCBox_stateChanged(int state){
-
+    setLayerVisibility(state != 0, ui->inlLayerRButton, IPL_INL);
 }
 
 void OCTAnnotate::on_oplLayerCBox_stateChanged(int state){
-
+    setLayerVisibility(state != 0, ui->oplLayerRButton, INL_OPL);
 }
 
 void OCTAnnotate::on_onlLayerCBox_stateChanged(int state){
-
+    setLayerVisibility(state != 0, ui->onlLayerRButton, OPL_ONL);
 }
 
 void OCTAnnotate::on_elmLayerCBox_stateChanged(int state){
-
+    setLayerVisibility(state != 0, ui->elmLayerRButton, ELM);
 }
 
 void OCTAnnotate::on_mezLayerCBox_stateChanged(int state){
-
+    setLayerVisibility(state != 0, ui->mezLayerRButton, MEZ);
 }
 
 void OCTAnnotate::on_iosLayerCBox_stateChanged(int state){
-
+    setLayerVisibility(state != 0, ui->iosLayerRButton, IS_OS);
 }
 
 void OCTAnnotate::on_rpeLayerCBox_stateChanged(int state){
-
+    setLayerVisibility(state != 0, ui->rpeLayerRButton, OS_RPE);
 }
 
 void OCTAnnotate::on_chrLayerCBox_stateChanged(int state){
-
+    setLayerVisibility(state != 0, ui->chrLayerRButton, RPE_CHR);
 }
 
 void OCTAnnotate::on_pcvLayerRButton_clicked()
@@ -742,44 +810,221 @@ void OCTAnnotate::rescaleImage(){
     }
 }
 
-//void OCTAnnotate::changeImageRange(int dir){
-//    int imageHeight = patientData.getBscanHeight() / scales[scaleFactor];
-//    QCPRange plotRange = ui->bScanHCPlot->yAxis->range();
-//    QCPRange newRange;
-//    bool rescale = false;
+void OCTAnnotate::changeImageRange(int dir)
+{
+    int imageHeight = static_cast<int>(scan->getBscanHeight() / scales[scaleFactor]);
+    QCPRange plotRange = ui->bScanHCPlot->yAxis2->range();
+    QCPRange newRange;
+    bool rescale = false;
 
-//    if ((dir > 0) && (plotRange.upper < patientData.getBscanHeight())){
-//        double upper = qBound(0.0, plotRange.upper + 20, (double)patientData.getBscanHeight());
-//        newRange = QCPRange(upper - imageHeight, upper);
-//        rescale = true;
-//    } else if ((dir < 0) && (plotRange.lower > 0)){
-//        double lower = qBound(0.0, plotRange.lower - 20, (double)patientData.getBscanHeight());
-//        newRange = QCPRange(lower, lower + imageHeight);
-//        rescale = true;
+    if ((dir > 0) && (plotRange.upper < scan->getBscanHeight())){
+        double upper = qBound(0.0, plotRange.upper + 20, static_cast<double>(scan->getBscanHeight()));
+        newRange = QCPRange(upper - imageHeight, upper);
+        rescale = true;
+    } else if ((dir < 0) && (plotRange.lower > 0)){
+        double lower = qBound(0.0, plotRange.lower - 20, static_cast<double>(scan->getBscanHeight()));
+        newRange = QCPRange(lower, lower + imageHeight);
+        rescale = true;
+    }
+
+    if (rescale){
+        ui->bScanHCPlot->yAxis2->setRange(newRange);
+        ui->bScanVCPlot->yAxis2->setRange(newRange);
+        bscanRange = newRange;
+        QCPRange bscanDepthRange = bscanRange * scan->getDepthCoeff();
+        ui->bScanHCPlot->yAxis->setRange(bscanDepthRange);
+        ui->bScanVCPlot->yAxis->setRange(bscanDepthRange);
+
+        QImage image(scan->getImage(currentImageNumber));
+        QImage normalImage = scan->getNormalImage(currentNormalImageNumber);
+
+//        Calculate *calc = new Calculate();
+//        calc->imageEnhancement(&image, contrast, brightness);
+//        calc->imageEnhancement(&normalImage, contrast, brightness);
+
+//        if (flattenImage){
+//            QList<int> flatDiff, flatDiffNormal;
+//            if (scan->hasManualAnnotations()){
+//                flatDiff = scan->getFlatDifferencesRPE(currentImageNumber);
+//                flatDiffNormal = scan->getFlatDifferencesNormalRPE(currentNormalImageNumber);
+//            } else {
+//                flatDiff = scan->getFlatDifferences(currentImageNumber);
+//                flatDiffNormal = scan->getFlatDifferencesNormal(currentNormalImageNumber);
+//            }
+//            image = calc->flattenImage(&image, flatDiff);
+//            normalImage = calc->flattenImage(&normalImage, flatDiffNormal);
+//        }
+
+        double dy = qBound(0, scan->getBscanHeight() - static_cast<int>(newRange.upper), scan->getBscanHeight()-imageHeight);
+        QImage newImage = image.copy(0, static_cast<int>(dy), scan->getBscanWidth(), imageHeight);
+        ui->bScanHCPlot->axisRect()->setBackground(QPixmap::fromImage(newImage),true,Qt::IgnoreAspectRatio);
+        ui->bScanHCPlot->replot();
+
+        QImage newNormalImage = normalImage.copy(0, static_cast<int>(dy) ,scan->getBscansNumber(),imageHeight);
+        ui->bScanVCPlot->axisRect()->setBackground(QPixmap::fromImage(newNormalImage),true,Qt::IgnoreAspectRatio);
+        ui->bScanVCPlot->replot();
+    }
+}
+
+QColor OCTAnnotate::getLayerColor(LayerName layer)
+{
+    QColor color;
+
+    switch (layer) {
+    case PCV:
+        color = pcvColor;
+        break;
+    case ERM_UP:
+        color = ermColor;
+        break;
+//    case OB_ERM:
+//        color = obermColor;
+//        break;
+    case ILM:
+        color = ilmColor;
+        break;
+    case NFL_GCL:
+        color = gclColor;
+        break;
+    case GCL_IPL:
+        color = iplColor;
+        break;
+    case IPL_INL:
+        color = inlColor;
+        break;
+    case INL_OPL:
+        color = oplColor;
+        break;
+    case OPL_ONL:
+        color = onlColor;
+        break;
+    case ELM:
+        color = elmColor;
+        break;
+    case MEZ:
+        color = mezColor;
+        break;
+    case IS_OS:
+        color = iosColor;
+        break;
+//    case IB_OPR:
+//        color = iboprColor;
+//        break;
+    case OS_RPE:
+        color = rpeColor;
+        break;
+    case RPE_CHR:
+        color = chrColor;
+        break;
+    default:
+        break;
+    }
+
+    return color;
+}
+
+QList<LayerName> OCTAnnotate::getLayersToDisplay()
+{
+    QList<LayerName> layers;
+    if (ui->pcvLayerCBox->isChecked()){
+        layers.append(PCV);
+    }
+    if (ui->ermLayerCBox->isChecked()){
+        layers.append(ERM_UP);
+    }
+//    if (ui->obermLayerCBox->isChecked()){
+//        layers.append(OB_ERM);
 //    }
-
-//    if (rescale){
-//        ui->bScanHCPlot->yAxis->setRange(newRange);
-//        ui->bScanVCPlot->yAxis->setRange(newRange);
-//        bscanRange = newRange;
-
-////        Calculate *calc = new Calculate();
-//        QImage image(patientData.getImage(currentImageNumber));
-//        QImage normalImage = patientData.getNormalImage(currentNormalImageNumber);
-
-////        calc->imageEnhancement(&image, contrast, brightness);
-////        calc->imageEnhancement(&normalImage, contrast, brightness);
-
-//        double dy = qBound(0, patientData.getBscanHeight() - (int)newRange.upper, patientData.getBscanHeight()-imageHeight);
-//        QImage newImage = image.copy(0, dy, patientData.getBscanWidth(), imageHeight);
-//        ui->bScanHCPlot->axisRect()->setBackground(QPixmap::fromImage(newImage),true,Qt::IgnoreAspectRatio);
-//        ui->bScanHCPlot->replot();
-
-//        QImage newNormalImage = normalImage.copy(0,dy,patientData.getBscansNumber(),imageHeight);
-//        ui->bScanVCPlot->axisRect()->setBackground(QPixmap::fromImage(newNormalImage),true,Qt::IgnoreAspectRatio);
-//        ui->bScanVCPlot->replot();
+    if (ui->ilmLayerCBox->isChecked()){
+        layers.append(ILM);
+    }
+    if (ui->gclLayerCBox->isChecked()){
+        layers.append(NFL_GCL);
+    }
+    if (ui->iplLayerCBox->isChecked()){
+        layers.append(GCL_IPL);
+    }
+    if (ui->inlLayerCBox->isChecked()){
+        layers.append(IPL_INL);
+    }
+    if (ui->oplLayerCBox->isChecked()){
+        layers.append(INL_OPL);
+    }
+    if (ui->onlLayerCBox->isChecked()){
+        layers.append(OPL_ONL);
+    }
+    if (ui->elmLayerCBox->isChecked()){
+        layers.append(ELM);
+    }
+    if (ui->mezLayerCBox->isChecked()){
+        layers.append(MEZ);
+    }
+    if (ui->iosLayerCBox->isChecked()){
+        layers.append(IS_OS);
+    }
+//    if (ui->iboprLayerCBox->isChecked()){
+//        layers.append(IB_OPR);
 //    }
-//}
+    if (ui->rpeLayerCBox->isChecked()){
+        layers.append(OS_RPE);
+    }
+    if (ui->chrLayerCBox->isChecked()){
+        layers.append(RPE_CHR);
+    }
+    return layers;
+}
+
+void OCTAnnotate::displayAnnotations(QList<int> flatDiff)
+{
+    if (scan->getIsLoaded()){
+        if (flatDiff.length() < 1){
+            for (int col=0; col < scan->getBscanWidth(); col++){
+                flatDiff.append(0);
+            }
+        }
+
+        QList<LayerName> dispLayers = getLayersToDisplay();
+        QList<LayerName> allLayers = getAllLayers();
+
+        // set data to graphs
+        foreach (LayerName layer, dispLayers) {
+            QVector<double> z = scan->getLayerPointsVector(layer, currentImageNumber, false);
+            QVector<double> x(z.length());
+            for (int i=0; i<z.length(); i++){
+                x[i] = i;
+                z[i] -= flatDiff[i];
+            }
+            int graphID = allLayers.indexOf(layer);
+            ui->bScanHCPlot->graph(graphID)->setData(x,z);
+        }
+    }
+}
+
+void OCTAnnotate::displayNormalAnnotations(QList<int> flatDiff)
+{
+    if (scan->getIsLoaded()){
+        if (flatDiff.length() < 1){
+            for (int col=0; col < scan->getBscansNumber(); col++){
+                flatDiff.append(0);
+            }
+        }
+
+        QList<LayerName> dispLayers = getLayersToDisplay();
+        QList<LayerName> allLayers = getAllLayers();
+
+        // set data to graphs
+        foreach (LayerName layer, dispLayers) {
+            QVector<double> z = scan->getLayerPointsVector(layer, currentNormalImageNumber, true);
+            QVector<double> x(z.length());
+            for (int i=0; i<z.length(); i++){
+                x[i] = i;
+                z[i] -= flatDiff[i];
+            }
+            int graphID = allLayers.indexOf(layer);
+            ui->bScanVCPlot->graph(graphID)->setData(x,z);
+        }
+    }
+}
 
 void OCTAnnotate::adjustScrollBar(QScrollBar *scrollBar, double factor)
 {
@@ -793,57 +1038,63 @@ void OCTAnnotate::adjustScrollBar(QScrollBar *scrollBar, double factor)
 
 // virtual map and layers plot --------------------------------------------------------------------
 void OCTAnnotate::setupBScanPlots(){
-//    ui->bScanHCPlot->clearGraphs();
+    ui->bScanHCPlot->clearGraphs();
 
     // configure axis
-    ui->bScanHCPlot->xAxis->setLabel("B-scan pixel (horizontal direction)");
-    ui->bScanHCPlot->yAxis->setLabel("B-scan pixel (vertical direction)");
-    if (scan->getIsLoaded()){ // !patientData.getImageFileList().isEmpty()){
-        ui->bScanHCPlot->xAxis->setRange(0,scan->getBscanWidth());
-        ui->bScanHCPlot->yAxis->setRange(0,scan->getBscanHeight());
-    } else {
-        ui->bScanHCPlot->xAxis->setRange(0,800);
-        ui->bScanHCPlot->yAxis->setRange(0,1010);
-    }
-
+    ui->bScanHCPlot->xAxis->setLabel("B-scan pixel (horizontal direction)");    // bottom
+    ui->bScanHCPlot->yAxis->setLabel("B-scan pixel (vertical direction)");      // left
+    ui->bScanHCPlot->xAxis->setRange(0,scan->getBscanWidth());
+    ui->bScanHCPlot->yAxis->setRange(0,scan->getBscanHeight());
     ui->bScanHCPlot->xAxis->grid()->setVisible(false);
     ui->bScanHCPlot->yAxis->grid()->setVisible(false);
 
+    ui->bScanHCPlot->xAxis2->setLabel("Scan width [mm]");
+    ui->bScanHCPlot->yAxis2->setLabel("Scan depth [um]");
+    ui->bScanHCPlot->xAxis2->setRange(0,scan->getScanWidth());      // top
+    ui->bScanHCPlot->yAxis2->setRange(0,scan->getScanDepth()*1000); // right
+    QSharedPointer<QCPAxisTicker> ticker(new QCPAxisTicker);
+    ticker->setTickCount(static_cast<int>(scan->getScanDepth()*1000/100));
+    ui->bScanHCPlot->yAxis2->setTicker(ticker);
+    ui->bScanHCPlot->xAxis2->setVisible(true);
+    ui->bScanHCPlot->yAxis2->setVisible(true);
+
     // add graphs
-//    QList<Layers> allLayers = getAllLayers();
-//    int graphID = 0;
-//    foreach (Layers layer, allLayers) {
-//        ui->bScanHCPlot->addGraph();
-//        ui->bScanHCPlot->graph(graphID)->setPen(QPen(getLayerColor(layer)));
-//        ui->bScanHCPlot->graph(graphID)->setLineStyle(QCPGraph::lsLine);
-//        ui->bScanHCPlot->graph(graphID)->setScatterStyle(QCPScatterStyle(QCPScatterStyle::ssCircle,1.5)); // 3.5 do publikacji
-//        graphID++;
-//    }
+    QList<LayerName> allLayers = getAllLayers();
+    int graphID = 0;
+    foreach (LayerName layer, allLayers) {
+        ui->bScanHCPlot->addGraph();
+        ui->bScanHCPlot->graph(graphID)->setPen(QPen(getLayerColor(layer)));
+        ui->bScanHCPlot->graph(graphID)->setLineStyle(QCPGraph::lsLine);
+        ui->bScanHCPlot->graph(graphID)->setScatterStyle(QCPScatterStyle(QCPScatterStyle::ssCircle,1.5)); // 3.5 do publikacji
+        graphID++;
+    }
 
     // normal image
-//    ui->bScanVCPlot->clearGraphs();
+    ui->bScanVCPlot->clearGraphs();
 
     ui->bScanVCPlot->xAxis->setLabel("B-scan cross-section");
     ui->bScanVCPlot->yAxis->setLabel("B-scan pixel (vertical direction)");
-    if (scan->getIsLoaded()){ // !patientData.getImageFileList().isEmpty()){
-        ui->bScanVCPlot->xAxis->setRange(0,scan->getBscansNumber());
-        ui->bScanVCPlot->yAxis->setRange(0,scan->getBscanHeight());
-    } else {
-        ui->bScanVCPlot->xAxis->setRange(0,100);
-        ui->bScanVCPlot->yAxis->setRange(0,1010);
-    }
-
+    ui->bScanVCPlot->xAxis->setRange(0,scan->getBscansNumber());
+    ui->bScanVCPlot->yAxis->setRange(0,scan->getBscanHeight());
     ui->bScanVCPlot->xAxis->grid()->setVisible(false);
     ui->bScanVCPlot->yAxis->grid()->setVisible(false);
 
-//    graphID = 0;
-//    foreach (Layers layer, allLayers) {
-//        ui->bScanVCPlot->addGraph();
-//        ui->bScanVCPlot->graph(graphID)->setPen(QPen(getLayerColor(layer)));
-//        ui->bScanVCPlot->graph(graphID)->setLineStyle(QCPGraph::lsLine);
-//        ui->bScanVCPlot->graph(graphID)->setScatterStyle(QCPScatterStyle(QCPScatterStyle::ssCircle,1.5));
-//        graphID++;
-//    }
+    ui->bScanVCPlot->xAxis2->setLabel("Scan width [mm]");
+    ui->bScanVCPlot->yAxis2->setLabel("Scan depth [um]");
+    ui->bScanVCPlot->xAxis2->setRange(0,scan->getScanWidth());      // top
+    ui->bScanVCPlot->yAxis2->setRange(0,scan->getScanDepth()*1000); // right
+    ui->bScanVCPlot->yAxis2->setTicker(ticker);
+    ui->bScanVCPlot->xAxis2->setVisible(true);
+    ui->bScanVCPlot->yAxis2->setVisible(true);
+
+    graphID = 0;
+    foreach (LayerName layer, allLayers) {
+        ui->bScanVCPlot->addGraph();
+        ui->bScanVCPlot->graph(graphID)->setPen(QPen(getLayerColor(layer)));
+        ui->bScanVCPlot->graph(graphID)->setLineStyle(QCPGraph::lsLine);
+        ui->bScanVCPlot->graph(graphID)->setScatterStyle(QCPScatterStyle(QCPScatterStyle::ssCircle,1.5));
+        graphID++;
+    }
 }
 
 // display statistics -----------------------------------------------------------------------------
@@ -894,7 +1145,6 @@ void OCTAnnotate::on_readingDataFinished(QString data){
         msg = "Wczytano dane ręcznej segmentacji";
     if (data == "autoOnly")
         msg = "Wczytano dane automatycznej segmentacji";
-
     QMessageBox::information(this, "Odczyt danych OCT", msg);
 
     currentImageNumber = scan->getBscansNumber()/2;   // middle B-scan

@@ -69,6 +69,8 @@ public:
     // layers
     void resetManualAnnotations();
     void setPoint(LayerName layer, int bscanNumber, int x, int z);
+    QList<QVector3D> getLayerPoints(LayerName layer, int bscanNumber, int xMin, int xMax, bool isNormal);
+    QVector<double> getLayerPointsVector(LayerName layer, int bscanNumber, bool isNormal);
 
     // auto annotations
 

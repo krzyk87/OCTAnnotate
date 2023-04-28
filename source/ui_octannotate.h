@@ -358,7 +358,7 @@ public:
         verticalLayout_6->setObjectName("verticalLayout_6");
         editLayerGBox = new QGroupBox(tabOCTExam);
         editLayerGBox->setObjectName("editLayerGBox");
-        editLayerGBox->setEnabled(false);
+        editLayerGBox->setEnabled(true);
         editLayerGBox->setMinimumSize(QSize(221, 311));
         editLayerGBox->setMaximumSize(QSize(221, 1000));
         pcvLayerRButton = new QRadioButton(editLayerGBox);
@@ -393,7 +393,7 @@ public:
         onlLayerRButton->setChecked(false);
         elmLayerRButton = new QRadioButton(editLayerGBox);
         elmLayerRButton->setObjectName("elmLayerRButton");
-        elmLayerRButton->setEnabled(false);
+        elmLayerRButton->setEnabled(true);
         elmLayerRButton->setGeometry(QRect(30, 200, 51, 21));
         elmLayerRButton->setChecked(false);
         inlColorLabel = new QLabel(editLayerGBox);

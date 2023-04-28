@@ -385,7 +385,7 @@
           <item>
            <widget class="QGroupBox" name="editLayerGBox">
             <property name="enabled">
-             <bool>false</bool>
+             <bool>true</bool>
             </property>
             <property name="minimumSize">
              <size>
@@ -522,7 +522,7 @@
             </widget>
             <widget class="QRadioButton" name="elmLayerRButton">
              <property name="enabled">
-              <bool>false</bool>
+              <bool>true</bool>
              </property>
              <property name="geometry">
               <rect>

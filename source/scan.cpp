@@ -240,3 +240,12 @@ void Scan::setPoint(LayerName layer, int bscanNumber, int x, int z)
     this->layers[static_cast<int>(layer)]->setPoint(bscanNumber, x, z);
     this->manualAnnotations = true;
 }
+
+QList<QVector3D> Scan::getLayerPoints(LayerName layer, int bscanNumber, int xMin, int xMax, bool isNormal){
+    return this->layers[static_cast<int>(layer)]->getPoints(bscanNumber,xMin,xMax,isNormal);
+}
+
+QVector<double> Scan::getLayerPointsVector(LayerName layer, int bscanNumber, bool isNormal)
+{
+    return this->layers[static_cast<int>(layer)]->getPointsVector(bscanNumber, isNormal, this->bscanHeight);
+}

@@ -14,7 +14,7 @@ public:
     void resetPoints();
 
 private:
-    Layers layer;
+    LayerName layer;
     int index;
     QString name;
     int bscanWidth;

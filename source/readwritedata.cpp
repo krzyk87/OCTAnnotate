@@ -14,7 +14,7 @@
 ReadWriteData::ReadWriteData(QObject *parent) : QObject(parent)
 {
     pData = new PatientData();
-    scan = new Scan();
+    scan = new Scan(this);
 
     directives.clear();
     octDir = new QDir(".");
@@ -473,7 +473,7 @@ void ReadWriteData::readFundusImage(OCTDevice octDevice){
 void ReadWriteData::readFileManualSegmentation(QFile *dataFile)
 {
     QString line;
-    QList<Layers> allLayers = getAllLayers();
+    QList<LayerName> allLayers = getAllLayers();
     int layersCount = allLayers.count();
     double tasks = 1 + layersCount*scan->getBscansNumber() + layersCount;
     double count = 0;
@@ -537,7 +537,7 @@ void ReadWriteData::readFileManualSegmentation(QFile *dataFile)
                         QStringList data = line.split("=");
                         if (data.at(1) != ""){
                             QStringList code = data.at(0).split("_");   // PCV_i...
-                            Layers layer = decodeLayer(code.at(0));
+                            LayerName layer = decodeLayer(code.at(0));
                             int bscanNumber = code.at(1).toInt();
 
                             QStringList points = data.at(1).split(";");
@@ -656,7 +656,7 @@ void ReadWriteData::parseXmlSurfaceLines(QXmlStreamReader &xml, QString versionN
     int counter = 0;
     int lineNumber = 0;
     int scanNumber = 0; // y
-    Layers layer = NONE;
+    LayerName layer = NONE;
     if (versionName.isEmpty())
         versionName = "OCTAnnotate_175";
     QStringList versionList = versionName.split("_");
@@ -830,7 +830,7 @@ void ReadWriteData::parseXmlSurfaceLines(QXmlStreamReader &xml, QString versionN
 void ReadWriteData::parseUndefinedRegion(QXmlStreamReader &xml, bool isAuto)
 {
     int x,y;
-    QList<Layers> allLayers = getAllLayers();
+    QList<LayerName> allLayers = getAllLayers();
 
     xml.readNext();
     while (!(xml.tokenType() == QXmlStreamReader::EndElement && (xml.name().toString() == "undefined_region"))){
@@ -851,7 +851,7 @@ void ReadWriteData::parseUndefinedRegion(QXmlStreamReader &xml, bool isAuto)
                         }
                     }
                     if (x != -1 && y != -1){
-                        foreach (Layers layer, allLayers) {
+                        foreach (LayerName layer, allLayers) {
                             scan->setPoint(layer, y, x, -1);
                         }
                         x = -1;

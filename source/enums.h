@@ -6,7 +6,7 @@ enum OCTDevice{
     AVANTI = 1
 };
 
-enum Layers{
+enum LayerName{
     NONE = -1,
     PCV = 0,
     ERM_UP = 1,

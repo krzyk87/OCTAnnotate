@@ -1,8 +1,8 @@
 #include "functions.h"
 #include "qmath.h"
 
-Layers decodeLayer(QString layer){
-    Layers l = NONE;
+LayerName decodeLayer(QString layer){
+    LayerName l = NONE;
     if ((layer == "PCV") || (layer == "PSH")){
         l = PCV;
     } else if (layer == "ERM"){
@@ -33,7 +33,7 @@ Layers decodeLayer(QString layer){
     return l;
 }
 
-QString encodeLayer(Layers layer){
+QString encodeLayer(LayerName layer){
     QString s = "";
 
     switch (layer) {
@@ -82,8 +82,8 @@ QString encodeLayer(Layers layer){
     return s;
 }
 
-QList<Layers> getAllLayers(){
-    QList<Layers> list;
+QList<LayerName> getAllLayers(){
+    QList<LayerName> list;
     list.append(PCV);
     list.append(ERM_UP);
     list.append(ILM);

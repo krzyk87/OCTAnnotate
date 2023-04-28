@@ -8,7 +8,7 @@
 Layer::Layer(int bscanWidth, int bscansNumber, int index)
 {
     this->index = index;
-    this->layer = (Layers)index;
+    this->layer = (LayerName)index;
     this->name = encodeLayer(this->layer);
     this->bscanWidth = bscanWidth;
     this->bscansNumber = bscansNumber;

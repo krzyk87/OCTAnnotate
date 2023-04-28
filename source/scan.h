@@ -68,7 +68,7 @@ public:
 
     // layers
     void resetManualAnnotations();
-    void setPoint(Layers layer, int bscanNumber, int x, int z);
+    void setPoint(LayerName layer, int bscanNumber, int x, int z);
 
     // auto annotations
 

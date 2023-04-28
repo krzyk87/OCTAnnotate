@@ -6,9 +6,9 @@
 #include <QString>
 #include <QList>
 
-Layers decodeLayer(QString layer);
-QString encodeLayer(Layers layer);
-QList<Layers> getAllLayers();
+LayerName decodeLayer(QString layer);
+QString encodeLayer(LayerName layer);
+QList<LayerName> getAllLayers();
 
 double calculateDistance(QPoint p1, QPoint p2, double dx = 0, double dy = 0);
 

@@ -34,7 +34,7 @@ OCTAnnotate::OCTAnnotate(QWidget *parent) : QMainWindow(parent),
     // setup patients database
 
     patientData = PatientData();
-    scan =  new Scan();
+    scan =  new Scan(this);
     scanName = "";
 
     currentImageNumber = 0;
@@ -209,7 +209,9 @@ void OCTAnnotate::loadOCT(bool isBinary)
             }
 
             patientData = PatientData();
-            scan = new Scan();
+
+            scan->deleteLater();
+            scan = new Scan(this);
             scan->setIsBinary(isBinary);
 
             ui->statusBar->showMessage("Trwa odczyt danych badania OCT...");
@@ -217,7 +219,7 @@ void OCTAnnotate::loadOCT(bool isBinary)
             progressBar->setVisible(true);
             progressBar->setValue(0);
 
-            ReadWriteData *rwData = new ReadWriteData();
+            ReadWriteData *rwData = new ReadWriteData(this);
             rwData->setDataObject(&patientData, scan);
             if (isBinary)
                 rwData->setOctFile(&octFile);

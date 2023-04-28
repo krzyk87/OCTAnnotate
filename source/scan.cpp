@@ -17,7 +17,7 @@ Scan::Scan(QObject *parent)
     this->octDevice = OCTDevice::AVANTI;
 
     this->calculateRatios();
-    this->octData = new OCTData();
+    this->octData = new OCTData(this);
     this->eye = 1; // OD
     this->examDate = QDate(2015, 1, 1);
 
@@ -27,7 +27,7 @@ Scan::Scan(QObject *parent)
 }
 
 Scan::~Scan(){
-
+    this->octData->deleteLater();
 }
 
 // general scan information -------------------------------------------------
@@ -177,8 +177,8 @@ void Scan::resetBscansData()
 {
     // clear annotations memory
     this->layers.clear();
-    QList<Layers> layerList = getAllLayers();
-    foreach (Layers layer, layerList){
+    QList<LayerName> layerList = getAllLayers();
+    foreach (LayerName layer, layerList){
         layers.append(new Layer(this->bscanWidth, this->bscansNumber, static_cast<int>(layer)));
     }
 
@@ -225,9 +225,9 @@ void Scan::setFundusImage(QImage newImage){
 
 // Layers ----------------------------------------------------------------
 void Scan::resetManualAnnotations(){
-    QList<Layers> layerList = getAllLayers();
+    QList<LayerName> layerList = getAllLayers();
     for (int i=0; i<this->bscansNumber; i++){
-        foreach (Layers layer, layerList) {
+        foreach (LayerName layer, layerList) {
             this->layers[static_cast<int>(layer)]->resetPoints();
         }
     }
@@ -235,7 +235,7 @@ void Scan::resetManualAnnotations(){
     this->manualAnnotations = false;
 }
 
-void Scan::setPoint(Layers layer, int bscanNumber, int x, int z)
+void Scan::setPoint(LayerName layer, int bscanNumber, int x, int z)
 {
     this->layers[static_cast<int>(layer)]->setPoint(bscanNumber, x, z);
     this->manualAnnotations = true;

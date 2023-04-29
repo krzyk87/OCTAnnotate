@@ -42,11 +42,11 @@ void ReadWriteData::process(){
         }
         if (dir == "readOctSequence"){
             this->readOctSequence();
-            emit readingDataFinished("octSequence");
+            emit readingDataFinished("octData");
         }
         if (dir == "readOctFile"){
             this->readOctFile();
-            emit readingDataFinished("octFile");
+            emit readingDataFinished("octData");
         }
         if (dir == "readManualSegmentationData"){
             QFile manualFile(manualFilePath);
@@ -347,8 +347,8 @@ void ReadWriteData::readOctSequence(){
     readFundusImage(device);
 
     // read oct exam data if exists
-    QFile octExamFile(manualFilePath);
-    readFileManualSegmentation(&octExamFile);
+//    QFile octExamFile(manualFilePath);
+//    readFileManualSegmentation(&octExamFile);
 }
 
 void ReadWriteData::readOctFile(){
@@ -372,8 +372,8 @@ void ReadWriteData::readOctFile(){
     readFundusImage(device);
 
     // read oct exam data if exists
-    QFile octExamFile(manualFilePath);
-    readFileManualSegmentation(&octExamFile);
+//    QFile octExamFile(manualFilePath);
+//    readFileManualSegmentation(&octExamFile);
 }
 
 void ReadWriteData::readBinaryFile(QFile *dataFile, double *count, double *tasks){

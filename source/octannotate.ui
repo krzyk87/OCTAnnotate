@@ -1374,11 +1374,18 @@
    </property>
    <widget class="QMenu" name="menuPatient">
     <property name="title">
-     <string>Pacjent</string>
+     <string>Skan</string>
     </property>
+    <widget class="QMenu" name="menuSegmentations_2">
+     <property name="title">
+      <string>Segmentacje</string>
+     </property>
+     <addaction name="actionReadManualAnnotations"/>
+    </widget>
     <addaction name="actionLoadOCTFile"/>
     <addaction name="actionLoadOCTSequence"/>
     <addaction name="separator"/>
+    <addaction name="menuSegmentations_2"/>
    </widget>
    <widget class="QMenu" name="menuProgram">
     <property name="title">
@@ -1433,6 +1440,11 @@
   <action name="actionLoadOCTFile">
    <property name="text">
     <string>Załaduj skan OCT (plik .oct)</string>
+   </property>
+  </action>
+  <action name="actionReadManualAnnotations">
+   <property name="text">
+    <string>Wczytaj referencyjne segmentacje</string>
    </property>
   </action>
  </widget>

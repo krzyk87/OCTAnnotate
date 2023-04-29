@@ -269,9 +269,58 @@ void OCTAnnotate::loadOCT(bool isBinary)
     }
 }
 
+void OCTAnnotate::on_actionReadManualAnnotations_triggered()
+{
+    if (scan->getIsLoaded()){
+//        QMessageBox msgBox;
+//        QPushButton *saveButton = msgBox.addButton(" Save and load new exam ", QMessageBox::YesRole);
+//        QPushButton *cancelButton = msgBox.addButton(" Cancel ", QMessageBox::RejectRole);
+//        msgBox.addButton(" Load new exam without saving ", QMessageBox::NoRole);
+        bool selectNew = true;
+
+//        if (octDataModified){
+//            msgBox.setText("OCT segmentation data has been changed. Do you want to save the changes before loading new exam?");
+//            msgBox.exec();
+//            if (msgBox.clickedButton() == saveButton){
+//                on_actionSaveOCTExam_triggered();
+//            } else if (msgBox.clickedButton() == cancelButton) {
+//                selectNew = false;
+//            }
+//        }
+
+        if (selectNew){
+            // read data from file
+            QString manualSegmentFilePath = QFileDialog::getOpenFileName(this, tr("Open file with manual segmentations"), examDir.path(), tr("OCTAnnotate file (*.mvri);;All files (*.*)"));
+            if (!manualSegmentFilePath.isEmpty()){
+
+                ui->statusBar->showMessage("Trwa odczyt referencyjnych segmentacji...");
+                progressBar->setMaximum(100);
+                progressBar->setVisible(true);
+                progressBar->setValue(0);
+
+                ReadWriteData *rwData = new ReadWriteData();
+                rwData->setDataObject(&patientData, scan);
+                rwData->setDataSaveStrucure(dataSaveStructure);
+                rwData->setManualFilePath(manualSegmentFilePath);
+                rwData->addDirective("readManualSegmentationData");
+
+                QThread *thread = new QThread;
+                rwData->moveToThread(thread);
+                connect(thread, SIGNAL(started()), rwData, SLOT(process()));
+                connect(rwData, SIGNAL(errorOccured(QString)), this, SLOT(on_errorOccured(QString)));
+                connect(rwData, SIGNAL(processingData(double,QString)), this, SLOT(on_processingData(double,QString)));
+                connect(rwData, SIGNAL(readingDataFinished(QString)), this, SLOT(on_readingDataFinished(QString)));
+                connect(rwData, SIGNAL(finished()), thread, SLOT(quit()));
+                connect(rwData, SIGNAL(finished()), rwData, SLOT(deleteLater()));
+                connect(thread, SIGNAL(finished()), thread, SLOT(deleteLater()));
+                thread->start();
+            }
+        }
+    }
+}
+
 // load image -------------------------------------------------------------------------------------
 void OCTAnnotate::loadImage(int imageNumber){
-    //QFileInfo imageFileInfo;
     QImage image;
 
     // load image
@@ -1092,7 +1141,7 @@ void OCTAnnotate::setupBScanPlots(){
         ui->bScanVCPlot->addGraph();
         ui->bScanVCPlot->graph(graphID)->setPen(QPen(getLayerColor(layer)));
         ui->bScanVCPlot->graph(graphID)->setLineStyle(QCPGraph::lsLine);
-        ui->bScanVCPlot->graph(graphID)->setScatterStyle(QCPScatterStyle(QCPScatterStyle::ssCircle,1.5));
+        ui->bScanVCPlot->graph(graphID)->setScatterStyle(QCPScatterStyle(QCPScatterStyle::ssCircle,1.0));
         graphID++;
     }
 }
@@ -1128,12 +1177,28 @@ void OCTAnnotate::on_processingData(double procent, QString msg){
 
 void OCTAnnotate::on_readingDataFinished(QString data){
 
-    scan->setIsLoaded(true);
+    if (data == "octData"){  // (data != "manualOnly") && (data != "autoOnly")
+        scan->setIsLoaded(true);
 
-    if ((data != "manualOnly") && (data != "autoOnly")){
         // display patients data
         // display information
         this->setWindowTitle("OCTAnnotate " + appVersion + " - " + scanName);
+
+        currentImageNumber = scan->getBscansNumber()/2;   // middle B-scan
+        currentNormalImageNumber = scan->getBscanWidth()/2;
+
+        // enable navigation buttons
+        if (currentImageNumber < (scan->getBscansNumber()-1)){
+            ui->nextImageButton->setEnabled(true);
+        } else {
+            ui->nextImageButton->setEnabled(false);
+        }
+        if (currentImageNumber > 0){
+            ui->prevImageButton->setEnabled(true);
+        } else {
+            ui->prevImageButton->setEnabled(false);
+        }
+        ui->zoomInButton->setEnabled(true);
     }
 
     ui->statusBar->clearMessage();
@@ -1147,25 +1212,9 @@ void OCTAnnotate::on_readingDataFinished(QString data){
         msg = "Wczytano dane automatycznej segmentacji";
     QMessageBox::information(this, "Odczyt danych OCT", msg);
 
-    currentImageNumber = scan->getBscansNumber()/2;   // middle B-scan
-    currentNormalImageNumber = scan->getBscanWidth()/2;
-
-    // enable navigation buttons
-    if (currentImageNumber < (scan->getBscansNumber()-1)){
-        ui->nextImageButton->setEnabled(true);
-    } else {
-        ui->nextImageButton->setEnabled(false);
-    }
-    if (currentImageNumber > 0){
-        ui->prevImageButton->setEnabled(true);
-    } else {
-        ui->prevImageButton->setEnabled(false);
-    }
-    ui->zoomInButton->setEnabled(true);
-
     // setup plots
     setupBScanPlots();
-
+    // display data
     on_tabWidget_currentChanged();
 }
 

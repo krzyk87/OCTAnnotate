@@ -1,7 +1,7 @@
 /********************************************************************************
 ** Form generated from reading UI file 'settingsdialog.ui'
 **
-** Created by: Qt User Interface Compiler version 5.4.2
+** Created by: Qt User Interface Compiler version 6.4.0
 **
 ** WARNING! All changes made in this file will be lost when recompiling UI file!
 ********************************************************************************/
@@ -10,15 +10,12 @@
 #define UI_SETTINGSDIALOG_H
 
 #include <QtCore/QVariant>
-#include <QAction>
 #include <QtWidgets/QApplication>
-#include <QtWidgets/QButtonGroup>
 #include <QtWidgets/QCheckBox>
 #include <QtWidgets/QComboBox>
 #include <QtWidgets/QDialog>
 #include <QtWidgets/QGroupBox>
 #include <QtWidgets/QHBoxLayout>
-#include <QtWidgets/QHeaderView>
 #include <QtWidgets/QLabel>
 #include <QtWidgets/QLineEdit>
 #include <QtWidgets/QPushButton>
@@ -71,33 +68,38 @@ public:
     void setupUi(QDialog *SettingsDialog)
     {
         if (SettingsDialog->objectName().isEmpty())
-            SettingsDialog->setObjectName(QStringLiteral("SettingsDialog"));
-        SettingsDialog->resize(653, 363);
+            SettingsDialog->setObjectName("SettingsDialog");
+        SettingsDialog->resize(653, 420);
+        QSizePolicy sizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
+        sizePolicy.setHorizontalStretch(0);
+        sizePolicy.setVerticalStretch(0);
+        sizePolicy.setHeightForWidth(SettingsDialog->sizePolicy().hasHeightForWidth());
+        SettingsDialog->setSizePolicy(sizePolicy);
         SettingsDialog->setMinimumSize(QSize(653, 293));
-        SettingsDialog->setMaximumSize(QSize(653, 363));
+        SettingsDialog->setMaximumSize(QSize(900, 670));
         verticalLayout_3 = new QVBoxLayout(SettingsDialog);
-        verticalLayout_3->setObjectName(QStringLiteral("verticalLayout_3"));
+        verticalLayout_3->setObjectName("verticalLayout_3");
         groupBox_6 = new QGroupBox(SettingsDialog);
-        groupBox_6->setObjectName(QStringLiteral("groupBox_6"));
+        groupBox_6->setObjectName("groupBox_6");
         horizontalLayout_7 = new QHBoxLayout(groupBox_6);
-        horizontalLayout_7->setObjectName(QStringLiteral("horizontalLayout_7"));
+        horizontalLayout_7->setObjectName("horizontalLayout_7");
         pathDatabaseLEdit = new QLineEdit(groupBox_6);
-        pathDatabaseLEdit->setObjectName(QStringLiteral("pathDatabaseLEdit"));
+        pathDatabaseLEdit->setObjectName("pathDatabaseLEdit");
         pathDatabaseLEdit->setMinimumSize(QSize(450, 20));
 
         horizontalLayout_7->addWidget(pathDatabaseLEdit);
 
         selectPathDatabaseButton = new QPushButton(groupBox_6);
-        selectPathDatabaseButton->setObjectName(QStringLiteral("selectPathDatabaseButton"));
+        selectPathDatabaseButton->setObjectName("selectPathDatabaseButton");
         selectPathDatabaseButton->setMinimumSize(QSize(75, 0));
-        selectPathDatabaseButton->setMaximumSize(QSize(75, 16777215));
+        selectPathDatabaseButton->setMaximumSize(QSize(100, 16777215));
 
         horizontalLayout_7->addWidget(selectPathDatabaseButton);
 
         resetPathDatabaseButton = new QPushButton(groupBox_6);
-        resetPathDatabaseButton->setObjectName(QStringLiteral("resetPathDatabaseButton"));
+        resetPathDatabaseButton->setObjectName("resetPathDatabaseButton");
         resetPathDatabaseButton->setMinimumSize(QSize(50, 0));
-        resetPathDatabaseButton->setMaximumSize(QSize(50, 16777215));
+        resetPathDatabaseButton->setMaximumSize(QSize(100, 16777215));
 
         horizontalLayout_7->addWidget(resetPathDatabaseButton);
 
@@ -105,26 +107,26 @@ public:
         verticalLayout_3->addWidget(groupBox_6);
 
         groupBox = new QGroupBox(SettingsDialog);
-        groupBox->setObjectName(QStringLiteral("groupBox"));
+        groupBox->setObjectName("groupBox");
         horizontalLayout = new QHBoxLayout(groupBox);
-        horizontalLayout->setObjectName(QStringLiteral("horizontalLayout"));
+        horizontalLayout->setObjectName("horizontalLayout");
         pathOctDataLEdit = new QLineEdit(groupBox);
-        pathOctDataLEdit->setObjectName(QStringLiteral("pathOctDataLEdit"));
+        pathOctDataLEdit->setObjectName("pathOctDataLEdit");
         pathOctDataLEdit->setMinimumSize(QSize(450, 20));
 
         horizontalLayout->addWidget(pathOctDataLEdit);
 
         selectPathOctDataButton = new QPushButton(groupBox);
-        selectPathOctDataButton->setObjectName(QStringLiteral("selectPathOctDataButton"));
+        selectPathOctDataButton->setObjectName("selectPathOctDataButton");
         selectPathOctDataButton->setMinimumSize(QSize(75, 0));
-        selectPathOctDataButton->setMaximumSize(QSize(75, 16777215));
+        selectPathOctDataButton->setMaximumSize(QSize(100, 16777215));
 
         horizontalLayout->addWidget(selectPathOctDataButton);
 
         resetPathOctDataButton = new QPushButton(groupBox);
-        resetPathOctDataButton->setObjectName(QStringLiteral("resetPathOctDataButton"));
+        resetPathOctDataButton->setObjectName("resetPathOctDataButton");
         resetPathOctDataButton->setMinimumSize(QSize(50, 0));
-        resetPathOctDataButton->setMaximumSize(QSize(50, 16777215));
+        resetPathOctDataButton->setMaximumSize(QSize(100, 16777215));
 
         horizontalLayout->addWidget(resetPathOctDataButton);
 
@@ -132,26 +134,26 @@ public:
         verticalLayout_3->addWidget(groupBox);
 
         groupBox_2 = new QGroupBox(SettingsDialog);
-        groupBox_2->setObjectName(QStringLiteral("groupBox_2"));
+        groupBox_2->setObjectName("groupBox_2");
         horizontalLayout_2 = new QHBoxLayout(groupBox_2);
-        horizontalLayout_2->setObjectName(QStringLiteral("horizontalLayout_2"));
+        horizontalLayout_2->setObjectName("horizontalLayout_2");
         pathExamDataLEdit = new QLineEdit(groupBox_2);
-        pathExamDataLEdit->setObjectName(QStringLiteral("pathExamDataLEdit"));
+        pathExamDataLEdit->setObjectName("pathExamDataLEdit");
         pathExamDataLEdit->setMinimumSize(QSize(450, 20));
 
         horizontalLayout_2->addWidget(pathExamDataLEdit);
 
         selectPathExamDataButton = new QPushButton(groupBox_2);
-        selectPathExamDataButton->setObjectName(QStringLiteral("selectPathExamDataButton"));
+        selectPathExamDataButton->setObjectName("selectPathExamDataButton");
         selectPathExamDataButton->setMinimumSize(QSize(75, 0));
-        selectPathExamDataButton->setMaximumSize(QSize(75, 16777215));
+        selectPathExamDataButton->setMaximumSize(QSize(100, 16777215));
 
         horizontalLayout_2->addWidget(selectPathExamDataButton);
 
         resetPathExamDataButton = new QPushButton(groupBox_2);
-        resetPathExamDataButton->setObjectName(QStringLiteral("resetPathExamDataButton"));
+        resetPathExamDataButton->setObjectName("resetPathExamDataButton");
         resetPathExamDataButton->setMinimumSize(QSize(50, 0));
-        resetPathExamDataButton->setMaximumSize(QSize(50, 16777215));
+        resetPathExamDataButton->setMaximumSize(QSize(100, 16777215));
 
         horizontalLayout_2->addWidget(resetPathExamDataButton);
 
@@ -159,29 +161,29 @@ public:
         verticalLayout_3->addWidget(groupBox_2);
 
         groupBox_3 = new QGroupBox(SettingsDialog);
-        groupBox_3->setObjectName(QStringLiteral("groupBox_3"));
+        groupBox_3->setObjectName("groupBox_3");
         horizontalLayout_3 = new QHBoxLayout(groupBox_3);
-        horizontalLayout_3->setObjectName(QStringLiteral("horizontalLayout_3"));
+        horizontalLayout_3->setObjectName("horizontalLayout_3");
         pathAutoSegmLEdit = new QLineEdit(groupBox_3);
-        pathAutoSegmLEdit->setObjectName(QStringLiteral("pathAutoSegmLEdit"));
+        pathAutoSegmLEdit->setObjectName("pathAutoSegmLEdit");
         pathAutoSegmLEdit->setEnabled(false);
         pathAutoSegmLEdit->setMinimumSize(QSize(450, 20));
 
         horizontalLayout_3->addWidget(pathAutoSegmLEdit);
 
         selectPathAutoSegmButton = new QPushButton(groupBox_3);
-        selectPathAutoSegmButton->setObjectName(QStringLiteral("selectPathAutoSegmButton"));
+        selectPathAutoSegmButton->setObjectName("selectPathAutoSegmButton");
         selectPathAutoSegmButton->setEnabled(false);
         selectPathAutoSegmButton->setMinimumSize(QSize(75, 0));
-        selectPathAutoSegmButton->setMaximumSize(QSize(75, 16777215));
+        selectPathAutoSegmButton->setMaximumSize(QSize(100, 16777215));
 
         horizontalLayout_3->addWidget(selectPathAutoSegmButton);
 
         resetPathAutoSegmButton = new QPushButton(groupBox_3);
-        resetPathAutoSegmButton->setObjectName(QStringLiteral("resetPathAutoSegmButton"));
+        resetPathAutoSegmButton->setObjectName("resetPathAutoSegmButton");
         resetPathAutoSegmButton->setEnabled(false);
         resetPathAutoSegmButton->setMinimumSize(QSize(50, 0));
-        resetPathAutoSegmButton->setMaximumSize(QSize(50, 16777215));
+        resetPathAutoSegmButton->setMaximumSize(QSize(100, 16777215));
 
         horizontalLayout_3->addWidget(resetPathAutoSegmButton);
 
@@ -189,25 +191,25 @@ public:
         verticalLayout_3->addWidget(groupBox_3);
 
         horizontalLayout_6 = new QHBoxLayout();
-        horizontalLayout_6->setObjectName(QStringLiteral("horizontalLayout_6"));
+        horizontalLayout_6->setObjectName("horizontalLayout_6");
         groupBox_5 = new QGroupBox(SettingsDialog);
-        groupBox_5->setObjectName(QStringLiteral("groupBox_5"));
+        groupBox_5->setObjectName("groupBox_5");
         groupBox_5->setMinimumSize(QSize(211, 91));
-        groupBox_5->setMaximumSize(QSize(211, 91));
+        groupBox_5->setMaximumSize(QSize(450, 200));
         verticalLayout_4 = new QVBoxLayout(groupBox_5);
-        verticalLayout_4->setObjectName(QStringLiteral("verticalLayout_4"));
+        verticalLayout_4->setObjectName("verticalLayout_4");
         showETDRSGridCBox = new QCheckBox(groupBox_5);
-        showETDRSGridCBox->setObjectName(QStringLiteral("showETDRSGridCBox"));
+        showETDRSGridCBox->setObjectName("showETDRSGridCBox");
 
         verticalLayout_4->addWidget(showETDRSGridCBox);
 
         showCenterOnBscanCBox = new QCheckBox(groupBox_5);
-        showCenterOnBscanCBox->setObjectName(QStringLiteral("showCenterOnBscanCBox"));
+        showCenterOnBscanCBox->setObjectName("showCenterOnBscanCBox");
 
         verticalLayout_4->addWidget(showCenterOnBscanCBox);
 
         showBscanOnErrorPlotCBox = new QCheckBox(groupBox_5);
-        showBscanOnErrorPlotCBox->setObjectName(QStringLiteral("showBscanOnErrorPlotCBox"));
+        showBscanOnErrorPlotCBox->setObjectName("showBscanOnErrorPlotCBox");
 
         verticalLayout_4->addWidget(showBscanOnErrorPlotCBox);
 
@@ -215,16 +217,18 @@ public:
         horizontalLayout_6->addWidget(groupBox_5);
 
         verticalLayout_2 = new QVBoxLayout();
-        verticalLayout_2->setObjectName(QStringLiteral("verticalLayout_2"));
+        verticalLayout_2->setObjectName("verticalLayout_2");
         horizontalLayout_5 = new QHBoxLayout();
-        horizontalLayout_5->setObjectName(QStringLiteral("horizontalLayout_5"));
+        horizontalLayout_5->setObjectName("horizontalLayout_5");
         dataSaveStructureLabel = new QLabel(SettingsDialog);
-        dataSaveStructureLabel->setObjectName(QStringLiteral("dataSaveStructureLabel"));
+        dataSaveStructureLabel->setObjectName("dataSaveStructureLabel");
 
         horizontalLayout_5->addWidget(dataSaveStructureLabel);
 
         dataSaveStructureCBox = new QComboBox(SettingsDialog);
-        dataSaveStructureCBox->setObjectName(QStringLiteral("dataSaveStructureCBox"));
+        dataSaveStructureCBox->addItem(QString());
+        dataSaveStructureCBox->addItem(QString());
+        dataSaveStructureCBox->setObjectName("dataSaveStructureCBox");
 
         horizontalLayout_5->addWidget(dataSaveStructureCBox);
 
@@ -232,7 +236,7 @@ public:
         verticalLayout_2->addLayout(horizontalLayout_5);
 
         blockPCVCBox = new QCheckBox(SettingsDialog);
-        blockPCVCBox->setObjectName(QStringLiteral("blockPCVCBox"));
+        blockPCVCBox->setObjectName("blockPCVCBox");
 
         verticalLayout_2->addWidget(blockPCVCBox);
 
@@ -241,18 +245,18 @@ public:
         verticalLayout_2->addItem(verticalSpacer);
 
         horizontalLayout_4 = new QHBoxLayout();
-        horizontalLayout_4->setObjectName(QStringLiteral("horizontalLayout_4"));
+        horizontalLayout_4->setObjectName("horizontalLayout_4");
         horizontalSpacer = new QSpacerItem(40, 20, QSizePolicy::Expanding, QSizePolicy::Minimum);
 
         horizontalLayout_4->addItem(horizontalSpacer);
 
         acceptButton = new QPushButton(SettingsDialog);
-        acceptButton->setObjectName(QStringLiteral("acceptButton"));
+        acceptButton->setObjectName("acceptButton");
 
         horizontalLayout_4->addWidget(acceptButton);
 
         cancelButton = new QPushButton(SettingsDialog);
-        cancelButton->setObjectName(QStringLiteral("cancelButton"));
+        cancelButton->setObjectName("cancelButton");
 
         horizontalLayout_4->addWidget(cancelButton);
 
@@ -273,35 +277,33 @@ public:
 
     void retranslateUi(QDialog *SettingsDialog)
     {
-        SettingsDialog->setWindowTitle(QApplication::translate("SettingsDialog", "Dialog", 0));
-        groupBox_6->setTitle(QApplication::translate("SettingsDialog", "Folder zawieraj\304\205cy baz\304\231 danych pacjent\303\263w (SQLite):", 0));
-        selectPathDatabaseButton->setText(QApplication::translate("SettingsDialog", "Wybierz", 0));
-        resetPathDatabaseButton->setText(QApplication::translate("SettingsDialog", "Reset", 0));
-        groupBox->setTitle(QApplication::translate("SettingsDialog", "Folder zawieraj\304\205cy surowe dane OCT:", 0));
-        selectPathOctDataButton->setText(QApplication::translate("SettingsDialog", "Wybierz", 0));
-        resetPathOctDataButton->setText(QApplication::translate("SettingsDialog", "Reset", 0));
-        groupBox_2->setTitle(QApplication::translate("SettingsDialog", "Folder zawieraj\304\205cy dane badania:", 0));
-        selectPathExamDataButton->setText(QApplication::translate("SettingsDialog", "Wybierz", 0));
-        resetPathExamDataButton->setText(QApplication::translate("SettingsDialog", "Reset", 0));
-        groupBox_3->setTitle(QApplication::translate("SettingsDialog", "Folder zawieraj\304\205cy automatyczn\304\205 segmentacj\304\231:", 0));
-        selectPathAutoSegmButton->setText(QApplication::translate("SettingsDialog", "Wybierz", 0));
-        resetPathAutoSegmButton->setText(QApplication::translate("SettingsDialog", "Reset", 0));
-        groupBox_5->setTitle(QApplication::translate("SettingsDialog", "Wy\305\233wietlanie", 0));
-        showETDRSGridCBox->setText(QApplication::translate("SettingsDialog", "Poka\305\274 siatk\304\231 ETDRS", 0));
-        showCenterOnBscanCBox->setText(QApplication::translate("SettingsDialog", "Poka\305\274 \305\233rodek skanu na B-skanie", 0));
-        showBscanOnErrorPlotCBox->setText(QApplication::translate("SettingsDialog", "Poka\305\274 B-skan na wykresie b\305\202\304\231du", 0));
-        dataSaveStructureLabel->setText(QApplication::translate("SettingsDialog", "Struktura zapisu danych segmentacji:", 0));
-        dataSaveStructureCBox->clear();
-        dataSaveStructureCBox->insertItems(0, QStringList()
-         << QApplication::translate("SettingsDialog", "xml", 0)
-         << QApplication::translate("SettingsDialog", "txt", 0)
-        );
-#ifndef QT_NO_TOOLTIP
-        blockPCVCBox->setToolTip(QApplication::translate("SettingsDialog", "Blokuj rysowanie PCV poni\305\274ej warstwy ILM", 0));
-#endif // QT_NO_TOOLTIP
-        blockPCVCBox->setText(QApplication::translate("SettingsDialog", "Blokada PCV poni\305\274ej ILM", 0));
-        acceptButton->setText(QApplication::translate("SettingsDialog", "OK", 0));
-        cancelButton->setText(QApplication::translate("SettingsDialog", "Cancel", 0));
+        SettingsDialog->setWindowTitle(QCoreApplication::translate("SettingsDialog", "Settings", nullptr));
+        groupBox_6->setTitle(QCoreApplication::translate("SettingsDialog", "Patients database folder path (SQLite):", nullptr));
+        selectPathDatabaseButton->setText(QCoreApplication::translate("SettingsDialog", "Browse", nullptr));
+        resetPathDatabaseButton->setText(QCoreApplication::translate("SettingsDialog", "Reset", nullptr));
+        groupBox->setTitle(QCoreApplication::translate("SettingsDialog", "Folder path to binary OCT data:", nullptr));
+        selectPathOctDataButton->setText(QCoreApplication::translate("SettingsDialog", "Browse", nullptr));
+        resetPathOctDataButton->setText(QCoreApplication::translate("SettingsDialog", "Reset", nullptr));
+        groupBox_2->setTitle(QCoreApplication::translate("SettingsDialog", "Folder path to exam data:", nullptr));
+        selectPathExamDataButton->setText(QCoreApplication::translate("SettingsDialog", "Browse", nullptr));
+        resetPathExamDataButton->setText(QCoreApplication::translate("SettingsDialog", "Reset", nullptr));
+        groupBox_3->setTitle(QCoreApplication::translate("SettingsDialog", "Folder path to auto segmentations:", nullptr));
+        selectPathAutoSegmButton->setText(QCoreApplication::translate("SettingsDialog", "Browse", nullptr));
+        resetPathAutoSegmButton->setText(QCoreApplication::translate("SettingsDialog", "Reset", nullptr));
+        groupBox_5->setTitle(QCoreApplication::translate("SettingsDialog", "Display", nullptr));
+        showETDRSGridCBox->setText(QCoreApplication::translate("SettingsDialog", "Show ETDRS grid", nullptr));
+        showCenterOnBscanCBox->setText(QCoreApplication::translate("SettingsDialog", "Show scan center on B-scan image", nullptr));
+        showBscanOnErrorPlotCBox->setText(QCoreApplication::translate("SettingsDialog", "Show B-scan image on error plot", nullptr));
+        dataSaveStructureLabel->setText(QCoreApplication::translate("SettingsDialog", "Segmentation data save structure:", nullptr));
+        dataSaveStructureCBox->setItemText(0, QCoreApplication::translate("SettingsDialog", "xml", nullptr));
+        dataSaveStructureCBox->setItemText(1, QCoreApplication::translate("SettingsDialog", "txt", nullptr));
+
+#if QT_CONFIG(tooltip)
+        blockPCVCBox->setToolTip(QCoreApplication::translate("SettingsDialog", "Blokuj rysowanie PCV poni\305\274ej warstwy ILM", nullptr));
+#endif // QT_CONFIG(tooltip)
+        blockPCVCBox->setText(QCoreApplication::translate("SettingsDialog", "PCV can not be lower than ILM", nullptr));
+        acceptButton->setText(QCoreApplication::translate("SettingsDialog", "OK", nullptr));
+        cancelButton->setText(QCoreApplication::translate("SettingsDialog", "Cancel", nullptr));
     } // retranslateUi
 
 };

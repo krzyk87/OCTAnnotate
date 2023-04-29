@@ -43,6 +43,7 @@ public:
     QAction *actionSettings;
     QAction *actionImageFlattening;
     QAction *actionLoadOCTFile;
+    QAction *actionReadManualAnnotations;
     QWidget *centralWidget;
     QHBoxLayout *horizontalLayout_11;
     QTabWidget *tabWidget;
@@ -137,6 +138,7 @@ public:
     QLabel *fundusImageLabel;
     QMenuBar *menuBar;
     QMenu *menuPatient;
+    QMenu *menuSegmentations_2;
     QMenu *menuProgram;
     QStatusBar *statusBar;
     QToolBar *toolBar;
@@ -163,6 +165,8 @@ public:
         actionImageFlattening->setCheckable(true);
         actionLoadOCTFile = new QAction(OCTAnnotate);
         actionLoadOCTFile->setObjectName("actionLoadOCTFile");
+        actionReadManualAnnotations = new QAction(OCTAnnotate);
+        actionReadManualAnnotations->setObjectName("actionReadManualAnnotations");
         centralWidget = new QWidget(OCTAnnotate);
         centralWidget->setObjectName("centralWidget");
         centralWidget->setMaximumSize(QSize(6000, 3000));
@@ -638,6 +642,8 @@ public:
         menuBar->setGeometry(QRect(0, 0, 1260, 21));
         menuPatient = new QMenu(menuBar);
         menuPatient->setObjectName("menuPatient");
+        menuSegmentations_2 = new QMenu(menuPatient);
+        menuSegmentations_2->setObjectName("menuSegmentations_2");
         menuProgram = new QMenu(menuBar);
         menuProgram->setObjectName("menuProgram");
         OCTAnnotate->setMenuBar(menuBar);
@@ -653,6 +659,8 @@ public:
         menuPatient->addAction(actionLoadOCTFile);
         menuPatient->addAction(actionLoadOCTSequence);
         menuPatient->addSeparator();
+        menuPatient->addAction(menuSegmentations_2->menuAction());
+        menuSegmentations_2->addAction(actionReadManualAnnotations);
         menuProgram->addSeparator();
         menuProgram->addAction(actionSettings);
         menuProgram->addSeparator();
@@ -677,6 +685,7 @@ public:
         actionImageFlattening->setToolTip(QCoreApplication::translate("OCTAnnotate", "Image flattening", nullptr));
 #endif // QT_CONFIG(tooltip)
         actionLoadOCTFile->setText(QCoreApplication::translate("OCTAnnotate", "Za\305\202aduj skan OCT (plik .oct)", nullptr));
+        actionReadManualAnnotations->setText(QCoreApplication::translate("OCTAnnotate", "Wczytaj referencyjne segmentacje", nullptr));
         label_2->setText(QCoreApplication::translate("OCTAnnotate", "Image:", nullptr));
         imageNumberLabel->setText(QString());
         zoomOutButton->setText(QCoreApplication::translate("OCTAnnotate", "-", nullptr));
@@ -745,7 +754,8 @@ public:
         brightnessResetButton->setText(QCoreApplication::translate("OCTAnnotate", "Brightness", nullptr));
         fundusImageLabel->setText(QString());
         tabWidget->setTabText(tabWidget->indexOf(tabOCTExam), QCoreApplication::translate("OCTAnnotate", "OCT cross-sections", nullptr));
-        menuPatient->setTitle(QCoreApplication::translate("OCTAnnotate", "Pacjent", nullptr));
+        menuPatient->setTitle(QCoreApplication::translate("OCTAnnotate", "Skan", nullptr));
+        menuSegmentations_2->setTitle(QCoreApplication::translate("OCTAnnotate", "Segmentacje", nullptr));
         menuProgram->setTitle(QCoreApplication::translate("OCTAnnotate", "Program", nullptr));
         toolBar->setWindowTitle(QCoreApplication::translate("OCTAnnotate", "toolBar", nullptr));
     } // retranslateUi

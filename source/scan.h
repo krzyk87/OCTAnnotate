@@ -6,9 +6,11 @@
 #include <QDate>
 #include <QTime>
 #include <QImage>
+#include <QLabel>
 #include "enums.h"
 #include "layer.h"
 #include "octdata.h"
+#include "qradiobutton.h"
 
 class Scan : public QObject
 {
@@ -71,6 +73,9 @@ public:
     void setPoint(LayerName layer, int bscanNumber, int x, int z);
     QList<QVector3D> getLayerPoints(LayerName layer, int bscanNumber, int xMin, int xMax, bool isNormal);
     QVector<double> getLayerPointsVector(LayerName layer, int bscanNumber, bool isNormal);
+    QColor getLayerColor(LayerName layer);
+    void setLayerDisplayObjects(LayerName layer, QLabel *cLabel, QRadioButton *rButton);
+    QRadioButton *getLayerRButton(LayerName layer);
 
     // auto annotations
 

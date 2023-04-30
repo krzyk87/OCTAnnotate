@@ -4,7 +4,10 @@
 #include <QString>
 #include <QList>
 #include <QVector3D>
+#include <QColor>
+#include <QLabel>
 #include "enums.h"
+#include "qradiobutton.h"
 
 class Layer
 {
@@ -16,6 +19,11 @@ public:
     QList<QVector3D> getPoints(int crossSection, int xMin, int xMax, bool isNormal);
     QVector<double> getPointsVector(int crossSection, bool isNormal, int imgHeight);
 
+    void assignColor();
+    QColor getColor();
+    void setDisplayObjects(QLabel *colorLabel, QRadioButton *radioButton);
+    QRadioButton *getRadioButton();
+
 private:
     LayerName layer;
     int index;
@@ -24,6 +32,12 @@ private:
     int bscansNumber;
 
     QList<QList<int> > points;
+
+    // display parameters
+    QColor layerColor;
+    QLabel *colorLabel;
+    QRadioButton *layerRButton;
+
 };
 
 #endif // LAYER_H

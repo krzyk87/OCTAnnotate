@@ -53,31 +53,35 @@ private slots:
     void setLayerVisibility(bool st, QRadioButton* button, LayerName layer);
     void on_allLayersCBox_stateChanged(int state);
     void on_pcvLayerCBox_stateChanged(int state);
-    void on_ermLayerCBox_stateChanged(int state);
+    void on_ibermLayerCBox_stateChanged(int state);
+    void on_obermLayerCBox_stateChanged(int state);
     void on_ilmLayerCBox_stateChanged(int state);
-    void on_gclLayerCBox_stateChanged(int state);
-    void on_iplLayerCBox_stateChanged(int state);
-    void on_inlLayerCBox_stateChanged(int state);
-    void on_oplLayerCBox_stateChanged(int state);
-    void on_onlLayerCBox_stateChanged(int state);
+    void on_rnfl_gclLayerCBox_stateChanged(int state);
+    void on_gcl_iplLayerCBox_stateChanged(int state);
+    void on_ipl_inlLayerCBox_stateChanged(int state);
+    void on_inl_oplLayerCBox_stateChanged(int state);
+    void on_opl_onlLayerCBox_stateChanged(int state);
     void on_elmLayerCBox_stateChanged(int state);
     void on_mezLayerCBox_stateChanged(int state);
     void on_iosLayerCBox_stateChanged(int state);
-    void on_rpeLayerCBox_stateChanged(int state);
-    void on_chrLayerCBox_stateChanged(int state);
+    void on_iboprLayerCBox_stateChanged(int state);
+    void on_ibrpeLayerCBox_stateChanged(int state);
+    void on_obrpeLayerCBox_stateChanged(int state);
     void on_pcvLayerRButton_clicked();
-    void on_ermLayerRButton_clicked();
+    void on_ibermLayerRButton_clicked();
+    void on_obermLayerRButton_clicked();
     void on_ilmLayerRButton_clicked();
-    void on_gclLayerRButton_clicked();
-    void on_iplLayerRButton_clicked();
-    void on_inlLayerRButton_clicked();
-    void on_oplLayerRButton_clicked();
-    void on_onlLayerRButton_clicked();
+    void on_rnfl_gclLayerRButton_clicked();
+    void on_gcl_iplLayerRButton_clicked();
+    void on_ipl_inlLayerRButton_clicked();
+    void on_inl_oplLayerRButton_clicked();
+    void on_opl_onlLayerRButton_clicked();
     void on_elmLayerRButton_clicked();
     void on_mezLayerRButton_clicked();
     void on_iosLayerRButton_clicked();
-    void on_rpeLayerRButton_clicked();
-    void on_chrLayerRButton_clicked();
+    void on_iboprLayerRButton_clicked();
+    void on_ibrpeLayerRButton_clicked();
+    void on_obrpeLayerRButton_clicked();
 
     void on_zoomInButton_clicked();
     void on_zoomOutButton_clicked();
@@ -119,7 +123,6 @@ private:
     void changeImageRange(int dir);
 
 // paint on OCT exam
-    QColor getLayerColor(LayerName layer);
     QList<LayerName> getLayersToDisplay();
 
     void displayAnnotations(QList<int> flatDiff = QList<int>());
@@ -156,19 +159,6 @@ private:
     int brightness;
 
     bool fundusAnnotate;
-    QColor pcvColor;
-    QColor ermColor;
-    QColor ilmColor;
-    QColor gclColor;
-    QColor iplColor;
-    QColor inlColor;
-    QColor oplColor;
-    QColor onlColor;
-    QColor elmColor;
-    QColor mezColor;
-    QColor iosColor;
-    QColor rpeColor;
-    QColor chrColor;
     QPalette myPalette;
 
     QString appVersion;

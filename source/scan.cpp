@@ -24,6 +24,11 @@ Scan::Scan(QObject *parent)
     this->fundusImage = QImage();
 
     this->manualAnnotations = false;
+
+    QList<LayerName> layerList = getAllLayers();
+    foreach (LayerName layer, layerList){
+        layers.append(new Layer(this->bscanWidth, this->bscansNumber, static_cast<int>(layer)));
+    }
 }
 
 Scan::~Scan(){
@@ -248,4 +253,19 @@ QList<QVector3D> Scan::getLayerPoints(LayerName layer, int bscanNumber, int xMin
 QVector<double> Scan::getLayerPointsVector(LayerName layer, int bscanNumber, bool isNormal)
 {
     return this->layers[static_cast<int>(layer)]->getPointsVector(bscanNumber, isNormal, this->bscanHeight);
+}
+
+QColor Scan::getLayerColor(LayerName layer)
+{
+    return this->layers[static_cast<int>(layer)]->getColor();
+}
+
+void Scan::setLayerDisplayObjects(LayerName layer, QLabel *cLabel, QRadioButton *rButton)
+{
+    this->layers[static_cast<int>(layer)]->setDisplayObjects(cLabel, rButton);
+}
+
+QRadioButton *Scan::getLayerRButton(LayerName layer)
+{
+    return this->layers[static_cast<int>(layer)]->getRadioButton();
 }

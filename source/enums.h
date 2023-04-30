@@ -9,18 +9,20 @@ enum OCTDevice{
 enum LayerName{
     NONE = -1,
     PCV = 0,
-    ERM_UP = 1, // IB_ERM = 1, OB_ERM = 2,
-    ILM = 2,
-    NFL_GCL = 3,
-    GCL_IPL = 4,
-    IPL_INL = 5,
-    INL_OPL = 6,
-    OPL_ONL = 7,
-    ELM = 8,
-    MEZ = 9,
-    IS_OS = 10,     // IB_OPR = 12,
-    OS_RPE = 11,    // IB_RPE = 13,
-    RPE_CHR = 12    // OB_RPE = 14
+    IB_ERM = 1,
+    OB_ERM = 2,
+    ILM = 3,        // (ILM)
+    RNFL_GCL = 4,    // (RNFL-GCL)
+    GCL_IPL = 5,    // (GCL-IPL)
+    IPL_INL = 6,    // (IPL-INL)
+    INL_OPL = 7,    // (INL-OPL)
+    OPL_ONL = 8,    // (OPL-HFL) OPL-Henles fiber layer
+    ELM = 9,
+    MEZ = 10,       // (BMEIS) Boundary of myoid and ellipsoid of inner segments
+    IS_OS = 11,     // (IS/OSJ) IS/OS junction
+    IB_OPR = 12,    // (IB_OPR) Inner boundary of OPR
+    IB_RPE = 13,    // (IB_RPE) Inner boundary of RPE
+    OB_RPE = 14     // (OB_RPE) Outer boundary of RPE
 };
 
 #endif // ENUMS_H

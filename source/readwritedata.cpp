@@ -675,13 +675,16 @@ void ReadWriteData::parseXmlSurfaceLines(QXmlStreamReader &xml, QString versionN
                      layer = PCV;
                      break;
                  case 6:
-                     layer = ERM_UP;    // IB_ERM, 9: OB_ERM
+                     layer = IB_ERM;
+                     break;
+                 case 9:
+                     layer = OB_ERM;
                      break;
                  case 10:
                      layer = ILM;
                      break;
                  case 20:
-                     layer = NFL_GCL;
+                     layer = RNFL_GCL;
                      break;
                  case 30:
                      layer = GCL_IPL;
@@ -702,13 +705,16 @@ void ReadWriteData::parseXmlSurfaceLines(QXmlStreamReader &xml, QString versionN
                      layer = MEZ;
                      break;
                  case 110:
-                     layer = IS_OS;     // 120: IB_OPR
+                     layer = IS_OS;
+                     break;
+                 case 120:
+                     layer = IB_OPR;
                      break;
                  case 140:
-                     layer = OS_RPE;    // IB_RPE
+                     layer = IB_RPE;    // IB_RPE
                      break;
                  case 150:
-                     layer = RPE_CHR;   // OB_RPE
+                     layer = OB_RPE;   // OB_RPE
                      break;
                  default:
                      layer = NONE;
@@ -720,13 +726,16 @@ void ReadWriteData::parseXmlSurfaceLines(QXmlStreamReader &xml, QString versionN
                      layer = PCV;
                      break;
                  case 0:
-                     layer = ERM_UP;    // IB_ERM, 1: OB_ERM
+                     layer = IB_ERM;
+                     break;
+                 case 1:
+                     layer = OB_ERM;
                      break;
                  case 2:
                      layer = ILM;
                      break;
                  case 3:
-                     layer = NFL_GCL;
+                     layer = RNFL_GCL;
                      break;
                  case 4:
                      layer = GCL_IPL;
@@ -747,13 +756,16 @@ void ReadWriteData::parseXmlSurfaceLines(QXmlStreamReader &xml, QString versionN
                      layer = MEZ;
                      break;
                  case 11:
-                     layer = IS_OS;     // 13: IB_OPR
+                     layer = IS_OS;
+                     break;
+                 case 13:
+                     layer = IB_OPR;
                      break;
                  case 14:
-                     layer = OS_RPE;    // IB_RPE
+                     layer = IB_RPE;    //
                      break;
                  case 15:
-                     layer = RPE_CHR;   // OB_RPE
+                     layer = OB_RPE;   //
                      break;
                  default:
                      layer = NONE;
@@ -765,13 +777,13 @@ void ReadWriteData::parseXmlSurfaceLines(QXmlStreamReader &xml, QString versionN
                      layer = PCV;
                      break;
                  case 0:
-                     layer = ERM_UP;    // OB_ERM
+                     layer = IB_ERM;    //
                      break;
                  case 1:
                      layer = ILM;
                      break;
                  case 2:
-                     layer = NFL_GCL;
+                     layer = RNFL_GCL;
                      break;
                  case 3:
                      layer = GCL_IPL;
@@ -792,13 +804,16 @@ void ReadWriteData::parseXmlSurfaceLines(QXmlStreamReader &xml, QString versionN
                      layer = MEZ;
                      break;
                  case 11:
-                     layer = IS_OS;     // 12: IB_OPR
+                     layer = IS_OS;
+                     break;
+                 case 12:
+                     layer = IB_OPR;
                      break;
                  case 13:
-                     layer = OS_RPE;    // IB_RPE
+                     layer = IB_RPE;
                      break;
                  case 15:
-                     layer = RPE_CHR;   // OB_RPE
+                     layer = OB_RPE;
                      break;
                  default:
                      layer = NONE;

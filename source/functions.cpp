@@ -5,19 +5,21 @@ LayerName decodeLayer(QString layer){
     LayerName l = NONE;
     if ((layer == "PCV") || (layer == "PSH")){
         l = PCV;
-    } else if (layer == "ERM"){
-        l = ERM_UP;
+    } else if ((layer == "IB_ERM") || (layer == "ERM")){
+        l = IB_ERM;
+    } else if (layer == "OB_ERM"){
+        l = OB_ERM;
     } else if (layer == "ILM"){
         l = ILM;
-    } else if (layer == "GCL"){
-        l = NFL_GCL;
-    } else if (layer == "IPL"){
+    } else if ((layer == "RNFL_GCL") || (layer == "GCL")){
+        l = RNFL_GCL;
+    } else if ((layer == "GCL_IPL") || (layer == "IPL")){
         l = GCL_IPL;
-    } else if (layer == "INL"){
+    } else if ((layer == "IPL_INL") || (layer == "INL")){
         l = IPL_INL;
-    } else if (layer == "OPL"){
+    } else if ((layer == "INL_OPL") || (layer == "OPL")){
         l = INL_OPL;
-    } else if (layer == "ONL"){
+    } else if ((layer == "OPL_ONL") || (layer == "ONL")){
         l = OPL_ONL;
     } else if (layer == "ELM"){
         l = ELM;
@@ -25,10 +27,12 @@ LayerName decodeLayer(QString layer){
         l = MEZ;
     } else if (layer == "IOS"){
         l = IS_OS;
-    } else if (layer == "RPE"){
-        l = OS_RPE;
-    } else if (layer == "CHR"){
-        l = RPE_CHR;
+    } else if (layer == "OPR"){
+        l = IB_OPR;
+    } else if ((layer == "IB_RPE") || (layer == "RPE")){
+        l = IB_RPE;
+    } else if ((layer == "OB_RPE") || (layer == "CHR")){
+        l = OB_RPE;
     }
     return l;
 }
@@ -40,26 +44,29 @@ QString encodeLayer(LayerName layer){
     case PCV:
         s = "PCV";
         break;
-    case ERM_UP:
-        s = "ERM";
+    case IB_ERM:
+        s = "IB_ERM";
+        break;
+    case OB_ERM:
+        s = "OB_ERM";
         break;
     case ILM:
         s = "ILM";
         break;
-    case NFL_GCL:
-        s = "GCL";
+    case RNFL_GCL:
+        s = "RNFL_GCL";
         break;
     case GCL_IPL:
-        s = "IPL";
+        s = "GCL_IPL";
         break;
     case IPL_INL:
-        s = "INL";
+        s = "IPL_INL";
         break;
     case INL_OPL:
-        s = "OPL";
+        s = "INL_OPL";
         break;
     case OPL_ONL:
-        s = "ONL";
+        s = "OPL_ONL";
         break;
     case ELM:
         s = "ELM";
@@ -70,11 +77,14 @@ QString encodeLayer(LayerName layer){
     case IS_OS:
         s = "IOS";
         break;
-    case OS_RPE:
-        s = "RPE";
+    case IB_OPR:
+        s = "IB_OPR";
         break;
-    case RPE_CHR:
-        s = "CHR";
+    case IB_RPE:
+        s = "IB_RPE";
+        break;
+    case OB_RPE:
+        s = "OB_RPE";
         break;
     case NONE:
         s = "NONE";
@@ -85,9 +95,10 @@ QString encodeLayer(LayerName layer){
 QList<LayerName> getAllLayers(){
     QList<LayerName> list;
     list.append(PCV);
-    list.append(ERM_UP);
+    list.append(IB_ERM);
+    list.append(OB_ERM);
     list.append(ILM);
-    list.append(NFL_GCL);
+    list.append(RNFL_GCL);
     list.append(GCL_IPL);
     list.append(IPL_INL);
     list.append(INL_OPL);
@@ -95,8 +106,9 @@ QList<LayerName> getAllLayers(){
     list.append(ELM);
     list.append(MEZ);
     list.append(IS_OS);
-    list.append(OS_RPE);
-    list.append(RPE_CHR);
+    list.append(IB_OPR);
+    list.append(IB_RPE);
+    list.append(OB_RPE);
     return list;
 }
 

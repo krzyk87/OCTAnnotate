@@ -14,6 +14,8 @@ Layer::Layer(int bscanWidth, int bscansNumber, int index)
     this->bscansNumber = bscansNumber;
 
     resetPoints();
+
+    assignColor();
 }
 
 void Layer::resetPoints(){
@@ -73,4 +75,78 @@ QVector<double> Layer::getPointsVector(int crossSection, bool isNormal, int imgH
         }
     }
     return pointsVector;
+}
+
+void Layer::assignColor()
+{
+    switch (this->layer) {
+    case PCV:
+        this->layerColor = Qt::green;
+        break;
+    case IB_ERM:
+        this->layerColor = Qt::white;
+        break;
+    case OB_ERM:
+        this->layerColor = Qt::white;
+        break;
+    case ILM:
+        this->layerColor = Qt::red;
+        break;
+    case RNFL_GCL:
+        this->layerColor = Qt::blue;
+        break;
+    case GCL_IPL:
+        this->layerColor = Qt::darkYellow;
+        break;
+    case IPL_INL:
+        this->layerColor = Qt::blue;
+        break;
+    case INL_OPL:
+        this->layerColor = Qt::magenta;
+        break;
+    case OPL_ONL:
+        this->layerColor = Qt::yellow;
+        break;
+    case ELM:
+        this->layerColor = Qt::yellow;
+        break;
+    case MEZ:
+        this->layerColor = Qt::green;
+        break;
+    case IS_OS:
+        this->layerColor = Qt::green;
+        break;
+    case IB_OPR:
+        this->layerColor = Qt::blue;
+        break;
+    case IB_RPE:
+        this->layerColor = Qt::red;
+        break;
+    case OB_RPE:
+        this->layerColor = QColor(255,85,0);
+        break;
+    default:
+        break;
+    }
+}
+
+QColor Layer::getColor()
+{
+    return this->layerColor;
+}
+
+void Layer::setDisplayObjects(QLabel *colorLabel, QRadioButton *radioButton)
+{
+    this->colorLabel = colorLabel;
+    QPalette palette;
+    palette.setColor(QPalette::Window, this->layerColor);
+    this->colorLabel->setAutoFillBackground(true);
+    this->colorLabel->setPalette(palette);
+
+    this->layerRButton = radioButton;
+}
+
+QRadioButton *Layer::getRadioButton()
+{
+    return this->layerRButton;
 }

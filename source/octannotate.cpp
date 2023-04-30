@@ -59,40 +59,21 @@ OCTAnnotate::OCTAnnotate(QWidget *parent) : QMainWindow(parent),
 
     ui->pcvLayerRButton->setChecked(true);
     // TODO: create a LayerColor class to store and get colors for lines and labels
-    pcvColor = Qt::green;
-    ermColor = Qt::white;
-    ilmColor = Qt::red; // darkRed
-    gclColor = Qt::blue; // cyan
-    iplColor = Qt::darkYellow;
-    inlColor = Qt::blue;
-    oplColor = Qt::magenta;
-    onlColor = Qt::yellow; // darkGreen
-    elmColor = Qt::yellow;
-    mezColor = Qt::green; // darkCyan
-    iosColor = Qt::green; // darkMagenta
-    rpeColor = Qt::blue;
-    chrColor = QColor(255,85,0); // darkBlue
-    QMap<LayerName, QLabel*> colorLabels;
-    colorLabels[PCV] = ui->pcvColorLabel;
-    colorLabels[ERM_UP] = ui->ermColorLabel;
-    colorLabels[ILM] = ui->ilmColorLabel;
-    colorLabels[NFL_GCL] = ui->gclColorLabel;
-    colorLabels[GCL_IPL] = ui->iplColorLabel;
-    colorLabels[IPL_INL] = ui->inlColorLabel;
-    colorLabels[INL_OPL] = ui->oplColorLabel;
-    colorLabels[OPL_ONL] = ui->onlColorLabel;
-    colorLabels[ELM] = ui->elmColorLabel;
-    colorLabels[MEZ] = ui->mezColorLabel;
-    colorLabels[IS_OS] = ui->iosColorLabel;
-    colorLabels[OS_RPE] = ui->rpeColorLabel;
-    colorLabels[RPE_CHR] = ui->chrColorLabel;
-    QMapIterator<LayerName, QLabel*> iter(colorLabels);
-    while (iter.hasNext()) {
-        iter.next();
-        myPalette.setColor(QPalette::Window, getLayerColor(iter.key()));
-        iter.value()->setAutoFillBackground(true);
-        iter.value()->setPalette(myPalette);
-    }
+    scan->setLayerDisplayObjects(PCV, ui->pcvColorLabel, ui->pcvLayerRButton);
+    scan->setLayerDisplayObjects(IB_ERM, ui->ibermColorLabel, ui->ibermLayerRButton);
+    scan->setLayerDisplayObjects(OB_ERM, ui->obermColorLabel, ui->obermLayerRButton);
+    scan->setLayerDisplayObjects(ILM, ui->ilmColorLabel, ui->ilmLayerRButton);
+    scan->setLayerDisplayObjects(RNFL_GCL, ui->rnfl_gclColorLabel, ui->rnfl_gclLayerRButton);
+    scan->setLayerDisplayObjects(GCL_IPL, ui->gcl_iplColorLabel, ui->gcl_iplLayerRButton);
+    scan->setLayerDisplayObjects(IPL_INL, ui->ipl_inlColorLabel, ui->ipl_inlLayerRButton);
+    scan->setLayerDisplayObjects(INL_OPL, ui->inl_oplColorLabel, ui->inl_oplLayerRButton);
+    scan->setLayerDisplayObjects(OPL_ONL, ui->opl_onlColorLabel, ui->opl_onlLayerRButton);
+    scan->setLayerDisplayObjects(ELM, ui->elmColorLabel, ui->elmLayerRButton);
+    scan->setLayerDisplayObjects(MEZ, ui->mezColorLabel, ui->mezLayerRButton);
+    scan->setLayerDisplayObjects(IS_OS, ui->iosColorLabel, ui->iosLayerRButton);
+    scan->setLayerDisplayObjects(IB_OPR, ui->iboprColorLabel,ui->iboprLayerRButton);
+    scan->setLayerDisplayObjects(IB_RPE, ui->ibrpeColorLabel, ui->ibrpeLayerRButton);
+    scan->setLayerDisplayObjects(OB_RPE, ui->obrpeColorLabel, ui->obrpeLayerRButton);
 
     setupBScanPlots();
 
@@ -613,32 +594,36 @@ void OCTAnnotate::on_allLayersCBox_stateChanged(int state)
 {
     if (state){
         ui->pcvLayerCBox->setChecked(true);
-        ui->ermLayerCBox->setChecked(true);
+        ui->ibermLayerCBox->setChecked(true);
+        ui->obermLayerCBox->setChecked(true);
         ui->ilmLayerCBox->setChecked(true);
-        ui->gclLayerCBox->setChecked(true);
-        ui->iplLayerCBox->setChecked(true);
-        ui->inlLayerCBox->setChecked(true);
-        ui->oplLayerCBox->setChecked(true);
-        ui->onlLayerCBox->setChecked(true);
+        ui->rnfl_gclLayerCBox->setChecked(true);
+        ui->gcl_iplLayerCBox->setChecked(true);
+        ui->ipl_inlLayerCBox->setChecked(true);
+        ui->inl_oplLayerCBox->setChecked(true);
+        ui->opl_onlLayerCBox->setChecked(true);
         ui->elmLayerCBox->setChecked(true);
         ui->mezLayerCBox->setChecked(true);
         ui->iosLayerCBox->setChecked(true);
-        ui->rpeLayerCBox->setChecked(true);
-        ui->chrLayerCBox->setChecked(true);
+        ui->iboprLayerCBox->setChecked(true);
+        ui->ibrpeLayerCBox->setChecked(true);
+        ui->obrpeLayerCBox->setChecked(true);
     } else {
         ui->pcvLayerCBox->setChecked(false);
-        ui->ermLayerCBox->setChecked(false);
+        ui->ibermLayerCBox->setChecked(false);
+        ui->obermLayerCBox->setChecked(false);
         ui->ilmLayerCBox->setChecked(false);
-        ui->gclLayerCBox->setChecked(false);
-        ui->iplLayerCBox->setChecked(false);
-        ui->inlLayerCBox->setChecked(false);
-        ui->oplLayerCBox->setChecked(false);
-        ui->onlLayerCBox->setChecked(false);
+        ui->rnfl_gclLayerCBox->setChecked(false);
+        ui->gcl_iplLayerCBox->setChecked(false);
+        ui->ipl_inlLayerCBox->setChecked(false);
+        ui->inl_oplLayerCBox->setChecked(false);
+        ui->opl_onlLayerCBox->setChecked(false);
         ui->elmLayerCBox->setChecked(false);
         ui->mezLayerCBox->setChecked(false);
         ui->iosLayerCBox->setChecked(false);
-        ui->rpeLayerCBox->setChecked(false);
-        ui->chrLayerCBox->setChecked(false);
+        ui->iboprLayerCBox->setChecked(false);
+        ui->ibrpeLayerCBox->setChecked(false);
+        ui->obrpeLayerCBox->setChecked(false);
     }
 }
 
@@ -690,32 +675,37 @@ void OCTAnnotate::on_pcvLayerCBox_stateChanged(int state){
     setLayerVisibility(state != 0, ui->pcvLayerRButton, PCV);
 }
 
-void OCTAnnotate::on_ermLayerCBox_stateChanged(int state){
-    setLayerVisibility(state != 0, ui->ermLayerRButton, ERM_UP);
+void OCTAnnotate::on_ibermLayerCBox_stateChanged(int state){
+    setLayerVisibility(state != 0, ui->ibermLayerRButton, IB_ERM);
+}
+
+void OCTAnnotate::on_obermLayerCBox_stateChanged(int state)
+{
+    setLayerVisibility(state != 0, ui->obermLayerRButton, OB_ERM);
 }
 
 void OCTAnnotate::on_ilmLayerCBox_stateChanged(int state) {
     setLayerVisibility(state != 0, ui->ilmLayerRButton, ILM);
 }
 
-void OCTAnnotate::on_gclLayerCBox_stateChanged(int state){
-    setLayerVisibility(state != 0, ui->gclLayerRButton, NFL_GCL);
+void OCTAnnotate::on_rnfl_gclLayerCBox_stateChanged(int state){
+    setLayerVisibility(state != 0, ui->rnfl_gclLayerRButton, RNFL_GCL);
 }
 
-void OCTAnnotate::on_iplLayerCBox_stateChanged(int state){
-    setLayerVisibility(state != 0, ui->iplLayerRButton, GCL_IPL);
+void OCTAnnotate::on_gcl_iplLayerCBox_stateChanged(int state){
+    setLayerVisibility(state != 0, ui->gcl_iplLayerRButton, GCL_IPL);
 }
 
-void OCTAnnotate::on_inlLayerCBox_stateChanged(int state){
-    setLayerVisibility(state != 0, ui->inlLayerRButton, IPL_INL);
+void OCTAnnotate::on_ipl_inlLayerCBox_stateChanged(int state){
+    setLayerVisibility(state != 0, ui->ipl_inlLayerRButton, IPL_INL);
 }
 
-void OCTAnnotate::on_oplLayerCBox_stateChanged(int state){
-    setLayerVisibility(state != 0, ui->oplLayerRButton, INL_OPL);
+void OCTAnnotate::on_inl_oplLayerCBox_stateChanged(int state){
+    setLayerVisibility(state != 0, ui->inl_oplLayerRButton, INL_OPL);
 }
 
-void OCTAnnotate::on_onlLayerCBox_stateChanged(int state){
-    setLayerVisibility(state != 0, ui->onlLayerRButton, OPL_ONL);
+void OCTAnnotate::on_opl_onlLayerCBox_stateChanged(int state){
+    setLayerVisibility(state != 0, ui->opl_onlLayerRButton, OPL_ONL);
 }
 
 void OCTAnnotate::on_elmLayerCBox_stateChanged(int state){
@@ -730,77 +720,107 @@ void OCTAnnotate::on_iosLayerCBox_stateChanged(int state){
     setLayerVisibility(state != 0, ui->iosLayerRButton, IS_OS);
 }
 
-void OCTAnnotate::on_rpeLayerCBox_stateChanged(int state){
-    setLayerVisibility(state != 0, ui->rpeLayerRButton, OS_RPE);
+void OCTAnnotate::on_iboprLayerCBox_stateChanged(int state)
+{
+    setLayerVisibility(state != 0, ui->iboprLayerRButton, IB_OPR);
 }
 
-void OCTAnnotate::on_chrLayerCBox_stateChanged(int state){
-    setLayerVisibility(state != 0, ui->chrLayerRButton, RPE_CHR);
+void OCTAnnotate::on_ibrpeLayerCBox_stateChanged(int state){
+    setLayerVisibility(state != 0, ui->ibrpeLayerRButton, IB_RPE);
+}
+
+void OCTAnnotate::on_obrpeLayerCBox_stateChanged(int state){
+    setLayerVisibility(state != 0, ui->obrpeLayerRButton, OB_RPE);
 }
 
 void OCTAnnotate::on_pcvLayerRButton_clicked()
 {
-
+//    if (ui->pcvLayerRButton->isChecked())
+//        selectedLayer = PCV;
 }
 
-void OCTAnnotate::on_ermLayerRButton_clicked()
+void OCTAnnotate::on_ibermLayerRButton_clicked()
 {
+//    if (ui->ibermLayerRButton->isChecked())
+//        selectedLayer = IB_ERM;
+}
 
+void OCTAnnotate::on_obermLayerRButton_clicked()
+{
+//    if (ui->obermLayerRButton->isChecked())
+//        selectedLayer = OB_ERM;
 }
 
 void OCTAnnotate::on_ilmLayerRButton_clicked()
 {
-
+//    if (ui->ilmLayerRButton->isChecked())
+//        selectedLayer = ILM;
 }
 
-void OCTAnnotate::on_gclLayerRButton_clicked()
+void OCTAnnotate::on_rnfl_gclLayerRButton_clicked()
 {
-
+//    if (ui->rnfl_gclLayerRButton->isChecked())
+//        selectedLayer = RNFL_GCL;
 }
 
-void OCTAnnotate::on_iplLayerRButton_clicked()
+void OCTAnnotate::on_gcl_iplLayerRButton_clicked()
 {
-
+//    if (ui->gcl_iplLayerRButton->isChecked())
+//        selectedLayer = GCL_IPL;
 }
 
-void OCTAnnotate::on_inlLayerRButton_clicked()
+void OCTAnnotate::on_ipl_inlLayerRButton_clicked()
 {
-
+//    if (ui->ipl_inlLayerRButton->isChecked())
+//        selectedLayer = IPL_INL;
 }
 
-void OCTAnnotate::on_oplLayerRButton_clicked()
+void OCTAnnotate::on_inl_oplLayerRButton_clicked()
 {
-
+//    if (ui->inl_oplLayerRButton->isChecked())
+//        selectedLayer = INL_OPL;
 }
 
-void OCTAnnotate::on_onlLayerRButton_clicked()
+void OCTAnnotate::on_opl_onlLayerRButton_clicked()
 {
-
+//    if (ui->opl_onlLayerRButton->isChecked())
+//        selectedLayer = OPL_ONL;
 }
 
 void OCTAnnotate::on_elmLayerRButton_clicked()
 {
-
+//    if (ui->elmLayerRButton->isChecked())
+//        selectedLayer = ELM;
 }
 
 void OCTAnnotate::on_mezLayerRButton_clicked()
 {
-
+//    if (ui->mezLayerRButton->isChecked())
+//        selectedLayer = MEZ;
 }
 
 void OCTAnnotate::on_iosLayerRButton_clicked()
 {
-
+//    if (ui->iosLayerRButton->isChecked())
+//        selectedLayer = IS_OS;
 }
 
-void OCTAnnotate::on_rpeLayerRButton_clicked()
+void OCTAnnotate::on_iboprLayerRButton_clicked()
 {
-
+//    if (ui->iboprLayerRButton->isChecked())
+//        selectedLayer = IB_OPR;
 }
 
-void OCTAnnotate::on_chrLayerRButton_clicked()
+void OCTAnnotate::on_ibrpeLayerRButton_clicked()
 {
+//    if (ui->ibrpeLayerRButton->isChecked())
+//        selectedLayer = IB_RPE;
+}
 
+void OCTAnnotate::on_obrpeLayerRButton_clicked()
+{
+//    if (ui->obrpeLayerRButton->isChecked())
+//        selectedLayer = OB_RPE;
 }
 
 
@@ -915,91 +935,34 @@ void OCTAnnotate::changeImageRange(int dir)
     }
 }
 
-QColor OCTAnnotate::getLayerColor(LayerName layer)
-{
-    QColor color;
-
-    switch (layer) {
-    case PCV:
-        color = pcvColor;
-        break;
-    case ERM_UP:
-        color = ermColor;
-        break;
-//    case OB_ERM:
-//        color = obermColor;
-//        break;
-    case ILM:
-        color = ilmColor;
-        break;
-    case NFL_GCL:
-        color = gclColor;
-        break;
-    case GCL_IPL:
-        color = iplColor;
-        break;
-    case IPL_INL:
-        color = inlColor;
-        break;
-    case INL_OPL:
-        color = oplColor;
-        break;
-    case OPL_ONL:
-        color = onlColor;
-        break;
-    case ELM:
-        color = elmColor;
-        break;
-    case MEZ:
-        color = mezColor;
-        break;
-    case IS_OS:
-        color = iosColor;
-        break;
-//    case IB_OPR:
-//        color = iboprColor;
-//        break;
-    case OS_RPE:
-        color = rpeColor;
-        break;
-    case RPE_CHR:
-        color = chrColor;
-        break;
-    default:
-        break;
-    }
-
-    return color;
-}
-
 QList<LayerName> OCTAnnotate::getLayersToDisplay()
 {
     QList<LayerName> layers;
     if (ui->pcvLayerCBox->isChecked()){
         layers.append(PCV);
     }
-    if (ui->ermLayerCBox->isChecked()){
-        layers.append(ERM_UP);
+    if (ui->ibermLayerCBox->isChecked()){
+        layers.append(IB_ERM);
     }
-//    if (ui->obermLayerCBox->isChecked()){
-//        layers.append(OB_ERM);
-//    }
+    if (ui->obermLayerCBox->isChecked()){
+        layers.append(OB_ERM);
+    }
     if (ui->ilmLayerCBox->isChecked()){
         layers.append(ILM);
     }
-    if (ui->gclLayerCBox->isChecked()){
-        layers.append(NFL_GCL);
+    if (ui->rnfl_gclLayerCBox->isChecked()){
+        layers.append(RNFL_GCL);
     }
-    if (ui->iplLayerCBox->isChecked()){
+    if (ui->gcl_iplLayerCBox->isChecked()){
         layers.append(GCL_IPL);
     }
-    if (ui->inlLayerCBox->isChecked()){
+    if (ui->ipl_inlLayerCBox->isChecked()){
         layers.append(IPL_INL);
     }
-    if (ui->oplLayerCBox->isChecked()){
+    if (ui->inl_oplLayerCBox->isChecked()){
         layers.append(INL_OPL);
     }
-    if (ui->onlLayerCBox->isChecked()){
+    if (ui->opl_onlLayerCBox->isChecked()){
         layers.append(OPL_ONL);
     }
     if (ui->elmLayerCBox->isChecked()){
@@ -1011,14 +974,14 @@ QList<LayerName> OCTAnnotate::getLayersToDisplay()
     if (ui->iosLayerCBox->isChecked()){
         layers.append(IS_OS);
     }
-//    if (ui->iboprLayerCBox->isChecked()){
-//        layers.append(IB_OPR);
-//    }
-    if (ui->rpeLayerCBox->isChecked()){
-        layers.append(OS_RPE);
+    if (ui->iboprLayerCBox->isChecked()){
+        layers.append(IB_OPR);
     }
-    if (ui->chrLayerCBox->isChecked()){
-        layers.append(RPE_CHR);
+    if (ui->ibrpeLayerCBox->isChecked()){
+        layers.append(IB_RPE);
+    }
+    if (ui->obrpeLayerCBox->isChecked()){
+        layers.append(OB_RPE);
     }
     return layers;
 }
@@ -1112,7 +1075,7 @@ void OCTAnnotate::setupBScanPlots(){
     int graphID = 0;
     foreach (LayerName layer, allLayers) {
         ui->bScanHCPlot->addGraph();
-        ui->bScanHCPlot->graph(graphID)->setPen(QPen(getLayerColor(layer)));
+        ui->bScanHCPlot->graph(graphID)->setPen(QPen(scan->getLayerColor(layer)));
         ui->bScanHCPlot->graph(graphID)->setLineStyle(QCPGraph::lsLine);
         ui->bScanHCPlot->graph(graphID)->setScatterStyle(QCPScatterStyle(QCPScatterStyle::ssCircle,1.5)); // 3.5 do publikacji
         graphID++;
@@ -1139,7 +1102,7 @@ void OCTAnnotate::setupBScanPlots(){
     graphID = 0;
     foreach (LayerName layer, allLayers) {
         ui->bScanVCPlot->addGraph();
-        ui->bScanVCPlot->graph(graphID)->setPen(QPen(getLayerColor(layer)));
+        ui->bScanVCPlot->graph(graphID)->setPen(QPen(scan->getLayerColor(layer)));
         ui->bScanVCPlot->graph(graphID)->setLineStyle(QCPGraph::lsLine);
         ui->bScanVCPlot->graph(graphID)->setScatterStyle(QCPScatterStyle(QCPScatterStyle::ssCircle,1.0));
         graphID++;

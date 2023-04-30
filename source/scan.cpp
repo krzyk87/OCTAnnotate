@@ -24,6 +24,7 @@ Scan::Scan(QObject *parent)
     this->fundusImage = QImage();
 
     this->manualAnnotations = false;
+    this->autoAnnotations = false;
 
     QList<LayerName> layerList = getAllLayers();
     foreach (LayerName layer, layerList){
@@ -231,10 +232,8 @@ void Scan::setFundusImage(QImage newImage){
 // Layers ----------------------------------------------------------------
 void Scan::resetManualAnnotations(){
     QList<LayerName> layerList = getAllLayers();
-    for (int i=0; i<this->bscansNumber; i++){
-        foreach (LayerName layer, layerList) {
-            this->layers[static_cast<int>(layer)]->resetPoints();
-        }
+    foreach (LayerName layer, layerList) {
+        this->layers[static_cast<int>(layer)]->resetPoints();
     }
 
     this->manualAnnotations = false;
@@ -268,4 +267,25 @@ void Scan::setLayerDisplayObjects(LayerName layer, QLabel *cLabel, QRadioButton 
 QRadioButton *Scan::getLayerRButton(LayerName layer)
 {
     return this->layers[static_cast<int>(layer)]->getRadioButton();
+}
+
+void Scan::resetAutoAnnotations()
+{
+    QList<LayerName> layerList = getAllLayers();
+    foreach (LayerName layer, layerList) {
+        this->layers[static_cast<int>(layer)]->resetPointsAuto();
+    }
+
+    this->autoAnnotations = false;
+}
+
+void Scan::setPointAuto(LayerName layer, int bscanNumber, int x, int z)
+{
+    this->layers[static_cast<int>(layer)]->setPointAuto(bscanNumber, x, qBound(0, z, this->bscanHeight));
+    this->autoAnnotations = true;
+}
+
+bool Scan::hasAutoAnnotations()
+{
+    return this->autoAnnotations;
 }

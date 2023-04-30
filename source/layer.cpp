@@ -14,6 +14,7 @@ Layer::Layer(int bscanWidth, int bscansNumber, int index)
     this->bscansNumber = bscansNumber;
 
     resetPoints();
+    resetPointsAuto();
 
     assignColor();
 }
@@ -75,6 +76,28 @@ QVector<double> Layer::getPointsVector(int crossSection, bool isNormal, int imgH
         }
     }
     return pointsVector;
+}
+
+void Layer::resetPointsAuto()
+{
+    this->pointsAuto.clear();
+
+    QList<int> pList;
+    for (int i=0; i<this->bscanWidth; i++){
+        pList.append(-1);
+    }
+    this->pointsAuto.reserve(this->bscansNumber);
+    for (int i=0; i < this->bscansNumber; i++){
+        this->pointsAuto.append(pList);
+    }
+}
+
+void Layer::setPointAuto(int bscanNumber, int xPos, int zPos)
+{
+    if (zPos < 1)
+        this->pointsAuto[bscanNumber][xPos] = -1;
+    else
+        this->pointsAuto[bscanNumber][xPos] = zPos;
 }
 
 void Layer::assignColor()

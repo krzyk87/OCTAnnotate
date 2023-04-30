@@ -1163,20 +1163,13 @@
      <height>21</height>
     </rect>
    </property>
-   <widget class="QMenu" name="menuPatient">
+   <widget class="QMenu" name="menuScan">
     <property name="title">
      <string>Skan</string>
     </property>
-    <widget class="QMenu" name="menuSegmentations_2">
-     <property name="title">
-      <string>Segmentacje</string>
-     </property>
-     <addaction name="actionReadManualAnnotations"/>
-    </widget>
     <addaction name="actionLoadOCTFile"/>
     <addaction name="actionLoadOCTSequence"/>
     <addaction name="separator"/>
-    <addaction name="menuSegmentations_2"/>
    </widget>
    <widget class="QMenu" name="menuProgram">
     <property name="title">
@@ -1187,8 +1180,16 @@
     <addaction name="separator"/>
     <addaction name="actionClose"/>
    </widget>
+   <widget class="QMenu" name="menuSegmentations">
+    <property name="title">
+     <string>Segmentacje</string>
+    </property>
+    <addaction name="actionReadManualAnnotations"/>
+    <addaction name="actionReadAutoAnnotations"/>
+   </widget>
    <addaction name="menuProgram"/>
-   <addaction name="menuPatient"/>
+   <addaction name="menuScan"/>
+   <addaction name="menuSegmentations"/>
   </widget>
   <widget class="QStatusBar" name="statusBar"/>
   <widget class="QToolBar" name="toolBar">
@@ -1236,6 +1237,11 @@
   <action name="actionReadManualAnnotations">
    <property name="text">
     <string>Wczytaj referencyjne segmentacje</string>
+   </property>
+  </action>
+  <action name="actionReadAutoAnnotations">
+   <property name="text">
+    <string>Wczytaj automatyczne segmentacje</string>
    </property>
   </action>
  </widget>

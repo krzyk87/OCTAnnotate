@@ -17,6 +17,7 @@ public:
 
     bool readPatientData();
     void readFileManualSegmentation(QFile *dataFile);
+    void readFileAutoSegmentation(QFile *dataFile);
 
 signals:
     void finished();
@@ -31,6 +32,7 @@ public slots:
     void setDirectoryOct(QDir *dataDir);
     void setOctFile(QFile *dataFile);
     void setManualFilePath(QString mfPath);
+    void setAutoFilePath(QString afPath);
     void addDirective(QString directive);
     void setShowMessage(bool show);
     void setDataSaveStrucure(QString structure);
@@ -51,6 +53,7 @@ private:
     QFile *octFile;
     QString scanName;
     QString manualFilePath;
+    QString autoFilePath;
     QList<QString> directives;
     PatientData *pData;
     Scan *scan;

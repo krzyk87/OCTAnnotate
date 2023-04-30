@@ -53,12 +53,12 @@ void ReadWriteData::process(){
             readFileManualSegmentation(&manualFile);
             emit readingDataFinished("manualOnly");
         }
+        if (dir == "readAutoSegmentationData"){
+            QFile autoFile(autoFilePath);
+            readFileAutoSegmentation(&autoFile);
+            emit readingDataFinished("autoOnly");
+        }
         // TODO: uncomment below lines when adding functionalities for automatic segmentation
-//        if (dir == "readAutoSegmentationData"){
-//            QFile autoFile(autoFilePath);
-//            readFileAutoSegmentation(&autoFile);
-//            emit readingDataFinished("autoOnly");
-//        }
 //        if (dir == "copyAutoAsManualAll"){
 //            this->copyAutoAsManual(getAllLayers());
 //        }
@@ -99,6 +99,11 @@ void ReadWriteData::setOctFile(QFile *dataFile){
 
 void ReadWriteData::setManualFilePath(QString mfPath){
     this->manualFilePath = mfPath;
+}
+
+void ReadWriteData::setAutoFilePath(QString afPath)
+{
+    this->autoFilePath = afPath;
 }
 
 // read patient's and exam data -------------------------------------------------------------------
@@ -577,6 +582,125 @@ void ReadWriteData::readFileManualSegmentation(QFile *dataFile)
         dataFile->close();
 }
 
+void ReadWriteData::readFileAutoSegmentation(QFile *dataFile)
+{
+    double tasks = 12*scan->getBscansNumber();
+    double count = 0;
+    emit processingData(0, "Reading in auto segmentation data...");
+
+    if (!dataFile->open(QIODevice::ReadOnly)){
+        emit errorOccured(tr("Could not open file with auto layers segmentations: ") + dataFile->fileName());
+        qDebug() << "Auto segmentation data NOT loaded!";
+        return;
+    } else {
+        scan->resetAutoAnnotations();
+        QString line;
+        int x,z;
+        QString version = "";
+
+        QFileInfo autoSegmentFileInfo(*dataFile);
+        if (autoSegmentFileInfo.suffix() == "txt"){
+            tasks *= scan->getBscanWidth();
+            QTextStream autoSegmentText(dataFile);
+            do {
+                line = autoSegmentText.readLine();
+                if (line.contains("=")){
+                    QStringList data = line.split("=");
+
+                    if (data.at(0) == "leftCut"){
+//                        startPoint = data.at(1).toInt() - 1;
+                    } else if (data.at(0) == "rightCut"){
+//                        endPoint = pData->getBscanWidth() - data.at(1).toInt();
+                    } else {
+                        QStringList code = data.at(0).split("_");   // PCV_i...
+                        LayerName layer = decodeLayer(code.at(0));
+                        int bscanNumber = code.at(1).toInt();
+                        if (bscanNumber >= scan->getBscansNumber()){
+                            emit errorOccured("there are more auto segmentations for B-scans than images in the exam");
+                            return;
+                        }
+
+                        QStringList points = data.at(1).split(";");
+                        for (int j=0; j < points.count(); j++){
+                            QString p_str = points.at(j);
+                            if (p_str != ""){
+                                x = p_str.split(",").at(0).toInt()-1;
+                                z = p_str.split(",").at(1).toInt();
+                                if (x >= scan->getBscanWidth()){
+                                    emit errorOccured("x index for auto segmentation is bigger than the image width");
+                                } else {
+                                    scan->setPointAuto(layer,bscanNumber,x,z);
+                                    emit processingData((++count)/tasks*100,"");
+                                }
+                            }
+                        }
+                    }
+                }
+            } while (!line.isNull());
+        } else if (autoSegmentFileInfo.suffix() == "xml"){
+            tasks = 1 + 12 + 1;
+            QList<int> voxelSize;
+            QXmlStreamReader xml(dataFile);
+            xml.readNextStartElement();
+            while (!xml.atEnd() && !xml.hasError()){
+                QXmlStreamReader::TokenType token = xml.readNext();
+                if (token == QXmlStreamReader::StartElement){
+                    if (xml.name().toString() == "scan_characteristics"){
+                        voxelSize = parseXmlVoxelSize(xml, 1);
+                        emit processingData((++count)/tasks*100,"");
+                    } else if (xml.name().toString() == "executable"){
+                        version = parseXmlExeVersion(xml);
+                    } else if (xml.name().toString() == "surface"){
+                        parseXmlSurfaceLines(xml, version, 1);
+                        emit processingData((++count)/tasks*100,"");
+                    } else if (xml.name().toString() == "undefined_region"){
+                        parseUndefinedRegion(xml, 1);
+                        emit processingData((++count)/tasks*100,"");
+                    } else {
+                        continue;
+                    }
+                }
+            }
+        } else if (autoSegmentFileInfo.suffix() == "json"){
+            tasks = 3*scan->getBscanWidth();
+            QString allText = dataFile->readAll();
+            qDebug() << "json text loaded";
+            QJsonDocument doc = QJsonDocument::fromJson(allText.toUtf8());
+            QJsonObject obj = doc.object();
+            QStringList layerList = obj.keys();
+            for (int layerNo = 0; layerNo < layerList.size(); layerNo++) {
+                qDebug() << "Layers in file: " << layerList.at(layerNo);
+                QString layerName = layerList.at(layerNo);
+                LayerName layer = decodeLayer(layerName);
+                QJsonArray layerArray = obj.value(layerName).toArray();
+                for (int bscanNumber=0; bscanNumber < scan->getBscansNumber(); bscanNumber++) {
+                    if (layerArray.size() > bscanNumber){
+                        QJsonArray lineArray = layerArray[bscanNumber].toArray();
+                        for (int x=1; x < scan->getBscanWidth(); x++) {
+                            if (lineArray.size() > (x-1)){
+                                scan->setPointAuto(layer, bscanNumber, x, lineArray[x-1].toInt());
+                            } else {
+                                qDebug() << "More points in B-scan that elements in line array " << layerName;
+                            }
+                        }
+                    } else {
+                        qDebug() << "More cross-sections than arrays in the layer " << layerName;
+                    }
+                    emit processingData((++count)/tasks*100,"");
+                }
+            }
+        } else {
+            emit errorOccured("Unsupported file type!");
+        }
+    }
+
+    if (dataFile->isOpen())
+        dataFile->close();
+
+    qDebug() << "Auto segmentation data loaded";
+    emit processingData(100, "Auto segmentation data loaded.");
+}
+
 QList<int> ReadWriteData::parseXmlVoxelSize(QXmlStreamReader &xml, bool isAuto)
 {
     QList<int> voxel;
@@ -826,9 +950,13 @@ void ReadWriteData::parseXmlSurfaceLines(QXmlStreamReader &xml, QString versionN
              counter = 0;
              while (!(xml.tokenType() == QXmlStreamReader::EndElement && (xml.name().toString() == "bscan"))){
                  if (xml.tokenType() == QXmlStreamReader::StartElement){
-                     if (xml.name().toString() == "z"){
+                     if ((xml.name().toString() == "z") || (xml.name().toString() == "y")){
                          xml.readNext();
-                         scan->setPoint(layer, scanNumber, counter, xml.text().toInt());
+                         if (isAuto){
+                             scan->setPointAuto(layer, scanNumber, counter, xml.text().toInt()+1);
+                         } else {
+                             scan->setPoint(layer, scanNumber, counter, xml.text().toInt());
+                         }
                          counter++;
                      }
                  }
@@ -867,7 +995,11 @@ void ReadWriteData::parseUndefinedRegion(QXmlStreamReader &xml, bool isAuto)
                     }
                     if (x != -1 && y != -1){
                         foreach (LayerName layer, allLayers) {
-                            scan->setPoint(layer, y, x, -1);
+                            if (isAuto){
+                                scan->setPointAuto(layer, y, x, -1);
+                            } else {
+                                scan->setPoint(layer, y, x, -1);
+                            }
                         }
                         x = -1;
                         y = -1;

@@ -78,6 +78,9 @@ public:
     QRadioButton *getLayerRButton(LayerName layer);
 
     // auto annotations
+    void resetAutoAnnotations();
+    void setPointAuto(LayerName layer, int bscanNumber, int x, int z);
+    bool hasAutoAnnotations();
 
 signals:
 
@@ -112,6 +115,7 @@ private:
     // annotations
     QList<Layer*> layers;
     bool manualAnnotations;
+    bool autoAnnotations;
 };
 
 #endif // SCAN_H

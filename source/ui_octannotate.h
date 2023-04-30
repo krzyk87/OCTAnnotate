@@ -44,6 +44,7 @@ public:
     QAction *actionImageFlattening;
     QAction *actionLoadOCTFile;
     QAction *actionReadManualAnnotations;
+    QAction *actionReadAutoAnnotations;
     QWidget *centralWidget;
     QHBoxLayout *horizontalLayout_11;
     QTabWidget *tabWidget;
@@ -128,7 +129,7 @@ public:
     QLabel *iosAnnotCountLabel;
     QCheckBox *obrpeLayerCBox;
     QLabel *obrpeColorLabel;
-    QLabel *ibermAnnotCountLabel_2;
+    QLabel *obermAnnotCountLabel;
     QCheckBox *opl_onlLayerCBox;
     QLabel *inl_oplColorLabel;
     QRadioButton *ilmLayerRButton;
@@ -146,9 +147,9 @@ public:
     QSpacerItem *verticalSpacer_2;
     QLabel *fundusImageLabel;
     QMenuBar *menuBar;
-    QMenu *menuPatient;
-    QMenu *menuSegmentations_2;
+    QMenu *menuScan;
     QMenu *menuProgram;
+    QMenu *menuSegmentations;
     QStatusBar *statusBar;
     QToolBar *toolBar;
 
@@ -176,6 +177,8 @@ public:
         actionLoadOCTFile->setObjectName("actionLoadOCTFile");
         actionReadManualAnnotations = new QAction(OCTAnnotate);
         actionReadManualAnnotations->setObjectName("actionReadManualAnnotations");
+        actionReadAutoAnnotations = new QAction(OCTAnnotate);
+        actionReadAutoAnnotations->setObjectName("actionReadAutoAnnotations");
         centralWidget = new QWidget(OCTAnnotate);
         centralWidget->setObjectName("centralWidget");
         centralWidget->setMaximumSize(QSize(6000, 3000));
@@ -674,10 +677,10 @@ public:
 
         gridLayout->addWidget(obrpeColorLabel, 15, 2, 1, 1);
 
-        ibermAnnotCountLabel_2 = new QLabel(editLayerGBox);
-        ibermAnnotCountLabel_2->setObjectName("ibermAnnotCountLabel_2");
+        obermAnnotCountLabel = new QLabel(editLayerGBox);
+        obermAnnotCountLabel->setObjectName("obermAnnotCountLabel");
 
-        gridLayout->addWidget(ibermAnnotCountLabel_2, 3, 3, 1, 1);
+        gridLayout->addWidget(obermAnnotCountLabel, 3, 3, 1, 1);
 
         opl_onlLayerCBox = new QCheckBox(editLayerGBox);
         opl_onlLayerCBox->setObjectName("opl_onlLayerCBox");
@@ -816,12 +819,12 @@ public:
         menuBar = new QMenuBar(OCTAnnotate);
         menuBar->setObjectName("menuBar");
         menuBar->setGeometry(QRect(0, 0, 1260, 21));
-        menuPatient = new QMenu(menuBar);
-        menuPatient->setObjectName("menuPatient");
-        menuSegmentations_2 = new QMenu(menuPatient);
-        menuSegmentations_2->setObjectName("menuSegmentations_2");
+        menuScan = new QMenu(menuBar);
+        menuScan->setObjectName("menuScan");
         menuProgram = new QMenu(menuBar);
         menuProgram->setObjectName("menuProgram");
+        menuSegmentations = new QMenu(menuBar);
+        menuSegmentations->setObjectName("menuSegmentations");
         OCTAnnotate->setMenuBar(menuBar);
         statusBar = new QStatusBar(OCTAnnotate);
         statusBar->setObjectName("statusBar");
@@ -831,16 +834,17 @@ public:
         OCTAnnotate->addToolBar(Qt::TopToolBarArea, toolBar);
 
         menuBar->addAction(menuProgram->menuAction());
-        menuBar->addAction(menuPatient->menuAction());
-        menuPatient->addAction(actionLoadOCTFile);
-        menuPatient->addAction(actionLoadOCTSequence);
-        menuPatient->addSeparator();
-        menuPatient->addAction(menuSegmentations_2->menuAction());
-        menuSegmentations_2->addAction(actionReadManualAnnotations);
+        menuBar->addAction(menuScan->menuAction());
+        menuBar->addAction(menuSegmentations->menuAction());
+        menuScan->addAction(actionLoadOCTFile);
+        menuScan->addAction(actionLoadOCTSequence);
+        menuScan->addSeparator();
         menuProgram->addSeparator();
         menuProgram->addAction(actionSettings);
         menuProgram->addSeparator();
         menuProgram->addAction(actionClose);
+        menuSegmentations->addAction(actionReadManualAnnotations);
+        menuSegmentations->addAction(actionReadAutoAnnotations);
 
         retranslateUi(OCTAnnotate);
 
@@ -862,6 +866,7 @@ public:
 #endif // QT_CONFIG(tooltip)
         actionLoadOCTFile->setText(QCoreApplication::translate("OCTAnnotate", "Za\305\202aduj skan OCT (plik .oct)", nullptr));
         actionReadManualAnnotations->setText(QCoreApplication::translate("OCTAnnotate", "Wczytaj referencyjne segmentacje", nullptr));
+        actionReadAutoAnnotations->setText(QCoreApplication::translate("OCTAnnotate", "Wczytaj automatyczne segmentacje", nullptr));
         label_2->setText(QCoreApplication::translate("OCTAnnotate", "Image:", nullptr));
         imageNumberLabel->setText(QString());
         zoomOutButton->setText(QCoreApplication::translate("OCTAnnotate", "-", nullptr));
@@ -924,7 +929,7 @@ public:
         iosAnnotCountLabel->setText(QCoreApplication::translate("OCTAnnotate", "( --- / --- )", nullptr));
         obrpeLayerCBox->setText(QString());
         obrpeColorLabel->setText(QString());
-        ibermAnnotCountLabel_2->setText(QCoreApplication::translate("OCTAnnotate", "( --- / --- )", nullptr));
+        obermAnnotCountLabel->setText(QCoreApplication::translate("OCTAnnotate", "( --- / --- )", nullptr));
         opl_onlLayerCBox->setText(QString());
         inl_oplColorLabel->setText(QString());
         ilmLayerRButton->setText(QCoreApplication::translate("OCTAnnotate", "ILM", nullptr));
@@ -938,9 +943,9 @@ public:
         brightnessResetButton->setText(QCoreApplication::translate("OCTAnnotate", "Brightness", nullptr));
         fundusImageLabel->setText(QString());
         tabWidget->setTabText(tabWidget->indexOf(tabOCTExam), QCoreApplication::translate("OCTAnnotate", "OCT cross-sections", nullptr));
-        menuPatient->setTitle(QCoreApplication::translate("OCTAnnotate", "Skan", nullptr));
-        menuSegmentations_2->setTitle(QCoreApplication::translate("OCTAnnotate", "Segmentacje", nullptr));
+        menuScan->setTitle(QCoreApplication::translate("OCTAnnotate", "Skan", nullptr));
         menuProgram->setTitle(QCoreApplication::translate("OCTAnnotate", "Program", nullptr));
+        menuSegmentations->setTitle(QCoreApplication::translate("OCTAnnotate", "Segmentacje", nullptr));
         toolBar->setWindowTitle(QCoreApplication::translate("OCTAnnotate", "toolBar", nullptr));
     } // retranslateUi
 

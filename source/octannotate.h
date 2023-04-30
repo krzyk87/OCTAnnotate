@@ -29,7 +29,7 @@ public:
 private slots:
     void on_actionClose_triggered();
 
-// Data
+// Display
     void on_tabWidget_currentChanged();
     void on_nextImageButton_clicked();
     void on_prevImageButton_clicked();
@@ -42,10 +42,12 @@ private slots:
     void on_contrastResetButton_clicked();
     void on_brightnessResetButton_clicked();
 
+// Data
     void on_actionLoadOCTSequence_triggered();
     void on_actionLoadOCTFile_triggered();
     void loadOCT(bool isBinary);
     void on_actionReadManualAnnotations_triggered();
+    void on_actionReadAutoAnnotations_triggered();
 
 // General exam
 

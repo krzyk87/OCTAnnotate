@@ -300,6 +300,55 @@ void OCTAnnotate::on_actionReadManualAnnotations_triggered()
     }
 }
 
+void OCTAnnotate::on_actionReadAutoAnnotations_triggered()
+{
+    if (scan->getIsLoaded()){
+
+        // read data from file
+        QString autoSegmentFilePath;
+        autoSegmentFilePath = QFileDialog::getOpenFileName(this, tr("Open file with auto segmentations"), examDir.path(), tr("Text file (*.txt);;OCTExplorer file (*.xml);;Json file (*.json)"));
+
+        if (autoSegmentFilePath.isEmpty()){
+            if (scan->hasAutoAnnotations()){
+                QMessageBox msgBox;
+                msgBox.addButton(" Leave data ", QMessageBox::RejectRole);
+                msgBox.addButton(" Save ", QMessageBox::AcceptRole);
+
+                msgBox.setText("Do you want to clear auto segmentation data?");
+                if (msgBox.exec() == QMessageBox::Accepted){
+//                    on_actionCloseAutoSegmentation_triggered();
+                    scan->resetAutoAnnotations();
+//                    ui->imageLayersAutoCPlot->clearGraphs();
+//                    ui->imageLayersAutoCPlot->replot();
+                }
+            }
+            return;
+        } else {
+            ui->statusBar->showMessage("Trwa odczyt automatycznych segmentacji...");
+            progressBar->setMaximum(100);
+            progressBar->setVisible(true);
+            progressBar->setValue(0);
+
+            ReadWriteData *rwData = new ReadWriteData();
+            rwData->setDataObject(&patientData, scan);
+            rwData->setDataSaveStrucure(dataSaveStructure);
+            rwData->setAutoFilePath(autoSegmentFilePath);
+            rwData->addDirective("readAutoSegmentationData");
+
+            QThread *thread = new QThread;
+            rwData->moveToThread(thread);
+            connect(thread, SIGNAL(started()), rwData, SLOT(process()));
+            connect(rwData, SIGNAL(errorOccured(QString)), this, SLOT(on_errorOccured(QString)));
+            connect(rwData, SIGNAL(processingData(double,QString)), this, SLOT(on_processingData(double,QString)));
+            connect(rwData, SIGNAL(readingDataFinished(QString)), this, SLOT(on_readingDataFinished(QString)));
+            connect(rwData, SIGNAL(finished()), thread, SLOT(quit()));
+            connect(rwData, SIGNAL(finished()), rwData, SLOT(deleteLater()));
+            connect(thread, SIGNAL(finished()), thread, SLOT(deleteLater()));
+            thread->start();
+        }
+    }
+}
+
 // load image -------------------------------------------------------------------------------------
 void OCTAnnotate::loadImage(int imageNumber){
     QImage image;

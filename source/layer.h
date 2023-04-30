@@ -19,6 +19,9 @@ public:
     QList<QVector3D> getPoints(int crossSection, int xMin, int xMax, bool isNormal);
     QVector<double> getPointsVector(int crossSection, bool isNormal, int imgHeight);
 
+    void resetPointsAuto();
+    void setPointAuto(int bscanNumber, int xPos, int zPos);
+
     void assignColor();
     QColor getColor();
     void setDisplayObjects(QLabel *colorLabel, QRadioButton *radioButton);
@@ -32,6 +35,7 @@ private:
     int bscansNumber;
 
     QList<QList<int> > points;
+    QList<QList<int> > pointsAuto;
 
     // display parameters
     QColor layerColor;

@@ -35,8 +35,11 @@ private slots:
     void on_prevImageButton_clicked();
     void on_nextNormalImageButton_clicked();
     void on_prevNormalImageButton_clicked();
+    void on_nextLayersButton_clicked();
+    void on_prevLayersButton_clicked();
     void on_currImageNumberLEdit_returnPressed();
     void on_currNormalImageNumberLEdit_returnPressed();
+    void on_currLayersNumberLEdit_returnPressed();
     void on_contrastSlider_valueChanged(int value);
     void on_brightnessSlider_valueChanged(int value);
     void on_contrastResetButton_clicked();
@@ -110,6 +113,7 @@ protected:
 private:
     Ui::OCTAnnotate *ui;
     void loadConfigurations(SettingsDialog *sDialog);
+    void enableNavigationButtons();
 
 // Data
     bool readPatientData(QDir *dir);
@@ -120,6 +124,7 @@ private:
 // display OCT exam
     void loadImage(int imageNumber);
     void loadNormalImage(int normalImageNumber);
+    void loadImageLayers(int imageNumber);
     void adjustScrollBar(QScrollBar *scrollBar, double factor);
     void rescaleImage();
     void changeImageRange(int dir);
@@ -129,6 +134,7 @@ private:
 
     void displayAnnotations(QList<int> flatDiff = QList<int>());
     void displayNormalAnnotations(QList<int> flatDiff = QList<int>());
+    void displayLayers(QCustomPlot *plot, bool isAuto);
 
 // draw Virtual map
     void setupBScanPlots();

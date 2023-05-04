@@ -44,6 +44,8 @@ OCTAnnotate::OCTAnnotate(QWidget *parent) : QMainWindow(parent),
     QRegularExpression rx("[0-9]{1,3}");
     QRegularExpressionValidator *rxv = new QRegularExpressionValidator(rx);
     ui->currImageNumberLEdit->setValidator(rxv);
+    ui->currNormalImageNumberLEdit->setValidator(rxv);
+    ui->currLayersNumberLEdit->setValidator(rxv);
     ui->verticalLayout_6->setAlignment(ui->fundusImageLabel, Qt::AlignHCenter);
 
     contrast = 1.5;
@@ -52,13 +54,12 @@ OCTAnnotate::OCTAnnotate(QWidget *parent) : QMainWindow(parent),
 
     ui->fundusImageLabel->setScaledContents(true);
     ui->fundusImageLabel->installEventFilter(this);
-    ui->bScanHCPlot->installEventFilter(this);
-    ui->bScanVCPlot->installEventFilter(this);
+//    ui->bScanHCPlot->installEventFilter(this);
+//    ui->bScanVCPlot->installEventFilter(this);
 
     fundusAnnotate = false;
 
     ui->pcvLayerRButton->setChecked(true);
-    // TODO: create a LayerColor class to store and get colors for lines and labels
     scan->setLayerDisplayObjects(PCV, ui->pcvColorLabel, ui->pcvLayerRButton);
     scan->setLayerDisplayObjects(IB_ERM, ui->ibermColorLabel, ui->ibermLayerRButton);
     scan->setLayerDisplayObjects(OB_ERM, ui->obermColorLabel, ui->obermLayerRButton);
@@ -111,6 +112,26 @@ void OCTAnnotate::loadConfigurations(SettingsDialog *sDialog){
     examDir = QDir(sDialog->getPathExamData());
 
     dataSaveStructure = sDialog->getDataSaveStructure();
+}
+
+void OCTAnnotate::enableNavigationButtons()
+{
+    if (scan->getIsLoaded()){
+        if (currentImageNumber < (scan->getBscansNumber()-1)){
+            ui->nextImageButton->setEnabled(true);
+            ui->nextLayersButton->setEnabled(true);
+        } else {
+            ui->nextImageButton->setEnabled(false);
+            ui->nextLayersButton->setEnabled(false);
+        }
+        if (currentImageNumber > 0){
+            ui->prevImageButton->setEnabled(true);
+            ui->prevLayersButton->setEnabled(true);
+        } else {
+            ui->prevImageButton->setEnabled(false);
+            ui->prevLayersButton->setEnabled(false);
+        }
+    }
 }
 
 void OCTAnnotate::on_actionSettings_triggered()
@@ -361,14 +382,7 @@ void OCTAnnotate::loadImage(int imageNumber){
 
         currentImageNumber = imageNumber;
         // enable / disable buttons
-        if (currentImageNumber >= (scan->getBscansNumber() - 1))
-            ui->nextImageButton->setEnabled(false);
-        else
-            ui->nextImageButton->setEnabled(true);
-        if (currentImageNumber <= 0)
-            ui->prevImageButton->setEnabled(false);
-        else
-            ui->prevImageButton->setEnabled(true);
+        enableNavigationButtons();
 
         // contrast enhancement and flattening
 //        Calculate *calc = new Calculate();
@@ -426,12 +440,36 @@ void OCTAnnotate::loadNormalImage(int normalImageNumber){
     ui->currNormalImageNumberLEdit->setText(QString::number(currentNormalImageNumber));
 }
 
+void OCTAnnotate::loadImageLayers(int imageNumber)
+{
+    QImage image = scan->getImage(imageNumber);
+    if (!image.isNull()){
+
+        currentImageNumber = imageNumber;
+        // enable / disable buttons
+        enableNavigationButtons();
+
+        // display image
+        ui->layersManualCPlot->axisRect()->setBackground(QPixmap::fromImage(image),true,Qt::IgnoreAspectRatio);
+        ui->layersAutoCPlot->axisRect()->setBackground(QPixmap::fromImage(image),true,Qt::IgnoreAspectRatio);
+        displayLayers(ui->layersManualCPlot, false);
+        displayLayers(ui->layersAutoCPlot, true);
+        ui->layersManualCPlot->replot();
+        ui->layersAutoCPlot->replot();
+
+        ui->currLayersNumberLEdit->setText(QString::number(currentImageNumber));
+    } else {
+        qDebug() << "Image is null!";
+    }
+}
+
 void OCTAnnotate::on_nextImageButton_clicked()
 {
     if (scan->getIsLoaded()){ // !patientData.getImageFileList().isEmpty()){
         if (currentImageNumber < (scan->getBscansNumber() - 1)){
             loadImage(currentImageNumber + 1);
             loadNormalImage(currentNormalImageNumber);
+            loadImageLayers(currentImageNumber + 1);
             fundusAnnotate = true;
         }
     }
@@ -442,6 +480,7 @@ void OCTAnnotate::on_prevImageButton_clicked(){
         if (currentImageNumber > 0){
             loadImage(currentImageNumber - 1);
             loadNormalImage(currentNormalImageNumber);
+            loadImageLayers(currentImageNumber - 1);
             fundusAnnotate = true;
         }
     }
@@ -469,9 +508,33 @@ void OCTAnnotate::on_prevNormalImageButton_clicked()
     }
 }
 
-void OCTAnnotate::on_currImageNumberLEdit_returnPressed()
+void OCTAnnotate::on_nextLayersButton_clicked()
 {
     if (scan->getIsLoaded()){ // !patientData.getImageFileList().isEmpty()){
+        if (currentImageNumber < (scan->getBscansNumber() - 1)){
+            loadImage(currentImageNumber + 1);
+            loadNormalImage(currentNormalImageNumber);
+            loadImageLayers(currentImageNumber + 1);
+            fundusAnnotate = true;
+        }
+    }
+}
+
+void OCTAnnotate::on_prevLayersButton_clicked()
+{
+    if (scan->getIsLoaded()){ // !patientData.getImageFileList().isEmpty()){
+        if (currentImageNumber > 0){
+            loadImage(currentImageNumber - 1);
+            loadNormalImage(currentNormalImageNumber);
+            loadImageLayers(currentImageNumber - 1);
+            fundusAnnotate = true;
+        }
+    }
+}
+
+void OCTAnnotate::on_currImageNumberLEdit_returnPressed()
+{
+    if (scan->getIsLoaded()){
         int value = ui->currImageNumberLEdit->text().toInt();
         if (value < 0)
             value = 0;
@@ -479,6 +542,7 @@ void OCTAnnotate::on_currImageNumberLEdit_returnPressed()
             value = scan->getBscansNumber()-1;
 
         loadImage(value);
+        loadImageLayers(value);
         fundusAnnotate = true;
         ui->currImageNumberLEdit->clearFocus();
     }
@@ -496,6 +560,22 @@ void OCTAnnotate::on_currNormalImageNumberLEdit_returnPressed()
         loadNormalImage(value);
         fundusAnnotate = true;
         ui->currNormalImageNumberLEdit->clearFocus();
+    }
+}
+
+void OCTAnnotate::on_currLayersNumberLEdit_returnPressed()
+{
+    if (scan->getIsLoaded()){
+        int value = ui->currLayersNumberLEdit->text().toInt();
+        if (value < 0)
+            value = 0;
+        if (value >= scan->getBscansNumber())
+            value = scan->getBscansNumber()-1;
+
+        loadImage(value);
+        loadImageLayers(value);
+        fundusAnnotate = true;
+        ui->currLayersNumberLEdit->clearFocus();
     }
 }
 
@@ -540,6 +620,10 @@ void OCTAnnotate::on_tabWidget_currentChanged()
             loadNormalImage(currentNormalImageNumber);
             ui->fundusImageLabel->setPixmap(QPixmap::fromImage(scan->getFundusImage())); // fundus
             fundusAnnotate = true;
+        }
+    } else if (currWidget == ui->tabAutoError){
+        if (scan->getIsLoaded()){
+            loadImageLayers(currentImageNumber);
         }
     }
 }
@@ -1087,6 +1171,27 @@ void OCTAnnotate::displayNormalAnnotations(QList<int> flatDiff)
     }
 }
 
+void OCTAnnotate::displayLayers(QCustomPlot *plot, bool isAuto)
+{
+    QList<LayerName> dispLayers = getLayersToDisplay();
+    QList<LayerName> allLayers = getAllLayers();
+
+    // set data to graphs
+    foreach (LayerName layer, dispLayers) {
+        QVector<double> z;
+        if (!isAuto)
+            z = scan->getLayerPointsVector(layer, currentImageNumber, false);
+        else
+            z = scan->getLayerPointsAutoVector(layer, currentImageNumber, false);
+        QVector<double> x(z.length());
+        for (int i=0; i<z.length(); i++){
+            x[i] = i;
+        }
+        int graphID = allLayers.indexOf(layer);
+        plot->graph(graphID)->setData(x,z);
+    }
+}
+
 void OCTAnnotate::adjustScrollBar(QScrollBar *scrollBar, double factor)
 {
     scrollBar->setValue(int(factor * scrollBar->value() + ((factor - 1) * scrollBar->pageStep()/2)));
@@ -1156,6 +1261,44 @@ void OCTAnnotate::setupBScanPlots(){
         ui->bScanVCPlot->graph(graphID)->setScatterStyle(QCPScatterStyle(QCPScatterStyle::ssCircle,1.0));
         graphID++;
     }
+
+    // layers plots (reference)
+    ui->layersManualCPlot->clearGraphs();
+
+    ui->layersManualCPlot->xAxis->setLabel("B-scan cross-section");
+    ui->layersManualCPlot->yAxis->setLabel("B-scan pixel (vertical direction)");
+    ui->layersManualCPlot->xAxis->setRange(0,scan->getBscanWidth());
+    ui->layersManualCPlot->yAxis->setRange(0,scan->getBscanHeight());
+    ui->layersManualCPlot->xAxis->grid()->setVisible(false);
+    ui->layersManualCPlot->yAxis->grid()->setVisible(false);
+
+    graphID = 0;
+    foreach (LayerName layer, allLayers) {
+        ui->layersManualCPlot->addGraph();
+        ui->layersManualCPlot->graph(graphID)->setPen(QPen(scan->getLayerColor(layer)));
+        ui->layersManualCPlot->graph(graphID)->setLineStyle(QCPGraph::lsLine);
+        ui->layersManualCPlot->graph(graphID)->setScatterStyle(QCPScatterStyle(QCPScatterStyle::ssCircle,0.5));
+        graphID++;
+    }
+
+    // layers plots (automatic)
+    ui->layersAutoCPlot->clearGraphs();
+
+    ui->layersAutoCPlot->xAxis->setLabel("B-scan cross-section");
+    ui->layersAutoCPlot->yAxis->setLabel("B-scan pixel (vertical direction)");
+    ui->layersAutoCPlot->xAxis->setRange(0,scan->getBscanWidth());
+    ui->layersAutoCPlot->yAxis->setRange(0,scan->getBscanHeight());
+    ui->layersAutoCPlot->xAxis->grid()->setVisible(false);
+    ui->layersAutoCPlot->yAxis->grid()->setVisible(false);
+
+    graphID = 0;
+    foreach (LayerName layer, allLayers) {
+        ui->layersAutoCPlot->addGraph();
+        ui->layersAutoCPlot->graph(graphID)->setPen(QPen(scan->getLayerColor(layer)));
+        ui->layersAutoCPlot->graph(graphID)->setLineStyle(QCPGraph::lsLine);
+        ui->layersAutoCPlot->graph(graphID)->setScatterStyle(QCPScatterStyle(QCPScatterStyle::ssCircle,0.5));
+        graphID++;
+    }
 }
 
 // display statistics -----------------------------------------------------------------------------
@@ -1200,16 +1343,7 @@ void OCTAnnotate::on_readingDataFinished(QString data){
         currentNormalImageNumber = scan->getBscanWidth()/2;
 
         // enable navigation buttons
-        if (currentImageNumber < (scan->getBscansNumber()-1)){
-            ui->nextImageButton->setEnabled(true);
-        } else {
-            ui->nextImageButton->setEnabled(false);
-        }
-        if (currentImageNumber > 0){
-            ui->prevImageButton->setEnabled(true);
-        } else {
-            ui->prevImageButton->setEnabled(false);
-        }
+        enableNavigationButtons();
         ui->zoomInButton->setEnabled(true);
     }
 

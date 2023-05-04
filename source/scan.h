@@ -80,6 +80,7 @@ public:
     // auto annotations
     void resetAutoAnnotations();
     void setPointAuto(LayerName layer, int bscanNumber, int x, int z);
+    QVector<double> getLayerPointsAutoVector(LayerName layer, int bscanNumber, bool isNormal);
     bool hasAutoAnnotations();
 
 signals:

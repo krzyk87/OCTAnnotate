@@ -483,6 +483,7 @@ void ReadWriteData::readFileManualSegmentation(QFile *dataFile)
     double tasks = 1 + layersCount*scan->getBscansNumber() + layersCount;
     double count = 0;
     emit processingData(0, "Trwa odczyt danych ręcznej segmentacji...");
+    scanName = QFileInfo(dataFile->fileName()).baseName();
 
     if (!dataFile->exists() || !dataFile->open(QIODevice::ReadWrite)){
         emit errorOccured(tr("Nie można otworzyć pliku z ręczną segmentacją warstw: ") + dataFile->fileName());
@@ -587,6 +588,7 @@ void ReadWriteData::readFileAutoSegmentation(QFile *dataFile)
     double tasks = 12*scan->getBscansNumber();
     double count = 0;
     emit processingData(0, "Reading in auto segmentation data...");
+    scanName = QFileInfo(dataFile->fileName()).baseName();
 
     if (!dataFile->open(QIODevice::ReadOnly)){
         emit errorOccured(tr("Could not open file with auto layers segmentations: ") + dataFile->fileName());

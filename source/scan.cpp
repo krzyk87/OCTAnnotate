@@ -285,6 +285,11 @@ void Scan::setPointAuto(LayerName layer, int bscanNumber, int x, int z)
     this->autoAnnotations = true;
 }
 
+QVector<double> Scan::getLayerPointsAutoVector(LayerName layer, int bscanNumber, bool isNormal)
+{
+    return this->layers[static_cast<int>(layer)]->getPointsAutoVector(bscanNumber, isNormal, this->bscanHeight);
+}
+
 bool Scan::hasAutoAnnotations()
 {
     return this->autoAnnotations;

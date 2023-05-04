@@ -21,6 +21,7 @@ public:
 
     void resetPointsAuto();
     void setPointAuto(int bscanNumber, int xPos, int zPos);
+    QVector<double> getPointsAutoVector(int crossSection, bool isNormal, int imgHeight);
 
     void assignColor();
     QColor getColor();

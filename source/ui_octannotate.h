@@ -146,6 +146,18 @@ public:
     QSlider *brightnessSlider;
     QSpacerItem *verticalSpacer_2;
     QLabel *fundusImageLabel;
+    QWidget *tabAutoError;
+    QWidget *widget;
+    QHBoxLayout *horizontalLayout_4;
+    QSpacerItem *horizontalSpacer_5;
+    QPushButton *prevLayersButton;
+    QLineEdit *currLayersNumberLEdit;
+    QPushButton *nextLayersButton;
+    QSpacerItem *horizontalSpacer_4;
+    QWidget *widget1;
+    QHBoxLayout *horizontalLayout_5;
+    QCustomPlot *layersManualCPlot;
+    QCustomPlot *layersAutoCPlot;
     QMenuBar *menuBar;
     QMenu *menuScan;
     QMenu *menuProgram;
@@ -394,7 +406,7 @@ public:
 
         mezLayerCBox = new QCheckBox(editLayerGBox);
         mezLayerCBox->setObjectName("mezLayerCBox");
-        mezLayerCBox->setChecked(true);
+        mezLayerCBox->setChecked(false);
 
         gridLayout->addWidget(mezLayerCBox, 11, 0, 1, 1);
 
@@ -411,7 +423,7 @@ public:
         gcl_iplLayerCBox = new QCheckBox(editLayerGBox);
         gcl_iplLayerCBox->setObjectName("gcl_iplLayerCBox");
         gcl_iplLayerCBox->setFocusPolicy(Qt::NoFocus);
-        gcl_iplLayerCBox->setChecked(true);
+        gcl_iplLayerCBox->setChecked(false);
 
         gridLayout->addWidget(gcl_iplLayerCBox, 6, 0, 1, 1);
 
@@ -539,7 +551,7 @@ public:
 
         elmLayerCBox = new QCheckBox(editLayerGBox);
         elmLayerCBox->setObjectName("elmLayerCBox");
-        elmLayerCBox->setChecked(true);
+        elmLayerCBox->setChecked(false);
 
         gridLayout->addWidget(elmLayerCBox, 10, 0, 1, 1);
 
@@ -584,14 +596,14 @@ public:
         ipl_inlLayerCBox = new QCheckBox(editLayerGBox);
         ipl_inlLayerCBox->setObjectName("ipl_inlLayerCBox");
         ipl_inlLayerCBox->setFocusPolicy(Qt::NoFocus);
-        ipl_inlLayerCBox->setChecked(true);
+        ipl_inlLayerCBox->setChecked(false);
 
         gridLayout->addWidget(ipl_inlLayerCBox, 7, 0, 1, 1);
 
         ibermLayerCBox = new QCheckBox(editLayerGBox);
         ibermLayerCBox->setObjectName("ibermLayerCBox");
         ibermLayerCBox->setFocusPolicy(Qt::NoFocus);
-        ibermLayerCBox->setChecked(true);
+        ibermLayerCBox->setChecked(false);
 
         gridLayout->addWidget(ibermLayerCBox, 2, 0, 1, 1);
 
@@ -603,7 +615,7 @@ public:
 
         iboprLayerCBox = new QCheckBox(editLayerGBox);
         iboprLayerCBox->setObjectName("iboprLayerCBox");
-        iboprLayerCBox->setChecked(true);
+        iboprLayerCBox->setChecked(false);
 
         gridLayout->addWidget(iboprLayerCBox, 13, 0, 1, 1);
 
@@ -614,7 +626,7 @@ public:
 
         obermLayerCBox = new QCheckBox(editLayerGBox);
         obermLayerCBox->setObjectName("obermLayerCBox");
-        obermLayerCBox->setChecked(true);
+        obermLayerCBox->setChecked(false);
 
         gridLayout->addWidget(obermLayerCBox, 3, 0, 1, 1);
 
@@ -628,7 +640,7 @@ public:
         inl_oplLayerCBox = new QCheckBox(editLayerGBox);
         inl_oplLayerCBox->setObjectName("inl_oplLayerCBox");
         inl_oplLayerCBox->setFocusPolicy(Qt::NoFocus);
-        inl_oplLayerCBox->setChecked(true);
+        inl_oplLayerCBox->setChecked(false);
 
         gridLayout->addWidget(inl_oplLayerCBox, 8, 0, 1, 1);
 
@@ -645,7 +657,7 @@ public:
 
         ibrpeLayerCBox = new QCheckBox(editLayerGBox);
         ibrpeLayerCBox->setObjectName("ibrpeLayerCBox");
-        ibrpeLayerCBox->setChecked(true);
+        ibrpeLayerCBox->setChecked(false);
 
         gridLayout->addWidget(ibrpeLayerCBox, 14, 0, 1, 1);
 
@@ -685,7 +697,7 @@ public:
         opl_onlLayerCBox = new QCheckBox(editLayerGBox);
         opl_onlLayerCBox->setObjectName("opl_onlLayerCBox");
         opl_onlLayerCBox->setFocusPolicy(Qt::NoFocus);
-        opl_onlLayerCBox->setChecked(true);
+        opl_onlLayerCBox->setChecked(false);
 
         gridLayout->addWidget(opl_onlLayerCBox, 9, 0, 1, 1);
 
@@ -710,7 +722,7 @@ public:
         rnfl_gclLayerCBox = new QCheckBox(editLayerGBox);
         rnfl_gclLayerCBox->setObjectName("rnfl_gclLayerCBox");
         rnfl_gclLayerCBox->setFocusPolicy(Qt::NoFocus);
-        rnfl_gclLayerCBox->setChecked(true);
+        rnfl_gclLayerCBox->setChecked(false);
 
         gridLayout->addWidget(rnfl_gclLayerCBox, 5, 0, 1, 1);
 
@@ -812,6 +824,73 @@ public:
         horizontalLayout_16->addLayout(verticalLayout_6);
 
         tabWidget->addTab(tabOCTExam, QString());
+        tabAutoError = new QWidget();
+        tabAutoError->setObjectName("tabAutoError");
+        widget = new QWidget(tabAutoError);
+        widget->setObjectName("widget");
+        widget->setGeometry(QRect(260, 710, 406, 26));
+        horizontalLayout_4 = new QHBoxLayout(widget);
+        horizontalLayout_4->setSpacing(6);
+        horizontalLayout_4->setContentsMargins(11, 11, 11, 11);
+        horizontalLayout_4->setObjectName("horizontalLayout_4");
+        horizontalLayout_4->setContentsMargins(0, 0, 0, 0);
+        horizontalSpacer_5 = new QSpacerItem(40, 20, QSizePolicy::Expanding, QSizePolicy::Minimum);
+
+        horizontalLayout_4->addItem(horizontalSpacer_5);
+
+        prevLayersButton = new QPushButton(widget);
+        prevLayersButton->setObjectName("prevLayersButton");
+        prevLayersButton->setEnabled(false);
+        prevLayersButton->setMinimumSize(QSize(100, 0));
+
+        horizontalLayout_4->addWidget(prevLayersButton);
+
+        currLayersNumberLEdit = new QLineEdit(widget);
+        currLayersNumberLEdit->setObjectName("currLayersNumberLEdit");
+        currLayersNumberLEdit->setMinimumSize(QSize(50, 0));
+        currLayersNumberLEdit->setMaximumSize(QSize(100, 16777215));
+        currLayersNumberLEdit->setAlignment(Qt::AlignCenter);
+
+        horizontalLayout_4->addWidget(currLayersNumberLEdit);
+
+        nextLayersButton = new QPushButton(widget);
+        nextLayersButton->setObjectName("nextLayersButton");
+        nextLayersButton->setEnabled(false);
+        nextLayersButton->setMinimumSize(QSize(100, 0));
+
+        horizontalLayout_4->addWidget(nextLayersButton);
+
+        horizontalSpacer_4 = new QSpacerItem(40, 20, QSizePolicy::Expanding, QSizePolicy::Minimum);
+
+        horizontalLayout_4->addItem(horizontalSpacer_4);
+
+        widget1 = new QWidget(tabAutoError);
+        widget1->setObjectName("widget1");
+        widget1->setGeometry(QRect(10, 0, 908, 702));
+        horizontalLayout_5 = new QHBoxLayout(widget1);
+        horizontalLayout_5->setSpacing(6);
+        horizontalLayout_5->setContentsMargins(11, 11, 11, 11);
+        horizontalLayout_5->setObjectName("horizontalLayout_5");
+        horizontalLayout_5->setContentsMargins(0, 0, 0, 0);
+        layersManualCPlot = new QCustomPlot(widget1);
+        layersManualCPlot->setObjectName("layersManualCPlot");
+        sizePolicy2.setHeightForWidth(layersManualCPlot->sizePolicy().hasHeightForWidth());
+        layersManualCPlot->setSizePolicy(sizePolicy2);
+        layersManualCPlot->setMinimumSize(QSize(385, 640));
+        layersManualCPlot->setMaximumSize(QSize(1500, 16777215));
+
+        horizontalLayout_5->addWidget(layersManualCPlot);
+
+        layersAutoCPlot = new QCustomPlot(widget1);
+        layersAutoCPlot->setObjectName("layersAutoCPlot");
+        sizePolicy2.setHeightForWidth(layersAutoCPlot->sizePolicy().hasHeightForWidth());
+        layersAutoCPlot->setSizePolicy(sizePolicy2);
+        layersAutoCPlot->setMinimumSize(QSize(385, 640));
+        layersAutoCPlot->setMaximumSize(QSize(1500, 16777215));
+
+        horizontalLayout_5->addWidget(layersAutoCPlot);
+
+        tabWidget->addTab(tabAutoError, QString());
 
         horizontalLayout_11->addWidget(tabWidget);
 
@@ -943,6 +1022,10 @@ public:
         brightnessResetButton->setText(QCoreApplication::translate("OCTAnnotate", "Brightness", nullptr));
         fundusImageLabel->setText(QString());
         tabWidget->setTabText(tabWidget->indexOf(tabOCTExam), QCoreApplication::translate("OCTAnnotate", "OCT cross-sections", nullptr));
+        prevLayersButton->setText(QCoreApplication::translate("OCTAnnotate", "Poprzedni", nullptr));
+        currLayersNumberLEdit->setText(QCoreApplication::translate("OCTAnnotate", "0", nullptr));
+        nextLayersButton->setText(QCoreApplication::translate("OCTAnnotate", "Nast\304\231pny", nullptr));
+        tabWidget->setTabText(tabWidget->indexOf(tabAutoError), QCoreApplication::translate("OCTAnnotate", "Automatic vs Manual", nullptr));
         menuScan->setTitle(QCoreApplication::translate("OCTAnnotate", "Skan", nullptr));
         menuProgram->setTitle(QCoreApplication::translate("OCTAnnotate", "Program", nullptr));
         menuSegmentations->setTitle(QCoreApplication::translate("OCTAnnotate", "Segmentacje", nullptr));

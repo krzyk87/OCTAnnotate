@@ -24,6 +24,7 @@ signals:
     void errorOccured(QString err);
     void processingData(double,QString);
     void readingDataFinished(QString);
+    void savingDataFinished(QString);
 
 public slots:
     void process();
@@ -42,6 +43,8 @@ private:
     void readOctFile();
     void readBinaryFile(QFile *dataFile, double *count, double *tasks);
     void readFundusImage(OCTDevice octDevice);
+
+    void saveAutoSegmentationData();
 
     QList<int> parseXmlVoxelSize(QXmlStreamReader& xml, bool isAuto = 0);
     QString parseXmlExeVersion(QXmlStreamReader &xml);

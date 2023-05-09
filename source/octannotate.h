@@ -28,6 +28,7 @@ public:
 
 private slots:
     void on_actionClose_triggered();
+    void on_actionSettings_triggered();
 
 // Display
     void on_tabWidget_currentChanged();
@@ -49,8 +50,6 @@ private slots:
     void on_actionLoadOCTSequence_triggered();
     void on_actionLoadOCTFile_triggered();
     void loadOCT(bool isBinary);
-    void on_actionReadManualAnnotations_triggered();
-    void on_actionReadAutoAnnotations_triggered();
 
 // General exam
 
@@ -93,8 +92,10 @@ private slots:
 
 // Virtual map
 
-// Auto annotations
-    void on_actionSettings_triggered();
+// Annotations
+    void on_actionReadManualAnnotations_triggered();
+    void on_actionReadAutoAnnotations_triggered();
+    void on_actionSaveAutoAnnotations_triggered();
 
 // Database
 
@@ -103,6 +104,7 @@ public slots:
     void on_processingData(double, QString msg = "");
 
     void on_readingDataFinished(QString data);
+    void on_savingDataFinished(QString data);
 
 protected:
     bool eventFilter(QObject *target, QEvent *event);

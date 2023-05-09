@@ -51,14 +51,22 @@ void ReadWriteData::process(){
         if (dir == "readManualSegmentationData"){
             QFile manualFile(manualFilePath);
             readFileManualSegmentation(&manualFile);
-            emit readingDataFinished("manualOnly");
+            emit readingDataFinished("manualRead");
         }
         if (dir == "readAutoSegmentationData"){
             QFile autoFile(autoFilePath);
             readFileAutoSegmentation(&autoFile);
-            emit readingDataFinished("autoOnly");
+            emit readingDataFinished("autoRead");
         }
         // TODO: uncomment below lines when adding functionalities for automatic segmentation
+//        if (dir == "saveManualSegmentationData"){
+//            this->saveManualSegmentationData();
+//            emit savingDataFinished("manualSave");
+//        }
+        if (dir == "saveAutoSegmentationData"){
+            this->saveAutoSegmentationData();
+            emit savingDataFinished("autoSave");
+        }
 //        if (dir == "copyAutoAsManualAll"){
 //            this->copyAutoAsManual(getAllLayers());
 //        }
@@ -118,10 +126,6 @@ bool ReadWriteData::readPatientData(){
     QFile iniFile;
     QFile infoFile;
     QString infoFilePath;
-
-    QStringList scanNameParts;
-    QStringList filesList;
-    QImage firstImg;
 
     switch (scan->getOCTDevice()){
     case COPERNICUS:                // COPERNICUS <<-------------------------------
@@ -1015,3 +1019,201 @@ void ReadWriteData::parseUndefinedRegion(QXmlStreamReader &xml, bool isAuto)
 }
 
 // save patient's and exam data -------------------------------------------------------------------
+void ReadWriteData::saveAutoSegmentationData()
+{
+    emit processingData(0, "Saving OCT auto segmentation data...");
+    double tasks = 12*scan->getBscansNumber();
+    double count = 0;
+    QList<LayerName> layers = getAllLayers();
+
+    QFile autoSegmentFile(autoFilePath);
+
+    if (!autoSegmentFile.open(QIODevice::WriteOnly | QIODevice::Text)){
+        emit errorOccured(tr("Could not access file with auto layers segmentations"));
+        return;
+    } else {
+        dataSaveStrucure = QFileInfo(autoFilePath).suffix();
+        if (dataSaveStrucure == "txt"){
+            QTextStream autoSegmentText(&autoSegmentFile);
+            QList<QVector3D> pointsList;
+
+            foreach (LayerName layer, layers){
+                QString sLayer = encodeLayer(layer);
+                for (int i=0; i < scan->getBscansNumber(); i++){ //(i = B-scan number)
+                    autoSegmentText << sLayer + "_" + QString::number(i) + "=";
+                    pointsList = scan->getLayerPointsAuto(layer, i, 0, scan->getBscanWidth()-1, false);
+                    foreach (QVector3D p, pointsList) {
+                        autoSegmentText << p.x() << "," << p.z() << ";";
+                    }
+                    autoSegmentText << Qt::endl;
+                    emit processingData((++count)/tasks*100,"");
+                }
+            }
+        } else if (dataSaveStrucure == "xml"){
+            QXmlStreamWriter xmlWriter(&autoSegmentFile);
+            xmlWriter.setAutoFormatting(true);
+            xmlWriter.writeStartDocument();
+            xmlWriter.writeStartElement("surfaces");
+
+            // scan_characteristics
+            xmlWriter.writeStartElement("scan_characteristics");
+                // manufacturer
+                if (scan->getOCTDevice() == COPERNICUS)
+                    xmlWriter.writeTextElement("manufacturer", "Optopol");
+                else if (scan->getOCTDevice() == AVANTI)
+                    xmlWriter.writeTextElement("manufacturer", "Optovue");
+                // size
+                xmlWriter.writeStartElement("size");
+                xmlWriter.writeTextElement("unit", "voxel");
+                xmlWriter.writeTextElement("x", QString::number(scan->getBscanWidth()));
+                xmlWriter.writeTextElement("y", QString::number(scan->getBscansNumber()));
+                xmlWriter.writeTextElement("z", QString::number(scan->getBscanHeight()));
+                xmlWriter.writeEndElement();    // end of size
+                // voxel_size
+                xmlWriter.writeStartElement("voxel_size");
+                xmlWriter.writeTextElement("unit", "um");
+                xmlWriter.writeTextElement("x", QString::number(scan->getScanWidth()*1000/scan->getBscanWidth()));
+                xmlWriter.writeTextElement("y", QString::number(scan->getScanHeight()*1000/scan->getBscansNumber()));
+                xmlWriter.writeTextElement("z", QString::number(scan->getScanDepth()*1000/scan->getBscanHeight()));
+                xmlWriter.writeEndElement();    // end of voxel_size
+                // center_type
+                xmlWriter.writeTextElement("center_type", "macula");
+                // scan_center
+                xmlWriter.writeStartElement("scan_center");
+                xmlWriter.writeTextElement("x", QString::number(scan->getScanCenter().x()));
+                xmlWriter.writeTextElement("y", QString::number(scan->getScanCenter().y()));
+                xmlWriter.writeTextElement("z", "0");
+                xmlWriter.writeEndElement();    // end of scan_center
+            xmlWriter.writeEndElement();    // end of scan_characteristics
+
+            // unit
+            xmlWriter.writeTextElement("unit", "voxel");
+            // surface_size
+            xmlWriter.writeStartElement("surface_size");
+                xmlWriter.writeTextElement("x", QString::number(scan->getBscanWidth()));
+                xmlWriter.writeTextElement("y", QString::number(scan->getBscansNumber()));
+            xmlWriter.writeEndElement();    // end of surface_size
+            // surface_num
+            xmlWriter.writeTextElement("surface_num", QString::number(15)); // number of segmented layers
+
+            // for each layer:
+            foreach (LayerName layer, layers) {
+                xmlWriter.writeStartElement("surface");
+                int label;
+                QString name = "";
+                switch (layer) {
+                case PCV:
+                    label = 5;
+                    name = "PCV (PCV)";
+                    break;
+                case IB_ERM:
+                    label = 6;
+                    name = "Inner boundary of ERM (IB_ERM)";
+                    break;
+                case OB_ERM:
+                    label = 9;
+                    name = "Outer boundary of ERM (OB_ERM)";
+                    break;
+                case ILM:
+                    label = 10;
+                    name = "ILM (ILM)";
+                    break;
+                case RNFL_GCL:
+                    label = 20;
+                    name = "RNFL-GCL (RNFL-GCL)";
+                    break;
+                case GCL_IPL:
+                    label = 30;
+                    name = "GCL-IPL (GCL-IPL)";
+                    break;
+                case IPL_INL:
+                    label = 40;
+                    name = "IPL-INL (IPL-INL)";
+                    break;
+                case INL_OPL:
+                    label = 50;
+                    name = "INL-OPL (INL-OPL)";
+                    break;
+                case OPL_ONL:
+                    label = 60;
+                    name = "OPL-Henles fiber layer (OPL-HFL)";
+                    break;
+                case ELM:
+                    label = 70;
+                    name = "ELM (ELM)";
+                    break;
+                case MEZ:
+                    label = 100;
+                    name = "Boundary of myoid and ellipsoid of inner segments (BMEIS)";
+                    break;
+                case IS_OS:
+                    label = 110;
+                    name = "IS/OS junction (IS/OSJ)";
+                    break;
+                case IB_OPR:
+                    label = 120;
+                    name = "Inner boudary of OPR (IB_OPR)";
+                    break;
+                case IB_RPE:
+                    label = 140;
+                    name = "Inner boudary of RPE (IB_RPE)";
+                    break;
+                case OB_RPE:
+                    label = 150;
+                    name = "Outer boudary of RPE (OB_RPE)";
+                    break;
+                default:
+                    label = 0;
+                    name = "None";
+                    break;
+                }
+                xmlWriter.writeTextElement("label", QString::number(label));    // layer index
+                xmlWriter.writeTextElement("name", name);       // layer name
+
+                // for each B-scan:
+                for (int b_nr=0; b_nr < scan->getBscansNumber(); b_nr++){
+                    xmlWriter.writeStartElement("bscan");
+                    // for each point:
+                    for (int px=0; px < scan->getBscanWidth(); px++){
+                        xmlWriter.writeTextElement("z", QString::number(scan->getLayerPointAuto(layer,b_nr,px)));    // layer, bscan number, x
+                    }
+                    xmlWriter.writeEndElement();    // end of bscan
+                }
+                xmlWriter.writeEndElement();    // end of surface
+            }
+
+            // undefined_region
+            xmlWriter.writeStartElement("undefined_region");
+            xmlWriter.writeEndElement();    // end of undefined_region
+
+            xmlWriter.writeEndElement();    // end of surfaces
+            xmlWriter.writeEndDocument();
+
+            qDebug() << "Finished writing data to file!";
+        } else if (dataSaveStrucure == "json"){
+            QJsonObject segmentations; // <-- main object
+            foreach (LayerName layer, layers) {
+                QJsonArray layerArray;
+                for (int bscanNumber=0; bscanNumber < scan->getBscansNumber(); bscanNumber++) {
+                    QJsonArray bscanArray;
+                    for (int x=1; x < scan->getBscanWidth(); x++) {
+                        bscanArray.push_back(scan->getLayerPointAuto(layer, bscanNumber, x));
+                    }
+                    layerArray.push_back(bscanArray);
+                }
+                segmentations.insert(encodeLayer(layer), layerArray);
+            }
+            QJsonDocument jsonDoc;
+            jsonDoc.setObject(segmentations);
+            autoSegmentFile.write(jsonDoc.toJson(QJsonDocument::Compact));
+//            QTextStream out(&autoSegmentFile);
+//            out.setEncoding(QStringConverter::Utf8);
+//            out << jsonDoc.toJson(QJsonDocument::Compact);
+        } else {
+            qDebug() << "Incorrect dataSaveStructure (file extension)!";
+        }
+    }
+    if (autoSegmentFile.isOpen())
+        autoSegmentFile.close();
+    emit processingData(100, "Auto segmentation data saved.");
+}

@@ -285,6 +285,16 @@ void Scan::setPointAuto(LayerName layer, int bscanNumber, int x, int z)
     this->autoAnnotations = true;
 }
 
+int Scan::getLayerPointAuto(LayerName layer, int bscanNumber, int x)
+{
+    return this->layers[static_cast<int>(layer)]->getPointAuto(bscanNumber, x);
+}
+
+QList<QVector3D> Scan::getLayerPointsAuto(LayerName layer, int bscanNumber, int xMin, int xMax, bool isNormal)
+{
+    return this->layers[static_cast<int>(layer)]->getPointsAuto(bscanNumber, xMin, xMax, isNormal);
+}
+
 QVector<double> Scan::getLayerPointsAutoVector(LayerName layer, int bscanNumber, bool isNormal)
 {
     return this->layers[static_cast<int>(layer)]->getPointsAutoVector(bscanNumber, isNormal, this->bscanHeight);

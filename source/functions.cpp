@@ -25,9 +25,9 @@ LayerName decodeLayer(QString layer){
         l = ELM;
     } else if (layer == "MEZ"){
         l = MEZ;
-    } else if (layer == "IOS"){
+    } else if ((layer == "IOS") || (layer == "IS_OS")){
         l = IS_OS;
-    } else if (layer == "OPR"){
+    } else if ((layer == "OPR")|| (layer == "IB_OPR")){
         l = IB_OPR;
     } else if ((layer == "IB_RPE") || (layer == "RPE")){
         l = IB_RPE;

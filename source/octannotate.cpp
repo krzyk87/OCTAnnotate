@@ -271,105 +271,6 @@ void OCTAnnotate::loadOCT(bool isBinary)
     }
 }
 
-void OCTAnnotate::on_actionReadManualAnnotations_triggered()
-{
-    if (scan->getIsLoaded()){
-//        QMessageBox msgBox;
-//        QPushButton *saveButton = msgBox.addButton(" Save and load new exam ", QMessageBox::YesRole);
-//        QPushButton *cancelButton = msgBox.addButton(" Cancel ", QMessageBox::RejectRole);
-//        msgBox.addButton(" Load new exam without saving ", QMessageBox::NoRole);
-        bool selectNew = true;
-
-//        if (octDataModified){
-//            msgBox.setText("OCT segmentation data has been changed. Do you want to save the changes before loading new exam?");
-//            msgBox.exec();
-//            if (msgBox.clickedButton() == saveButton){
-//                on_actionSaveOCTExam_triggered();
-//            } else if (msgBox.clickedButton() == cancelButton) {
-//                selectNew = false;
-//            }
-//        }
-
-        if (selectNew){
-            // read data from file
-            QString manualSegmentFilePath = QFileDialog::getOpenFileName(this, tr("Open file with manual segmentations"), examDir.path(), tr("OCTAnnotate file (*.mvri);;All files (*.*)"));
-            if (!manualSegmentFilePath.isEmpty()){
-
-                ui->statusBar->showMessage("Trwa odczyt referencyjnych segmentacji...");
-                progressBar->setMaximum(100);
-                progressBar->setVisible(true);
-                progressBar->setValue(0);
-
-                ReadWriteData *rwData = new ReadWriteData();
-                rwData->setDataObject(&patientData, scan);
-                rwData->setDataSaveStrucure(dataSaveStructure);
-                rwData->setManualFilePath(manualSegmentFilePath);
-                rwData->addDirective("readManualSegmentationData");
-
-                QThread *thread = new QThread;
-                rwData->moveToThread(thread);
-                connect(thread, SIGNAL(started()), rwData, SLOT(process()));
-                connect(rwData, SIGNAL(errorOccured(QString)), this, SLOT(on_errorOccured(QString)));
-                connect(rwData, SIGNAL(processingData(double,QString)), this, SLOT(on_processingData(double,QString)));
-                connect(rwData, SIGNAL(readingDataFinished(QString)), this, SLOT(on_readingDataFinished(QString)));
-                connect(rwData, SIGNAL(finished()), thread, SLOT(quit()));
-                connect(rwData, SIGNAL(finished()), rwData, SLOT(deleteLater()));
-                connect(thread, SIGNAL(finished()), thread, SLOT(deleteLater()));
-                thread->start();
-            }
-        }
-    }
-}
-
-void OCTAnnotate::on_actionReadAutoAnnotations_triggered()
-{
-    if (scan->getIsLoaded()){
-
-        // read data from file
-        QString autoSegmentFilePath;
-        autoSegmentFilePath = QFileDialog::getOpenFileName(this, tr("Open file with auto segmentations"), examDir.path(), tr("Text file (*.txt);;OCTExplorer file (*.xml);;Json file (*.json)"));
-
-        if (autoSegmentFilePath.isEmpty()){
-            if (scan->hasAutoAnnotations()){
-                QMessageBox msgBox;
-                msgBox.addButton(" Leave data ", QMessageBox::RejectRole);
-                msgBox.addButton(" Save ", QMessageBox::AcceptRole);
-
-                msgBox.setText("Do you want to clear auto segmentation data?");
-                if (msgBox.exec() == QMessageBox::Accepted){
-//                    on_actionCloseAutoSegmentation_triggered();
-                    scan->resetAutoAnnotations();
-//                    ui->imageLayersAutoCPlot->clearGraphs();
-//                    ui->imageLayersAutoCPlot->replot();
-                }
-            }
-            return;
-        } else {
-            ui->statusBar->showMessage("Trwa odczyt automatycznych segmentacji...");
-            progressBar->setMaximum(100);
-            progressBar->setVisible(true);
-            progressBar->setValue(0);
-
-            ReadWriteData *rwData = new ReadWriteData();
-            rwData->setDataObject(&patientData, scan);
-            rwData->setDataSaveStrucure(dataSaveStructure);
-            rwData->setAutoFilePath(autoSegmentFilePath);
-            rwData->addDirective("readAutoSegmentationData");
-
-            QThread *thread = new QThread;
-            rwData->moveToThread(thread);
-            connect(thread, SIGNAL(started()), rwData, SLOT(process()));
-            connect(rwData, SIGNAL(errorOccured(QString)), this, SLOT(on_errorOccured(QString)));
-            connect(rwData, SIGNAL(processingData(double,QString)), this, SLOT(on_processingData(double,QString)));
-            connect(rwData, SIGNAL(readingDataFinished(QString)), this, SLOT(on_readingDataFinished(QString)));
-            connect(rwData, SIGNAL(finished()), thread, SLOT(quit()));
-            connect(rwData, SIGNAL(finished()), rwData, SLOT(deleteLater()));
-            connect(thread, SIGNAL(finished()), thread, SLOT(deleteLater()));
-            thread->start();
-        }
-    }
-}
-
 // load image -------------------------------------------------------------------------------------
 void OCTAnnotate::loadImage(int imageNumber){
     QImage image;
@@ -1305,9 +1206,137 @@ void OCTAnnotate::setupBScanPlots(){
 
 // recalculate virtual map for selected values ----------------------------------------------------
 
-// auto annotations -------------------------------------------------------------------------------
+// annotations -------------------------------------------------------------------------------
+void OCTAnnotate::on_actionReadManualAnnotations_triggered()
+{
+    if (scan->getIsLoaded()){
+//        QMessageBox msgBox;
+//        QPushButton *saveButton = msgBox.addButton(" Save and load new exam ", QMessageBox::YesRole);
+//        QPushButton *cancelButton = msgBox.addButton(" Cancel ", QMessageBox::RejectRole);
+//        msgBox.addButton(" Load new exam without saving ", QMessageBox::NoRole);
+        bool selectNew = true;
 
-// read manual annotations from selected file -----------------------------------------------------
+//        if (octDataModified){
+//            msgBox.setText("OCT segmentation data has been changed. Do you want to save the changes before loading new exam?");
+//            msgBox.exec();
+//            if (msgBox.clickedButton() == saveButton){
+//                on_actionSaveOCTExam_triggered();
+//            } else if (msgBox.clickedButton() == cancelButton) {
+//                selectNew = false;
+//            }
+//        }
+
+        if (selectNew){
+            // read data from file
+            QString manualSegmentFilePath = QFileDialog::getOpenFileName(this, tr("Open file with manual segmentations"), examDir.path(), tr("OCTAnnotate file (*.mvri);;All files (*.*)"));
+            if (!manualSegmentFilePath.isEmpty()){
+
+                ui->statusBar->showMessage("Trwa odczyt referencyjnych segmentacji...");
+                progressBar->setMaximum(100);
+                progressBar->setVisible(true);
+                progressBar->setValue(0);
+
+                ReadWriteData *rwData = new ReadWriteData();
+                rwData->setDataObject(&patientData, scan);
+                rwData->setDataSaveStrucure(dataSaveStructure);
+                rwData->setManualFilePath(manualSegmentFilePath);
+                rwData->addDirective("readManualSegmentationData");
+
+                QThread *thread = new QThread;
+                rwData->moveToThread(thread);
+                connect(thread, SIGNAL(started()), rwData, SLOT(process()));
+                connect(rwData, SIGNAL(errorOccured(QString)), this, SLOT(on_errorOccured(QString)));
+                connect(rwData, SIGNAL(processingData(double,QString)), this, SLOT(on_processingData(double,QString)));
+                connect(rwData, SIGNAL(readingDataFinished(QString)), this, SLOT(on_readingDataFinished(QString)));
+                connect(rwData, SIGNAL(finished()), thread, SLOT(quit()));
+                connect(rwData, SIGNAL(finished()), rwData, SLOT(deleteLater()));
+                connect(thread, SIGNAL(finished()), thread, SLOT(deleteLater()));
+                thread->start();
+            }
+        }
+    }
+}
+
+void OCTAnnotate::on_actionReadAutoAnnotations_triggered()
+{
+    if (scan->getIsLoaded()){
+
+        // read data from file
+        QString autoSegmentFilePath;
+        autoSegmentFilePath = QFileDialog::getOpenFileName(this, tr("Open file with auto segmentations"), examDir.path(), tr("Json file (*.json);;OCTExplorer file (*.xml);;Text file (*.txt)"));
+
+        if (autoSegmentFilePath.isEmpty()){
+            if (scan->hasAutoAnnotations()){
+                QMessageBox msgBox;
+                msgBox.addButton(" Leave data ", QMessageBox::RejectRole);
+                msgBox.addButton(" Save ", QMessageBox::AcceptRole);
+
+                msgBox.setText("Do you want to clear auto segmentation data?");
+                if (msgBox.exec() == QMessageBox::Accepted){
+//                    on_actionCloseAutoSegmentation_triggered();
+                    scan->resetAutoAnnotations();
+//                    ui->imageLayersAutoCPlot->clearGraphs();
+//                    ui->imageLayersAutoCPlot->replot();
+                }
+            }
+            return;
+        } else {
+            ui->statusBar->showMessage("Trwa odczyt automatycznych segmentacji...");
+            progressBar->setMaximum(100);
+            progressBar->setVisible(true);
+            progressBar->setValue(0);
+
+            ReadWriteData *rwData = new ReadWriteData();
+            rwData->setDataObject(&patientData, scan);
+            rwData->setDataSaveStrucure(dataSaveStructure);
+            rwData->setAutoFilePath(autoSegmentFilePath);
+            rwData->addDirective("readAutoSegmentationData");
+
+            QThread *thread = new QThread;
+            rwData->moveToThread(thread);
+            connect(thread, SIGNAL(started()), rwData, SLOT(process()));
+            connect(rwData, SIGNAL(errorOccured(QString)), this, SLOT(on_errorOccured(QString)));
+            connect(rwData, SIGNAL(processingData(double,QString)), this, SLOT(on_processingData(double,QString)));
+            connect(rwData, SIGNAL(readingDataFinished(QString)), this, SLOT(on_readingDataFinished(QString)));
+            connect(rwData, SIGNAL(finished()), thread, SLOT(quit()));
+            connect(rwData, SIGNAL(finished()), rwData, SLOT(deleteLater()));
+            connect(thread, SIGNAL(finished()), thread, SLOT(deleteLater()));
+            thread->start();
+        }
+    }
+}
+
+void OCTAnnotate::on_actionSaveAutoAnnotations_triggered()
+{
+    if (scan->getIsLoaded()){
+        QString autoSegmentFilePath = QFileDialog::getSaveFileName(this, tr("Save auto segmentations as..."), examDir.path() + "/" + scanName, tr("Json file (*.json);;OCTExplorer file (*.xml);;Text file (*.txt)"));
+        if (!autoSegmentFilePath.isEmpty()){
+            ui->statusBar->showMessage("Trwa zapis automatycznych segmentacji...");
+            progressBar->setMaximum(100);
+            progressBar->setVisible(true);
+            progressBar->setValue(0);
+
+            ReadWriteData *rwData = new ReadWriteData();
+            rwData->setDataObject(&patientData, scan);
+            rwData->setAutoFilePath(autoSegmentFilePath);
+            rwData->addDirective("saveAutoSegmentationData");
+//            rwData->setDataSaveStrucure(dataSaveStructure);
+
+            QThread *thread = new QThread;
+            rwData->moveToThread(thread);
+            connect(thread, SIGNAL(started()), rwData, SLOT(process()));
+            connect(rwData, SIGNAL(errorOccured(QString)), this, SLOT(on_errorOccured(QString)));
+            connect(rwData, SIGNAL(processingData(double,QString)), this, SLOT(on_processingData(double,QString)));
+            connect(rwData, SIGNAL(savingDataFinished(QString)), this, SLOT(on_savingDataFinished(QString)));
+            connect(rwData, SIGNAL(finished()), thread, SLOT(quit()));
+            connect(rwData, SIGNAL(finished()), rwData, SLOT(deleteLater()));
+            connect(thread, SIGNAL(finished()), thread, SLOT(deleteLater()));
+            thread->start();
+        }
+    } else {
+        QMessageBox::critical(this, tr("Error"), tr("To save the data, it must be first loaded!"));
+    }
+}
 
 // other ------------------------------------------------------------------------------------------
 
@@ -1352,9 +1381,9 @@ void OCTAnnotate::on_readingDataFinished(QString data){
     progressBar->setVisible(false);
 
     QString msg = "Wczytano dane badania OCT";
-    if (data == "manualOnly")
+    if (data == "manualRead")
         msg = "Wczytano dane ręcznej segmentacji";
-    if (data == "autoOnly")
+    if (data == "autoRead")
         msg = "Wczytano dane automatycznej segmentacji";
     QMessageBox::information(this, "Odczyt danych OCT", msg);
 
@@ -1362,6 +1391,16 @@ void OCTAnnotate::on_readingDataFinished(QString data){
     setupBScanPlots();
     // display data
     on_tabWidget_currentChanged();
+}
+
+void OCTAnnotate::on_savingDataFinished(QString data)
+{
+    if (data == "manualSave"){
+        QMessageBox::information(this, tr("Save"), tr("Manual segmentation data saved."));
+    }
+    if (data == "autoSave"){
+        QMessageBox::information(this, tr("Save"), tr("Auto segmentation data saved."));
+    }
 }
 
 // calculate statistics for CAVRI analysis -------------------------------------------------------

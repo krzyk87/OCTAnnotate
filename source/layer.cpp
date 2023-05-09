@@ -104,7 +104,30 @@ void Layer::setPointAuto(int bscanNumber, int xPos, int zPos)
         this->pointsAuto[bscanNumber][xPos] = zPos;
 }
 
+int Layer::getPointAuto(int bscanNumber, int x)
+{
+    return this->pointsAuto[bscanNumber][x];
+}
+
 // ------------------------------- get points auto ---------------------------
+QList<QVector3D> Layer::getPointsAuto(int crossSection, int xMin, int xMax, bool isNormal){
+    QList<QVector3D> list;
+    for (int i = xMin; i <= xMax; i++){
+        QVector3D v;
+        if (isNormal){
+            v.setX(crossSection);
+            v.setY(i);
+            v.setZ(this->pointsAuto[i][crossSection]);
+        } else {
+            v.setX(i);
+            v.setY(crossSection);
+            v.setZ(this->pointsAuto[crossSection][i]);
+        }
+        list.append(v);
+    }
+    return list;
+}
+
 QVector<double> Layer::getPointsAutoVector(int crossSection, bool isNormal, int imgHeight)
 {
     int xMax = this->bscanWidth-1;

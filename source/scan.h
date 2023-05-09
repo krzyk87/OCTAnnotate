@@ -75,11 +75,13 @@ public:
     QVector<double> getLayerPointsVector(LayerName layer, int bscanNumber, bool isNormal);
     QColor getLayerColor(LayerName layer);
     void setLayerDisplayObjects(LayerName layer, QLabel *cLabel, QRadioButton *rButton);
-    QRadioButton *getLayerRButton(LayerName layer);
+    QRadioButton *getLayerRButton(LayerName layer); // <-- not working
 
     // auto annotations
     void resetAutoAnnotations();
     void setPointAuto(LayerName layer, int bscanNumber, int x, int z);
+    int getLayerPointAuto(LayerName layer, int bscanNumber, int x);
+    QList<QVector3D> getLayerPointsAuto(LayerName layer, int bscanNumber, int xMin, int xMax, bool isNormal);
     QVector<double> getLayerPointsAutoVector(LayerName layer, int bscanNumber, bool isNormal);
     bool hasAutoAnnotations();
 

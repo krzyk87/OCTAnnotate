@@ -1154,7 +1154,7 @@
        <attribute name="title">
         <string>Automatic vs Manual</string>
        </attribute>
-       <widget class="QWidget" name="">
+       <widget class="QWidget" name="layoutWidget">
         <property name="geometry">
          <rect>
           <x>260</x>
@@ -1246,7 +1246,7 @@
          </item>
         </layout>
        </widget>
-       <widget class="QWidget" name="">
+       <widget class="QWidget" name="layoutWidget">
         <property name="geometry">
          <rect>
           <x>10</x>
@@ -1338,7 +1338,9 @@
      <string>Segmentacje</string>
     </property>
     <addaction name="actionReadManualAnnotations"/>
+    <addaction name="separator"/>
     <addaction name="actionReadAutoAnnotations"/>
+    <addaction name="actionSaveAutoAnnotations"/>
    </widget>
    <addaction name="menuProgram"/>
    <addaction name="menuScan"/>
@@ -1395,6 +1397,11 @@
   <action name="actionReadAutoAnnotations">
    <property name="text">
     <string>Wczytaj automatyczne segmentacje</string>
+   </property>
+  </action>
+  <action name="actionSaveAutoAnnotations">
+   <property name="text">
+    <string>Zapisz automatyczne segmentacje</string>
    </property>
   </action>
  </widget>

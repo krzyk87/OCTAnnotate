@@ -1338,6 +1338,7 @@
      <string>Segmentacje</string>
     </property>
     <addaction name="actionReadManualAnnotations"/>
+    <addaction name="actionSaveManualAnnotations"/>
     <addaction name="separator"/>
     <addaction name="actionReadAutoAnnotations"/>
     <addaction name="actionSaveAutoAnnotations"/>
@@ -1402,6 +1403,11 @@
   <action name="actionSaveAutoAnnotations">
    <property name="text">
     <string>Zapisz automatyczne segmentacje</string>
+   </property>
+  </action>
+  <action name="actionSaveManualAnnotations">
+   <property name="text">
+    <string>Zapisz referencyjne segmentacje</string>
    </property>
   </action>
  </widget>

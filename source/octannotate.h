@@ -94,6 +94,7 @@ private slots:
 
 // Annotations
     void on_actionReadManualAnnotations_triggered();
+    void on_actionSaveManualAnnotations_triggered();
     void on_actionReadAutoAnnotations_triggered();
     void on_actionSaveAutoAnnotations_triggered();
 

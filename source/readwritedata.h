@@ -35,6 +35,7 @@ public slots:
     void setManualFilePath(QString mfPath);
     void setAutoFilePath(QString afPath);
     void addDirective(QString directive);
+    void setAppVersion(QString version);
     void setShowMessage(bool show);
     void setDataSaveStrucure(QString structure);
 
@@ -44,6 +45,7 @@ private:
     void readBinaryFile(QFile *dataFile, double *count, double *tasks);
     void readFundusImage(OCTDevice octDevice);
 
+    void saveManualSegmentationData();
     void saveAutoSegmentationData();
 
     QList<int> parseXmlVoxelSize(QXmlStreamReader& xml, bool isAuto = 0);

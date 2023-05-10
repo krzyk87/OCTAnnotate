@@ -16,6 +16,7 @@ public:
 
     void resetPoints();
     void setPoint(int bscanNumber, int xPos, int zPos);
+    int getPoint(int bscanNumber, int x);
     QList<QVector3D> getPoints(int crossSection, int xMin, int xMax, bool isNormal);
     QVector<double> getPointsVector(int crossSection, bool isNormal, int imgHeight);
 

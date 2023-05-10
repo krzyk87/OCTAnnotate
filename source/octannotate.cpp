@@ -54,7 +54,7 @@ OCTAnnotate::OCTAnnotate(QWidget *parent) : QMainWindow(parent),
 
     ui->fundusImageLabel->setScaledContents(true);
     ui->fundusImageLabel->installEventFilter(this);
-//    ui->bScanHCPlot->installEventFilter(this);
+    ui->bScanHCPlot->installEventFilter(this);
 //    ui->bScanVCPlot->installEventFilter(this);
 
     fundusAnnotate = false;
@@ -90,8 +90,8 @@ OCTAnnotate::OCTAnnotate(QWidget *parent) : QMainWindow(parent),
     scales.append(5.0);
     bscanRange = QCPRange(0,640);
 
-    appVersion = "v2.0.0";
-    this->setWindowTitle("OCTAnnotate " + appVersion);
+    appVersion = "2.0.0";
+    this->setWindowTitle("OCTAnnotate v" + appVersion);
     progressBar = new QProgressBar();
     progressBar->setMaximumWidth(250);
     progressBar->setMaximum(100);
@@ -554,6 +554,20 @@ bool OCTAnnotate::eventFilter(QObject *target, QEvent *event){
         }
         // TODO: uncomment and edit blow code for manual drawing of retina layers
         else if (target == ui->bScanHCPlot) {
+            if (event->type() == QEvent::MouseButtonPress){
+                QMouseEvent *mouseEvent = static_cast<QMouseEvent*>(event);
+                if (mouseEvent->button() == Qt::RightButton){   // copy to clipboard
+                    QClipboard *clipboard = QApplication::clipboard();
+                    clipboard->setPixmap(ui->bScanHCPlot->toPixmap());
+//                    QDir virtualMapCPlotPath = examDir;
+//                    virtualMapCPlotPath.cdUp();
+//                    QString fileName = scanName;
+//                    fileName.chop(4);
+//                    ui->virtualMapImageCPlot->savePng(virtualMapCPlotPath.absolutePath() + "/report/report_VMA_files/" + fileName + "_VRI_virtual_map.png",300,350);
+//                    ui->virtualMapImageCPlot->saveJpg(virtualMapCPlotPath.absolutePath() + "/report/report_VMA_files/" + fileName + "_VRI_virtual_map.jpg",400,450,1,100,300,QCP::ruDotsPerInch);
+                    QMessageBox::information(this, "Saved", "The image was saved to the clipboard");
+                }
+            }
 //            QMouseEvent *mouseEvent = static_cast<QMouseEvent*>(event);
 //            currPoint.setX(ui->bScanHCPlot->xAxis->pixelToCoord(mouseEvent->pos().x()));
 //            currPoint.setY(patientData.getBscanHeight() - ui->bScanHCPlot->yAxis->pixelToCoord(mouseEvent->pos().y()));
@@ -1257,6 +1271,37 @@ void OCTAnnotate::on_actionReadManualAnnotations_triggered()
     }
 }
 
+void OCTAnnotate::on_actionSaveManualAnnotations_triggered()
+{
+    if (scan->getIsLoaded()){
+        QString manualFilePath = QFileDialog::getSaveFileName(this, tr("Save reference segmentations as..."), examDir.path() + "/mvri/" + scanName, tr("OCTAnnotate file (*.mvri)"));
+        if (!manualFilePath.isEmpty()){
+            ui->statusBar->showMessage("Trwa zapis automatycznych segmentacji...");
+            progressBar->setMaximum(100);
+            progressBar->setVisible(true);
+            progressBar->setValue(0);
+
+            ReadWriteData *rwData = new ReadWriteData();
+            rwData->setDataObject(&patientData, scan);
+            rwData->setAppVersion(appVersion);
+            rwData->setManualFilePath(manualFilePath);
+            rwData->addDirective("saveManualSegmentationData");
+            rwData->setDataSaveStrucure(dataSaveStructure);
+
+            QThread *thread = new QThread;
+            rwData->moveToThread(thread);
+            connect(thread, SIGNAL(started()), rwData, SLOT(process()));
+            connect(rwData, SIGNAL(errorOccured(QString)), this, SLOT(on_errorOccured(QString)));
+            connect(rwData, SIGNAL(processingData(double,QString)), this, SLOT(on_processingData(double,QString)));
+            connect(rwData, SIGNAL(savingDataFinished(QString)), this, SLOT(on_savingDataFinished(QString)));
+            connect(rwData, SIGNAL(finished()), thread, SLOT(quit()));
+            connect(rwData, SIGNAL(finished()), rwData, SLOT(deleteLater()));
+            connect(thread, SIGNAL(finished()), thread, SLOT(deleteLater()));
+            thread->start();
+        }
+    }
+}
+
 void OCTAnnotate::on_actionReadAutoAnnotations_triggered()
 {
     if (scan->getIsLoaded()){
@@ -1366,7 +1411,7 @@ void OCTAnnotate::on_readingDataFinished(QString data){
 
         // display patients data
         // display information
-        this->setWindowTitle("OCTAnnotate " + appVersion + " - " + scanName);
+        this->setWindowTitle("OCTAnnotate v" + appVersion + " - " + scanName);
 
         currentImageNumber = scan->getBscansNumber()/2;   // middle B-scan
         currentNormalImageNumber = scan->getBscanWidth()/2;

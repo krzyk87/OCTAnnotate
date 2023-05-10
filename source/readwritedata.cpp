@@ -28,7 +28,7 @@ ReadWriteData::ReadWriteData(QObject *parent) : QObject(parent)
 
 ReadWriteData::~ReadWriteData()
 {
-
+//    scan->deleteLater();
 }
 
 void ReadWriteData::process(){
@@ -59,10 +59,10 @@ void ReadWriteData::process(){
             emit readingDataFinished("autoRead");
         }
         // TODO: uncomment below lines when adding functionalities for automatic segmentation
-//        if (dir == "saveManualSegmentationData"){
-//            this->saveManualSegmentationData();
-//            emit savingDataFinished("manualSave");
-//        }
+        if (dir == "saveManualSegmentationData"){
+            this->saveManualSegmentationData();
+            emit savingDataFinished("manualSave");
+        }
         if (dir == "saveAutoSegmentationData"){
             this->saveAutoSegmentationData();
             emit savingDataFinished("autoSave");
@@ -87,6 +87,11 @@ void ReadWriteData::setDataObject(PatientData *patientData, Scan *tscan){
 
 void ReadWriteData::addDirective(QString directive){
     directives.append(directive);
+}
+
+void ReadWriteData::setAppVersion(QString version)
+{
+    this->appVersion = version;
 }
 
 void ReadWriteData::setShowMessage(bool show){
@@ -487,7 +492,7 @@ void ReadWriteData::readFileManualSegmentation(QFile *dataFile)
     double tasks = 1 + layersCount*scan->getBscansNumber() + layersCount;
     double count = 0;
     emit processingData(0, "Trwa odczyt danych ręcznej segmentacji...");
-    scanName = QFileInfo(dataFile->fileName()).baseName();
+    scanName = QFileInfo(dataFile->fileName()).completeBaseName();
 
     if (!dataFile->exists() || !dataFile->open(QIODevice::ReadWrite)){
         emit errorOccured(tr("Nie można otworzyć pliku z ręczną segmentacją warstw: ") + dataFile->fileName());
@@ -1019,6 +1024,208 @@ void ReadWriteData::parseUndefinedRegion(QXmlStreamReader &xml, bool isAuto)
 }
 
 // save patient's and exam data -------------------------------------------------------------------
+void ReadWriteData::saveManualSegmentationData()
+{
+    emit processingData(0, "Saving OCT manual segmentations...");
+    double tasks = 1 + 12*scan->getBscansNumber();
+    double count = 0;
+    QList<LayerName> layers = getAllLayers();
+
+//    // check if no holes in the dataset
+//    foreach (LayerName layer, layers) {
+//        scan->smoothLayer(layer);
+//        emit processingData((++count)/tasks*100,"");
+//    }
+
+    // save to file
+    QFile manualSegmentFile(manualFilePath);
+
+    if (!manualSegmentFile.open(QIODevice::WriteOnly | QIODevice::Text | QIODevice::Truncate)){
+        emit errorOccured(tr("Could not access file with manual layers segmentations"));
+        return;
+    } else {
+        if (dataSaveStrucure == "txt"){
+            QTextStream stream(&manualSegmentFile);
+            QPoint center = scan->getScanCenter();
+            stream << "scanCenter=" + QString::number(center.x()) + "," + QString::number(center.y()) << Qt::endl;
+            emit processingData((++count)/tasks*100,"");
+
+            QList<QVector3D> pointsList;
+            // PCV_0=0,0;1,1;2,2;5,5;7,7;9,9;
+            // others...
+            foreach (LayerName layer, layers) {
+                QString sLayer = encodeLayer(layer);
+                for (int i=0; i < scan->getBscansNumber(); i++){ //(i = B-scan number)
+                    stream << sLayer + "_" + QString::number(i) + "=";
+                    pointsList = scan->getLayerPoints(layer, i, 0, scan->getBscanWidth()-1, false);
+                    foreach (QVector3D p, pointsList) {
+                        stream << p.x() << "," << p.z() << ";";
+                    }
+                    stream << Qt::endl;
+                    emit processingData((++count)/tasks*100,"");
+                }
+            }
+        } else if (dataSaveStrucure == "xml"){
+            QXmlStreamWriter xmlWriter(&manualSegmentFile);
+            xmlWriter.setAutoFormatting(true);
+            xmlWriter.writeStartDocument();
+            xmlWriter.writeStartElement("surfaces");
+
+            // executable
+            xmlWriter.writeStartElement("executable");
+                xmlWriter.writeTextElement("name", "OCTAnnotate");
+                xmlWriter.writeTextElement("version", this->appVersion);
+                xmlWriter.writeTextElement("date", QDate::currentDate().toString("dd/MM/yyyy"));
+                xmlWriter.writeTextElement("authors", "Agnieszka Stankiewicz");
+                xmlWriter.writeTextElement("institute", "Poznan University of Technology");
+                xmlWriter.writeTextElement("comment", "For investigational use only");
+            xmlWriter.writeEndElement();
+
+            // scan_characteristics
+            xmlWriter.writeStartElement("scan_characteristics");
+                // manufacturer
+                if (scan->getOCTDevice() == COPERNICUS)
+                    xmlWriter.writeTextElement("manufacturer", "Optopol");
+                else if (scan->getOCTDevice() == AVANTI)
+                    xmlWriter.writeTextElement("manufacturer", "Optovue");
+                // size
+                xmlWriter.writeStartElement("size");
+                xmlWriter.writeTextElement("unit", "voxel");
+                xmlWriter.writeTextElement("x", QString::number(scan->getBscanWidth()));
+                xmlWriter.writeTextElement("y", QString::number(scan->getBscansNumber()));
+                xmlWriter.writeTextElement("z", QString::number(scan->getBscanHeight()));
+                xmlWriter.writeEndElement();    // end of size
+                // voxel_size
+                xmlWriter.writeStartElement("voxel_size");
+                xmlWriter.writeTextElement("unit", "um");
+                xmlWriter.writeTextElement("x", QString::number(scan->getScanWidth()*1000/scan->getBscanWidth()));
+                xmlWriter.writeTextElement("y", QString::number(scan->getScanHeight()*1000/scan->getBscansNumber()));
+                xmlWriter.writeTextElement("z", QString::number(scan->getScanDepth()*1000/scan->getBscanHeight()));
+                xmlWriter.writeEndElement();    // end of voxel_size
+                // center_type
+                xmlWriter.writeTextElement("center_type", "macula");
+                // scan_center
+                xmlWriter.writeStartElement("scan_center");
+                xmlWriter.writeTextElement("x", QString::number(scan->getScanCenter().x()));
+                xmlWriter.writeTextElement("y", QString::number(scan->getScanCenter().y()));
+                xmlWriter.writeTextElement("z", "0");
+                xmlWriter.writeEndElement();    // end of scan_center
+            xmlWriter.writeEndElement();    // end of scan_characteristics
+            emit processingData((++count)/tasks*100,"");
+
+            // unit
+            xmlWriter.writeTextElement("unit", "voxel");
+            // surface_size
+            xmlWriter.writeStartElement("surface_size");
+                xmlWriter.writeTextElement("x", QString::number(scan->getBscanWidth()));
+                xmlWriter.writeTextElement("y", QString::number(scan->getBscansNumber()));
+            xmlWriter.writeEndElement();    // end of surface_size
+            // surface_num
+            xmlWriter.writeTextElement("surface_num", QString::number(layers.length())); // number of segmented layers
+
+            // for each layer:
+            foreach (LayerName layer, layers) {
+                xmlWriter.writeStartElement("surface");
+                int label;
+                QString name = "";
+                switch (layer) {
+                case PCV:
+                    label = 5;
+                    name = "PCV (PCV)";
+                    break;
+                case IB_ERM:
+                    label = 6;
+                    name = "Inner boundary of ERM (IB_ERM)";
+                    break;
+                case OB_ERM:
+                    label = 9;
+                    name = "Outer boundary of ERM (OB_ERM)";
+                    break;
+                case ILM:
+                    label = 10;
+                    name = "ILM (ILM)";
+                    break;
+                case RNFL_GCL:
+                    label = 20;
+                    name = "RNFL-GCL (RNFL-GCL)";
+                    break;
+                case GCL_IPL:
+                    label = 30;
+                    name = "GCL-IPL (GCL-IPL)";
+                    break;
+                case IPL_INL:
+                    label = 40;
+                    name = "IPL-INL (IPL-INL)";
+                    break;
+                case INL_OPL:
+                    label = 50;
+                    name = "INL-OPL (INL-OPL)";
+                    break;
+                case OPL_ONL:
+                    label = 60;
+                    name = "OPL-Henles fiber layer (OPL-HFL)";
+                    break;
+                case ELM:
+                    label = 70;
+                    name = "ELM (ELM)";
+                    break;
+                case MEZ:
+                    label = 100;
+                    name = "Boundary of myoid and ellipsoid of inner segments (BMEIS)";
+                    break;
+                case IS_OS:
+                    label = 110;
+                    name = "IS/OS junction (IS/OSJ)";
+                    break;
+                case IB_OPR:
+                    label = 120;
+                    name = "Inner boudary of OPR (IB_OPR)";
+                    break;
+                case IB_RPE:
+                    label = 140;
+                    name = "Inner boudary of RPE (IB_RPE)";
+                    break;
+                case OB_RPE:
+                    label = 150;
+                    name = "Outer boudary of RPE (OB_RPE)";
+                    break;
+                default:
+                    label = 0;
+                    name = "None";
+                    break;
+                }
+                xmlWriter.writeTextElement("label", QString::number(label));    // layer index
+                xmlWriter.writeTextElement("name", name);       // layer name
+
+                // for each B-scan:
+                for (int b_nr=0; b_nr < scan->getBscansNumber(); b_nr++){
+                    xmlWriter.writeStartElement("bscan");
+                    // for each point:
+                    for (int px=0; px < scan->getBscanWidth(); px++){
+                        xmlWriter.writeTextElement("z", QString::number(scan->getLayerPoint(layer, b_nr, px)));    // layer, bscan number, x
+                    }
+                    xmlWriter.writeEndElement();    // end of bscan
+                    emit processingData((++count)/tasks*100,"");
+                }
+                xmlWriter.writeEndElement();    // end of surface
+            }
+
+            // undefined_region
+            xmlWriter.writeStartElement("undefined_region");
+            xmlWriter.writeEndElement();    // end of undefined_region
+
+            xmlWriter.writeEndElement();    // end of surfaces
+            xmlWriter.writeEndDocument();
+
+            qDebug() << "Finished writng data to file!";
+        }
+    }
+
+    if (manualSegmentFile.isOpen())
+        manualSegmentFile.close();
+    emit processingData(100, "Manual segmentation data saved.");
+}
+
 void ReadWriteData::saveAutoSegmentationData()
 {
     emit processingData(0, "Saving OCT auto segmentation data...");
@@ -1054,6 +1261,16 @@ void ReadWriteData::saveAutoSegmentationData()
             xmlWriter.setAutoFormatting(true);
             xmlWriter.writeStartDocument();
             xmlWriter.writeStartElement("surfaces");
+
+            // executable
+            xmlWriter.writeStartElement("executable");
+                xmlWriter.writeTextElement("name", "OCTAnnotate");
+                xmlWriter.writeTextElement("version", this->appVersion);
+                xmlWriter.writeTextElement("date", QDate::currentDate().toString("dd/MM/yyyy"));
+                xmlWriter.writeTextElement("authors", "Agnieszka Stankiewicz");
+                xmlWriter.writeTextElement("institute", "Poznan University of Technology");
+                xmlWriter.writeTextElement("comment", "For investigational use only");
+            xmlWriter.writeEndElement();
 
             // scan_characteristics
             xmlWriter.writeStartElement("scan_characteristics");
@@ -1094,7 +1311,7 @@ void ReadWriteData::saveAutoSegmentationData()
                 xmlWriter.writeTextElement("y", QString::number(scan->getBscansNumber()));
             xmlWriter.writeEndElement();    // end of surface_size
             // surface_num
-            xmlWriter.writeTextElement("surface_num", QString::number(15)); // number of segmented layers
+            xmlWriter.writeTextElement("surface_num", QString::number(layers.length())); // number of segmented layers
 
             // for each layer:
             foreach (LayerName layer, layers) {
@@ -1206,7 +1423,7 @@ void ReadWriteData::saveAutoSegmentationData()
             QJsonDocument jsonDoc;
             jsonDoc.setObject(segmentations);
             autoSegmentFile.write(jsonDoc.toJson(QJsonDocument::Compact));
-//            QTextStream out(&autoSegmentFile);
+//            QTextStream out(&autoSegmentFile);        // another method of saving to file
 //            out.setEncoding(QStringConverter::Utf8);
 //            out << jsonDoc.toJson(QJsonDocument::Compact);
         } else {

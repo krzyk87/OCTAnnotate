@@ -245,6 +245,11 @@ void Scan::setPoint(LayerName layer, int bscanNumber, int x, int z)
     this->manualAnnotations = true;
 }
 
+int Scan::getLayerPoint(LayerName layer, int bscanNumber, int x)
+{
+    return this->layers[static_cast<int>(layer)]->getPoint(bscanNumber, x);
+}
+
 QList<QVector3D> Scan::getLayerPoints(LayerName layer, int bscanNumber, int xMin, int xMax, bool isNormal){
     return this->layers[static_cast<int>(layer)]->getPoints(bscanNumber,xMin,xMax,isNormal);
 }
@@ -269,6 +274,7 @@ QRadioButton *Scan::getLayerRButton(LayerName layer)
     return this->layers[static_cast<int>(layer)]->getRadioButton();
 }
 
+// Layers auto ----------------------------------------------------------------
 void Scan::resetAutoAnnotations()
 {
     QList<LayerName> layerList = getAllLayers();

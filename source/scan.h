@@ -71,8 +71,10 @@ public:
     // layers
     void resetManualAnnotations();
     void setPoint(LayerName layer, int bscanNumber, int x, int z);
+    int getLayerPoint(LayerName layer, int bscanNumber, int x);
     QList<QVector3D> getLayerPoints(LayerName layer, int bscanNumber, int xMin, int xMax, bool isNormal);
     QVector<double> getLayerPointsVector(LayerName layer, int bscanNumber, bool isNormal);
+    // layers settings
     QColor getLayerColor(LayerName layer);
     void setLayerDisplayObjects(LayerName layer, QLabel *cLabel, QRadioButton *rButton);
     QRadioButton *getLayerRButton(LayerName layer); // <-- not working

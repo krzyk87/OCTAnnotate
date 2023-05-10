@@ -53,6 +53,11 @@ void Layer::setPoint(int bscanNumber, int xPos, int zPos){
     this->points[bscanNumber][xPos] = zPos;
 }
 
+int Layer::getPoint(int bscanNumber, int x)
+{
+    return this->points[bscanNumber][x];
+}
+
 // ------------------------------- get points --------------------------------
 QList<QVector3D> Layer::getPoints(int crossSection, int xMin, int xMax, bool isNormal)
 {

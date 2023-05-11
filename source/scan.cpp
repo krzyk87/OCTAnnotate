@@ -230,35 +230,51 @@ void Scan::setFundusImage(QImage newImage){
 }
 
 // Layers ----------------------------------------------------------------
-void Scan::resetManualAnnotations(){
+void Scan::resetAnnotations(bool isManual){
     QList<LayerName> layerList = getAllLayers();
     foreach (LayerName layer, layerList) {
-        this->layers[static_cast<int>(layer)]->resetPoints();
+        this->layers[static_cast<int>(layer)]->resetPoints(isManual);
     }
 
-    this->manualAnnotations = false;
+    if (isManual)
+        this->manualAnnotations = false;
+    else
+        this->autoAnnotations = false;
 }
 
-void Scan::setPoint(LayerName layer, int bscanNumber, int x, int z)
+void Scan::setPoint(bool isManual, LayerName layer, int bscanNumber, int x, int z)
 {
-    this->layers[static_cast<int>(layer)]->setPoint(bscanNumber, x, z);
-    this->manualAnnotations = true;
+    this->layers[static_cast<int>(layer)]->setPoint(isManual, bscanNumber, x, qBound(0, z, this->bscanHeight));
+    if (isManual)
+        this->manualAnnotations = true;
+    else
+        this->autoAnnotations = true;
 }
 
-int Scan::getLayerPoint(LayerName layer, int bscanNumber, int x)
+int Scan::getLayerPoint(bool isManual, LayerName layer, int bscanNumber, int x)
 {
-    return this->layers[static_cast<int>(layer)]->getPoint(bscanNumber, x);
+    return this->layers[static_cast<int>(layer)]->getPoint(isManual, bscanNumber, x);
 }
 
-QList<QVector3D> Scan::getLayerPoints(LayerName layer, int bscanNumber, int xMin, int xMax, bool isNormal){
-    return this->layers[static_cast<int>(layer)]->getPoints(bscanNumber,xMin,xMax,isNormal);
-}
-
-QVector<double> Scan::getLayerPointsVector(LayerName layer, int bscanNumber, bool isNormal)
+QList<QVector3D> Scan::getLayerPoints(bool isManual, LayerName layer, int bscanNumber, int xMin, int xMax, bool isNormal)
 {
-    return this->layers[static_cast<int>(layer)]->getPointsVector(bscanNumber, isNormal, this->bscanHeight);
+    return this->layers[static_cast<int>(layer)]->getPoints(isManual, bscanNumber, xMin, xMax, isNormal);
 }
 
+QVector<double> Scan::getLayerPointsVector(bool isManual, LayerName layer, int bscanNumber, bool isNormal)
+{
+    return this->layers[static_cast<int>(layer)]->getPointsVector(isManual, bscanNumber, isNormal, this->bscanHeight);
+}
+
+bool Scan::hasAnnotations(bool isManual)
+{
+    if (isManual)
+        return this->manualAnnotations;
+    else
+        return this->autoAnnotations;
+}
+
+// Layer settings ----------------------------------------------------------------
 QColor Scan::getLayerColor(LayerName layer)
 {
     return this->layers[static_cast<int>(layer)]->getColor();
@@ -272,41 +288,4 @@ void Scan::setLayerDisplayObjects(LayerName layer, QLabel *cLabel, QRadioButton 
 QRadioButton *Scan::getLayerRButton(LayerName layer)
 {
     return this->layers[static_cast<int>(layer)]->getRadioButton();
-}
-
-// Layers auto ----------------------------------------------------------------
-void Scan::resetAutoAnnotations()
-{
-    QList<LayerName> layerList = getAllLayers();
-    foreach (LayerName layer, layerList) {
-        this->layers[static_cast<int>(layer)]->resetPointsAuto();
-    }
-
-    this->autoAnnotations = false;
-}
-
-void Scan::setPointAuto(LayerName layer, int bscanNumber, int x, int z)
-{
-    this->layers[static_cast<int>(layer)]->setPointAuto(bscanNumber, x, qBound(0, z, this->bscanHeight));
-    this->autoAnnotations = true;
-}
-
-int Scan::getLayerPointAuto(LayerName layer, int bscanNumber, int x)
-{
-    return this->layers[static_cast<int>(layer)]->getPointAuto(bscanNumber, x);
-}
-
-QList<QVector3D> Scan::getLayerPointsAuto(LayerName layer, int bscanNumber, int xMin, int xMax, bool isNormal)
-{
-    return this->layers[static_cast<int>(layer)]->getPointsAuto(bscanNumber, xMin, xMax, isNormal);
-}
-
-QVector<double> Scan::getLayerPointsAutoVector(LayerName layer, int bscanNumber, bool isNormal)
-{
-    return this->layers[static_cast<int>(layer)]->getPointsAutoVector(bscanNumber, isNormal, this->bscanHeight);
-}
-
-bool Scan::hasAutoAnnotations()
-{
-    return this->autoAnnotations;
 }

@@ -110,13 +110,11 @@ void ReadWriteData::setOctFile(QFile *dataFile){
     octFile = dataFile;
 }
 
-void ReadWriteData::setManualFilePath(QString mfPath){
-    this->manualFilePath = mfPath;
-}
-
-void ReadWriteData::setAutoFilePath(QString afPath)
-{
-    this->autoFilePath = afPath;
+void ReadWriteData::setFilePath(bool isManual, QString fPath){
+    if (isManual)
+        this->manualFilePath = fPath;
+    else
+        this->autoFilePath = fPath;
 }
 
 // read patient's and exam data -------------------------------------------------------------------
@@ -497,7 +495,7 @@ void ReadWriteData::readFileManualSegmentation(QFile *dataFile)
     if (!dataFile->exists() || !dataFile->open(QIODevice::ReadWrite)){
         emit errorOccured(tr("Nie można otworzyć pliku z ręczną segmentacją warstw: ") + dataFile->fileName());
     } else {
-        scan->resetManualAnnotations();
+        scan->resetAnnotations(MANUAL);
 
         QTextStream octSegmentText(dataFile);
         line = octSegmentText.readLine();
@@ -559,7 +557,7 @@ void ReadWriteData::readFileManualSegmentation(QFile *dataFile)
                             for (int j=0; j < points.count(); j++){
                                 QString p_str = points.at(j);
                                 if (p_str != ""){
-                                    scan->setPoint(layer, bscanNumber, p_str.split(",").at(0).toInt(), p_str.split(",").at(1).toInt());
+                                    scan->setPoint(MANUAL, layer, bscanNumber, p_str.split(",").at(0).toInt(), p_str.split(",").at(1).toInt());
                                 }
                             }
                             emit processingData((++count)/tasks*100,"");
@@ -604,7 +602,7 @@ void ReadWriteData::readFileAutoSegmentation(QFile *dataFile)
         qDebug() << "Auto segmentation data NOT loaded!";
         return;
     } else {
-        scan->resetAutoAnnotations();
+        scan->resetAnnotations(AUTO);
         QString line;
         int x,z;
         QString version = "";
@@ -640,7 +638,7 @@ void ReadWriteData::readFileAutoSegmentation(QFile *dataFile)
                                 if (x >= scan->getBscanWidth()){
                                     emit errorOccured("x index for auto segmentation is bigger than the image width");
                                 } else {
-                                    scan->setPointAuto(layer,bscanNumber,x,z);
+                                    scan->setPoint(AUTO, layer,bscanNumber,x,z);
                                     emit processingData((++count)/tasks*100,"");
                                 }
                             }
@@ -689,7 +687,7 @@ void ReadWriteData::readFileAutoSegmentation(QFile *dataFile)
                         QJsonArray lineArray = layerArray[bscanNumber].toArray();
                         for (int x=1; x < scan->getBscanWidth(); x++) {
                             if (lineArray.size() > (x-1)){
-                                scan->setPointAuto(layer, bscanNumber, x, lineArray[x-1].toInt());
+                                scan->setPoint(AUTO, layer, bscanNumber, x, lineArray[x-1].toInt());
                             } else {
                                 qDebug() << "More points in B-scan that elements in line array " << layerName;
                             }
@@ -963,11 +961,7 @@ void ReadWriteData::parseXmlSurfaceLines(QXmlStreamReader &xml, QString versionN
                  if (xml.tokenType() == QXmlStreamReader::StartElement){
                      if ((xml.name().toString() == "z") || (xml.name().toString() == "y")){
                          xml.readNext();
-                         if (isAuto){
-                             scan->setPointAuto(layer, scanNumber, counter, xml.text().toInt()+1);
-                         } else {
-                             scan->setPoint(layer, scanNumber, counter, xml.text().toInt());
-                         }
+                         scan->setPoint(!isAuto, layer, scanNumber, counter, xml.text().toInt());
                          counter++;
                      }
                  }
@@ -1006,11 +1000,7 @@ void ReadWriteData::parseUndefinedRegion(QXmlStreamReader &xml, bool isAuto)
                     }
                     if (x != -1 && y != -1){
                         foreach (LayerName layer, allLayers) {
-                            if (isAuto){
-                                scan->setPointAuto(layer, y, x, -1);
-                            } else {
-                                scan->setPoint(layer, y, x, -1);
-                            }
+                            scan->setPoint(!isAuto, layer, y, x, -1);
                         }
                         x = -1;
                         y = -1;
@@ -1057,7 +1047,7 @@ void ReadWriteData::saveManualSegmentationData()
                 QString sLayer = encodeLayer(layer);
                 for (int i=0; i < scan->getBscansNumber(); i++){ //(i = B-scan number)
                     stream << sLayer + "_" + QString::number(i) + "=";
-                    pointsList = scan->getLayerPoints(layer, i, 0, scan->getBscanWidth()-1, false);
+                    pointsList = scan->getLayerPoints(MANUAL, layer, i, 0, scan->getBscanWidth()-1, false);
                     foreach (QVector3D p, pointsList) {
                         stream << p.x() << "," << p.z() << ";";
                     }
@@ -1202,7 +1192,7 @@ void ReadWriteData::saveManualSegmentationData()
                     xmlWriter.writeStartElement("bscan");
                     // for each point:
                     for (int px=0; px < scan->getBscanWidth(); px++){
-                        xmlWriter.writeTextElement("z", QString::number(scan->getLayerPoint(layer, b_nr, px)));    // layer, bscan number, x
+                        xmlWriter.writeTextElement("z", QString::number(scan->getLayerPoint(MANUAL, layer, b_nr, px)));    // layer, bscan number, x
                     }
                     xmlWriter.writeEndElement();    // end of bscan
                     emit processingData((++count)/tasks*100,"");
@@ -1248,7 +1238,7 @@ void ReadWriteData::saveAutoSegmentationData()
                 QString sLayer = encodeLayer(layer);
                 for (int i=0; i < scan->getBscansNumber(); i++){ //(i = B-scan number)
                     autoSegmentText << sLayer + "_" + QString::number(i) + "=";
-                    pointsList = scan->getLayerPointsAuto(layer, i, 0, scan->getBscanWidth()-1, false);
+                    pointsList = scan->getLayerPoints(AUTO, layer, i, 0, scan->getBscanWidth()-1, false);
                     foreach (QVector3D p, pointsList) {
                         autoSegmentText << p.x() << "," << p.z() << ";";
                     }
@@ -1392,7 +1382,7 @@ void ReadWriteData::saveAutoSegmentationData()
                     xmlWriter.writeStartElement("bscan");
                     // for each point:
                     for (int px=0; px < scan->getBscanWidth(); px++){
-                        xmlWriter.writeTextElement("z", QString::number(scan->getLayerPointAuto(layer,b_nr,px)));    // layer, bscan number, x
+                        xmlWriter.writeTextElement("z", QString::number(scan->getLayerPoint(AUTO,layer,b_nr,px)));    // layer, bscan number, x
                     }
                     xmlWriter.writeEndElement();    // end of bscan
                 }
@@ -1414,7 +1404,7 @@ void ReadWriteData::saveAutoSegmentationData()
                 for (int bscanNumber=0; bscanNumber < scan->getBscansNumber(); bscanNumber++) {
                     QJsonArray bscanArray;
                     for (int x=1; x < scan->getBscanWidth(); x++) {
-                        bscanArray.push_back(scan->getLayerPointAuto(layer, bscanNumber, x));
+                        bscanArray.push_back(scan->getLayerPoint(AUTO, layer, bscanNumber, x));
                     }
                     layerArray.push_back(bscanArray);
                 }

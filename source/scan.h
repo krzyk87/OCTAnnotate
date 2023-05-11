@@ -69,23 +69,17 @@ public:
     QImage getFundusImage();
 
     // layers
-    void resetManualAnnotations();
-    void setPoint(LayerName layer, int bscanNumber, int x, int z);
-    int getLayerPoint(LayerName layer, int bscanNumber, int x);
-    QList<QVector3D> getLayerPoints(LayerName layer, int bscanNumber, int xMin, int xMax, bool isNormal);
-    QVector<double> getLayerPointsVector(LayerName layer, int bscanNumber, bool isNormal);
+    void resetAnnotations(bool isManual);
+    void setPoint(bool isManual, LayerName layer, int bscanNumber, int x, int z);
+    int getLayerPoint(bool isManual, LayerName layer, int bscanNumber, int x);
+    QList<QVector3D> getLayerPoints(bool isManual, LayerName layer, int bscanNumber, int xMin, int xMax, bool isNormal);
+    QVector<double> getLayerPointsVector(bool isManual, LayerName layer, int bscanNumber, bool isNormal);
+    bool hasAnnotations(bool isManual);
+
     // layers settings
     QColor getLayerColor(LayerName layer);
     void setLayerDisplayObjects(LayerName layer, QLabel *cLabel, QRadioButton *rButton);
     QRadioButton *getLayerRButton(LayerName layer); // <-- not working
-
-    // auto annotations
-    void resetAutoAnnotations();
-    void setPointAuto(LayerName layer, int bscanNumber, int x, int z);
-    int getLayerPointAuto(LayerName layer, int bscanNumber, int x);
-    QList<QVector3D> getLayerPointsAuto(LayerName layer, int bscanNumber, int xMin, int xMax, bool isNormal);
-    QVector<double> getLayerPointsAutoVector(LayerName layer, int bscanNumber, bool isNormal);
-    bool hasAutoAnnotations();
 
 signals:
 

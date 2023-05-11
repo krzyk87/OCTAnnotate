@@ -25,4 +25,9 @@ enum LayerName{
     OB_RPE = 14     // (OB_RPE) Outer boundary of RPE
 };
 
+enum Annotation : bool {
+    MANUAL = true,
+    AUTO = false
+};
+
 #endif // ENUMS_H

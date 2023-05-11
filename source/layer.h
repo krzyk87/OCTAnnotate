@@ -14,17 +14,14 @@ class Layer
 public:
     Layer(int bscanWidth, int bscansNumber, int index);
 
-    void resetPoints();
-    void setPoint(int bscanNumber, int xPos, int zPos);
-    int getPoint(int bscanNumber, int x);
-    QList<QVector3D> getPoints(int crossSection, int xMin, int xMax, bool isNormal);
-    QVector<double> getPointsVector(int crossSection, bool isNormal, int imgHeight);
+    // set points
+    void resetPoints(bool isManual);
+    void setPoint(bool isManual, int bscanNumber, int xPos, int zPos);
 
-    void resetPointsAuto();
-    void setPointAuto(int bscanNumber, int xPos, int zPos);
-    int getPointAuto(int bscanNumber, int x);
-    QList<QVector3D> getPointsAuto(int crossSection, int xMin, int xMax, bool isNormal);
-    QVector<double> getPointsAutoVector(int crossSection, bool isNormal, int imgHeight);
+    // get points
+    int getPoint(bool isManual, int bscanNumber, int x);
+    QList<QVector3D> getPoints(bool isManual, int crossSection, int xMin, int xMax, bool isNormal);
+    QVector<double> getPointsVector(bool isManual, int crossSection, bool isNormal, int imgHeight);
 
     void assignColor();
     QColor getColor();

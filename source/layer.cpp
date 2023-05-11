@@ -13,53 +13,58 @@ Layer::Layer(int bscanWidth, int bscansNumber, int index)
     this->bscanWidth = bscanWidth;
     this->bscansNumber = bscansNumber;
 
-    resetPoints();
-    resetPointsAuto();
+    resetPoints(MANUAL);
+    resetPoints(AUTO);
 
     assignColor();
 }
 
 // -------------------------- reset points ----------------------------
-void Layer::resetPoints(){
+void Layer::resetPoints(bool isManual){
 
-    this->points.clear();
-
-    QList<int> pList;
-    for (int i=0; i<this->bscanWidth; i++){
-        pList.append(-1);
-    }
-    this->points.reserve(this->bscansNumber);
-    for (int i=0; i < this->bscansNumber; i++){
-        this->points.append(pList);
-    }
-}
-
-void Layer::resetPointsAuto()
-{
-    this->pointsAuto.clear();
+    if (isManual)
+        this->points.clear();
+    else
+        this->pointsAuto.clear();
 
     QList<int> pList;
     for (int i=0; i<this->bscanWidth; i++){
         pList.append(-1);
     }
-    this->pointsAuto.reserve(this->bscansNumber);
-    for (int i=0; i < this->bscansNumber; i++){
-        this->pointsAuto.append(pList);
+
+    if (isManual){
+        this->points.reserve(this->bscansNumber);
+        for (int i=0; i < this->bscansNumber; i++){
+            this->points.append(pList);
+        }
+    } else {
+        this->pointsAuto.reserve(this->bscansNumber);
+        for (int i=0; i < this->bscansNumber; i++){
+            this->pointsAuto.append(pList);
+        }
     }
 }
 
 // ------------------------------- set points -----------------------------------
-void Layer::setPoint(int bscanNumber, int xPos, int zPos){
-    this->points[bscanNumber][xPos] = zPos;
+void Layer::setPoint(bool isManual, int bscanNumber, int xPos, int zPos){
+    if (zPos < 1)
+        zPos = -1;
+    if (isManual)
+        this->points[bscanNumber][xPos] = zPos;
+    else
+        this->pointsAuto[bscanNumber][xPos] = zPos;
 }
 
-int Layer::getPoint(int bscanNumber, int x)
+int Layer::getPoint(bool isManual, int bscanNumber, int x)
 {
-    return this->points[bscanNumber][x];
+    if (isManual)
+        return this->points[bscanNumber][x];
+    else
+        return this->pointsAuto[bscanNumber][x];
 }
 
 // ------------------------------- get points --------------------------------
-QList<QVector3D> Layer::getPoints(int crossSection, int xMin, int xMax, bool isNormal)
+QList<QVector3D> Layer::getPoints(bool isManual, int crossSection, int xMin, int xMax, bool isNormal)
 {
     QList<QVector3D> list;
     for (int i = xMin; i <= xMax; i++){
@@ -67,18 +72,18 @@ QList<QVector3D> Layer::getPoints(int crossSection, int xMin, int xMax, bool isN
         if (isNormal){
             v.setX(crossSection);
             v.setY(i);
-            v.setZ(this->points[i][crossSection]);
+            v.setZ(isManual ? this->points[i][crossSection] : this->pointsAuto[i][crossSection]);
         } else {
             v.setX(i);
             v.setY(crossSection);
-            v.setZ(this->points[crossSection][i]);
+            v.setZ(isManual ? this->points[crossSection][i] : this->pointsAuto[crossSection][i]);
         }
         list.append(v);
     }
     return list;
 }
 
-QVector<double> Layer::getPointsVector(int crossSection, bool isNormal, int imgHeight)
+QVector<double> Layer::getPointsVector(bool isManual, int crossSection, bool isNormal, int imgHeight)
 {
     int xMax = this->bscanWidth-1;
     if (isNormal)
@@ -87,9 +92,9 @@ QVector<double> Layer::getPointsVector(int crossSection, bool isNormal, int imgH
     int zVal;
     for (int i=0; i<=xMax; i++){
         if (isNormal){
-            zVal = this->points[i][crossSection];
+            zVal = isManual ? this->points[i][crossSection] : this->pointsAuto[i][crossSection];
         } else {
-            zVal = this->points[crossSection][i];
+            zVal = isManual ? this->points[crossSection][i] : this->pointsAuto[crossSection][i];
         }
         if (zVal == -1){
             pointsVector[i] = std::numeric_limits<double>::quiet_NaN();
@@ -101,59 +106,28 @@ QVector<double> Layer::getPointsVector(int crossSection, bool isNormal, int imgH
 }
 
 // ------------------------------- set points auto ---------------------------
-void Layer::setPointAuto(int bscanNumber, int xPos, int zPos)
-{
-    if (zPos < 1)
-        this->pointsAuto[bscanNumber][xPos] = -1;
-    else
-        this->pointsAuto[bscanNumber][xPos] = zPos;
-}
 
-int Layer::getPointAuto(int bscanNumber, int x)
-{
-    return this->pointsAuto[bscanNumber][x];
-}
-
-// ------------------------------- get points auto ---------------------------
-QList<QVector3D> Layer::getPointsAuto(int crossSection, int xMin, int xMax, bool isNormal){
-    QList<QVector3D> list;
-    for (int i = xMin; i <= xMax; i++){
-        QVector3D v;
-        if (isNormal){
-            v.setX(crossSection);
-            v.setY(i);
-            v.setZ(this->pointsAuto[i][crossSection]);
-        } else {
-            v.setX(i);
-            v.setY(crossSection);
-            v.setZ(this->pointsAuto[crossSection][i]);
-        }
-        list.append(v);
-    }
-    return list;
-}
-
-QVector<double> Layer::getPointsAutoVector(int crossSection, bool isNormal, int imgHeight)
-{
-    int xMax = this->bscanWidth-1;
-    if (isNormal)
-        xMax = this->bscansNumber-1;
-    QVector<double> pointsVector(xMax+1);
-    int zVal;
-    for (int i=0; i<=xMax; i++){
-        if (isNormal){
-            zVal = this->pointsAuto[i][crossSection];
-        } else {
-            zVal = this->pointsAuto[crossSection][i];
-        }
-        if (zVal == -1){
-            pointsVector[i] = std::numeric_limits<double>::quiet_NaN();
-        } else {
-            pointsVector[i] = imgHeight - zVal;// - flatDiff[i];
-        }
-    }
-    return pointsVector;
-}
+//QVector<double> Layer::getPointsAutoVector(int crossSection, bool isNormal, int imgHeight)
+//{
+//    int xMax = this->bscanWidth-1;
+//    if (isNormal)
+//        xMax = this->bscansNumber-1;
+//    QVector<double> pointsVector(xMax+1);
+//    int zVal;
+//    for (int i=0; i<=xMax; i++){
+//        if (isNormal){
+//            zVal = this->pointsAuto[i][crossSection];
+//        } else {
+//            zVal = this->pointsAuto[crossSection][i];
+//        }
+//        if (zVal == -1){
+//            pointsVector[i] = std::numeric_limits<double>::quiet_NaN();
+//        } else {
+//            pointsVector[i] = imgHeight - zVal;// - flatDiff[i];
+//        }
+//    }
+//    return pointsVector;
+//}
 
 // -----------------
 void Layer::assignColor()

@@ -250,7 +250,7 @@ void OCTAnnotate::loadOCT(bool isBinary)
             else
                 rwData->setDirectoryOct(&octDir);
             rwData->setDataSaveStrucure(dataSaveStructure);
-            rwData->setManualFilePath(examDir.absolutePath().append("/mvri/" + scanName + ".mvri"));
+            rwData->setFilePath(MANUAL, examDir.absolutePath().append("/mvri/" + scanName + ".mvri"));
             rwData->addDirective("readPatientData");
             if (isBinary)
                 rwData->addDirective("readOctFile");
@@ -686,7 +686,7 @@ void OCTAnnotate::setLayerVisibility(bool st, QRadioButton *button, LayerName la
             flatDiff.append(0);
         }
 
-        QVector<double> z = scan->getLayerPointsVector(layer, currentImageNumber, false);
+        QVector<double> z = scan->getLayerPointsVector(MANUAL, layer, currentImageNumber, false);
         QVector<double> x(z.length());
         for (int i=0; i<z.length(); i++){
             x[i] = i;
@@ -701,7 +701,7 @@ void OCTAnnotate::setLayerVisibility(bool st, QRadioButton *button, LayerName la
             flatDiffNormal.append(0);
         }
 
-        z = scan->getLayerPointsVector(layer, currentNormalImageNumber, true);
+        z = scan->getLayerPointsVector(MANUAL, layer, currentNormalImageNumber, true);
         x.resize(z.length());
         for (int i=0; i<z.length(); i++){
             x[i] = i;
@@ -1048,7 +1048,7 @@ void OCTAnnotate::displayAnnotations(QList<int> flatDiff)
 
         // set data to graphs
         foreach (LayerName layer, dispLayers) {
-            QVector<double> z = scan->getLayerPointsVector(layer, currentImageNumber, false);
+            QVector<double> z = scan->getLayerPointsVector(MANUAL, layer, currentImageNumber, false);
             QVector<double> x(z.length());
             for (int i=0; i<z.length(); i++){
                 x[i] = i;
@@ -1074,7 +1074,7 @@ void OCTAnnotate::displayNormalAnnotations(QList<int> flatDiff)
 
         // set data to graphs
         foreach (LayerName layer, dispLayers) {
-            QVector<double> z = scan->getLayerPointsVector(layer, currentNormalImageNumber, true);
+            QVector<double> z = scan->getLayerPointsVector(MANUAL, layer, currentNormalImageNumber, true);
             QVector<double> x(z.length());
             for (int i=0; i<z.length(); i++){
                 x[i] = i;
@@ -1093,11 +1093,7 @@ void OCTAnnotate::displayLayers(QCustomPlot *plot, bool isAuto)
 
     // set data to graphs
     foreach (LayerName layer, dispLayers) {
-        QVector<double> z;
-        if (!isAuto)
-            z = scan->getLayerPointsVector(layer, currentImageNumber, false);
-        else
-            z = scan->getLayerPointsAutoVector(layer, currentImageNumber, false);
+        QVector<double> z = scan->getLayerPointsVector(!isAuto, layer, currentImageNumber, false);
         QVector<double> x(z.length());
         for (int i=0; i<z.length(); i++){
             x[i] = i;
@@ -1253,7 +1249,7 @@ void OCTAnnotate::on_actionReadManualAnnotations_triggered()
                 ReadWriteData *rwData = new ReadWriteData();
                 rwData->setDataObject(&patientData, scan);
                 rwData->setDataSaveStrucure(dataSaveStructure);
-                rwData->setManualFilePath(manualSegmentFilePath);
+                rwData->setFilePath(MANUAL, manualSegmentFilePath);
                 rwData->addDirective("readManualSegmentationData");
 
                 QThread *thread = new QThread;
@@ -1273,7 +1269,7 @@ void OCTAnnotate::on_actionReadManualAnnotations_triggered()
 
 void OCTAnnotate::on_actionSaveManualAnnotations_triggered()
 {
-    if (scan->getIsLoaded()){
+    if (scan->getIsLoaded() && scan->hasAnnotations(MANUAL)){
         QString manualFilePath = QFileDialog::getSaveFileName(this, tr("Save reference segmentations as..."), examDir.path() + "/mvri/" + scanName, tr("OCTAnnotate file (*.mvri)"));
         if (!manualFilePath.isEmpty()){
             ui->statusBar->showMessage("Trwa zapis automatycznych segmentacji...");
@@ -1284,7 +1280,7 @@ void OCTAnnotate::on_actionSaveManualAnnotations_triggered()
             ReadWriteData *rwData = new ReadWriteData();
             rwData->setDataObject(&patientData, scan);
             rwData->setAppVersion(appVersion);
-            rwData->setManualFilePath(manualFilePath);
+            rwData->setFilePath(MANUAL, manualFilePath);
             rwData->addDirective("saveManualSegmentationData");
             rwData->setDataSaveStrucure(dataSaveStructure);
 
@@ -1311,17 +1307,16 @@ void OCTAnnotate::on_actionReadAutoAnnotations_triggered()
         autoSegmentFilePath = QFileDialog::getOpenFileName(this, tr("Open file with auto segmentations"), examDir.path(), tr("Json file (*.json);;OCTExplorer file (*.xml);;Text file (*.txt)"));
 
         if (autoSegmentFilePath.isEmpty()){
-            if (scan->hasAutoAnnotations()){
+            if (scan->hasAnnotations(AUTO)){
                 QMessageBox msgBox;
                 msgBox.addButton(" Leave data ", QMessageBox::RejectRole);
                 msgBox.addButton(" Save ", QMessageBox::AcceptRole);
 
                 msgBox.setText("Do you want to clear auto segmentation data?");
                 if (msgBox.exec() == QMessageBox::Accepted){
-//                    on_actionCloseAutoSegmentation_triggered();
-                    scan->resetAutoAnnotations();
-//                    ui->imageLayersAutoCPlot->clearGraphs();
-//                    ui->imageLayersAutoCPlot->replot();
+                    scan->resetAnnotations(AUTO);
+                    ui->layersAutoCPlot->clearGraphs();
+                    ui->layersAutoCPlot->replot();
                 }
             }
             return;
@@ -1334,7 +1329,7 @@ void OCTAnnotate::on_actionReadAutoAnnotations_triggered()
             ReadWriteData *rwData = new ReadWriteData();
             rwData->setDataObject(&patientData, scan);
             rwData->setDataSaveStrucure(dataSaveStructure);
-            rwData->setAutoFilePath(autoSegmentFilePath);
+            rwData->setFilePath(AUTO, autoSegmentFilePath);
             rwData->addDirective("readAutoSegmentationData");
 
             QThread *thread = new QThread;
@@ -1353,7 +1348,7 @@ void OCTAnnotate::on_actionReadAutoAnnotations_triggered()
 
 void OCTAnnotate::on_actionSaveAutoAnnotations_triggered()
 {
-    if (scan->getIsLoaded()){
+    if (scan->getIsLoaded() && scan->hasAnnotations(AUTO)){
         QString autoSegmentFilePath = QFileDialog::getSaveFileName(this, tr("Save auto segmentations as..."), examDir.path() + "/" + scanName, tr("Json file (*.json);;OCTExplorer file (*.xml);;Text file (*.txt)"));
         if (!autoSegmentFilePath.isEmpty()){
             ui->statusBar->showMessage("Trwa zapis automatycznych segmentacji...");
@@ -1363,7 +1358,7 @@ void OCTAnnotate::on_actionSaveAutoAnnotations_triggered()
 
             ReadWriteData *rwData = new ReadWriteData();
             rwData->setDataObject(&patientData, scan);
-            rwData->setAutoFilePath(autoSegmentFilePath);
+            rwData->setFilePath(AUTO, autoSegmentFilePath);
             rwData->addDirective("saveAutoSegmentationData");
 //            rwData->setDataSaveStrucure(dataSaveStructure);
 

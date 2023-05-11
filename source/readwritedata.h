@@ -32,8 +32,7 @@ public slots:
     void setDataObject(PatientData *patientData, Scan *tscan);
     void setDirectoryOct(QDir *dataDir);
     void setOctFile(QFile *dataFile);
-    void setManualFilePath(QString mfPath);
-    void setAutoFilePath(QString afPath);
+    void setFilePath(bool isManual, QString fPath);
     void addDirective(QString directive);
     void setAppVersion(QString version);
     void setShowMessage(bool show);

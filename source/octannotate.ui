@@ -1342,6 +1342,8 @@
     <addaction name="separator"/>
     <addaction name="actionReadAutoAnnotations"/>
     <addaction name="actionSaveAutoAnnotations"/>
+    <addaction name="separator"/>
+    <addaction name="actionCopyAutoSegmentationsAsManual"/>
    </widget>
    <addaction name="menuProgram"/>
    <addaction name="menuScan"/>
@@ -1408,6 +1410,11 @@
   <action name="actionSaveManualAnnotations">
    <property name="text">
     <string>Zapisz referencyjne segmentacje</string>
+   </property>
+  </action>
+  <action name="actionCopyAutoSegmentationsAsManual">
+   <property name="text">
+    <string>Kopiuj automatyczne segmentacje jako referencyjne</string>
    </property>
   </action>
  </widget>

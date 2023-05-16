@@ -16,8 +16,7 @@ public:
     ~ReadWriteData();
 
     bool readPatientData();
-    void readFileManualSegmentation(QFile *dataFile);
-    void readFileAutoSegmentation(QFile *dataFile);
+    void readSegmentationFile(QFile *dataFile, bool isManual);
 
 signals:
     void finished();
@@ -44,14 +43,13 @@ private:
     void readBinaryFile(QFile *dataFile, double *count, double *tasks);
     void readFundusImage(OCTDevice octDevice);
 
-    void saveManualSegmentationData();
-    void saveAutoSegmentationData();
+    void saveSegmentationData(bool isManual);
 
     QList<int> parseXmlVoxelSize(QXmlStreamReader& xml, bool isAuto = 0);
     QString parseXmlExeVersion(QXmlStreamReader &xml);
     void parseXmlSurfaceLines(QXmlStreamReader& xml, QString versionName, bool isAuto = 0);
     void parseUndefinedRegion(QXmlStreamReader& xml, bool isAuto = 0);
-
+    void parseJsonSurface(QString layerName, QJsonArray layerArray, bool isManual = 0);
 
     QDir *octDir;
     QFile *octFile;
@@ -63,7 +61,7 @@ private:
     Scan *scan;
     QString appVersion;
     bool showMessage;
-    QString dataSaveStrucure;
+    QString dataSaveFormat;
 };
 
 #endif // READWRITEDATA_H

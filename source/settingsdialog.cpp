@@ -39,8 +39,10 @@ SettingsDialog::SettingsDialog(QString configFilePath, QWidget *parent) : QDialo
     ui->blockPCVCBox->setChecked(blockPCV);
     if (dataSaveStructure == "xml")
         ui->dataSaveStructureCBox->setCurrentIndex(0);
-    else if (dataSaveStructure == "txt")
+    else if (dataSaveStructure == "json")
         ui->dataSaveStructureCBox->setCurrentIndex(1);
+    else    // txt
+        ui->dataSaveStructureCBox->setCurrentIndex(2);
 }
 
 SettingsDialog::~SettingsDialog()
@@ -80,6 +82,8 @@ void SettingsDialog::on_acceptButton_clicked()
         if (ui->dataSaveStructureCBox->currentIndex() == 0)
             this->dataSaveStructure = "xml";
         else if (ui->dataSaveStructureCBox->currentIndex() == 1)
+            this->dataSaveStructure = "json";
+        else
             this->dataSaveStructure = "txt";
 
         if(saveSettingsToFile())
@@ -100,12 +104,12 @@ void SettingsDialog::readSettingsFromFile(){
     pathOctData = appSettings.value("Paths/path_OCT_data",pathOctDataDef).toString();
     pathExamData = appSettings.value("Paths/path_exam_data",pathExamDataDef).toString();
 
-    showETDRSGrid = appSettings.value("Display/show_ETDRS_grid",showETDRSGridDef).toBool();
-    showCenterOnBscan = appSettings.value("Display/show_center_on_Bscan",showCenterOnBscanDef).toBool();
-    showBscanOnErrorPlot = appSettings.value("Display/show_Bscan_on_error_plot",showBscanOnErrorPlotDef).toBool();
+    showETDRSGrid = appSettings.value("Display/showETDRSGrid",showETDRSGridDef).toBool();
+    showCenterOnBscan = appSettings.value("Display/showCenterOnBscan",showCenterOnBscanDef).toBool();
+    showBscanOnErrorPlot = appSettings.value("Display/showBscanOnErrorPlot",showBscanOnErrorPlotDef).toBool();
 
-    blockPCV = appSettings.value("block_PCV",blockPCVDef).toBool();
-    dataSaveStructure = appSettings.value("data_save_structure",dataSaveStructureDef).toString();
+    blockPCV = appSettings.value("blockPCV",blockPCVDef).toBool();
+    dataSaveStructure = appSettings.value("dataSaveStructure",dataSaveStructureDef).toString();
 }
 
 bool SettingsDialog::saveSettingsToFile(){
@@ -222,5 +226,7 @@ void SettingsDialog::on_dataSaveStructureCBox_currentIndexChanged(int index)
     if (index == 0)
         dataSaveStructure = "xml";
     else if (index == 1)
+        dataSaveStructure = "json";
+    else
         dataSaveStructure = "txt";
 }

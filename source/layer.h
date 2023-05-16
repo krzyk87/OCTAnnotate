@@ -17,6 +17,7 @@ public:
     // set points
     void resetPoints(bool isManual);
     void setPoint(bool isManual, int bscanNumber, int xPos, int zPos);
+    void copyAuto2ManualPoints(int bscanNumber);
 
     // get points
     int getPoint(bool isManual, int bscanNumber, int x);

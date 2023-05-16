@@ -74,6 +74,7 @@ public:
     int getLayerPoint(bool isManual, LayerName layer, int bscanNumber, int x);
     QList<QVector3D> getLayerPoints(bool isManual, LayerName layer, int bscanNumber, int xMin, int xMax, bool isNormal);
     QVector<double> getLayerPointsVector(bool isManual, LayerName layer, int bscanNumber, bool isNormal);
+    void copyAuto2ManualLayerPoints(LayerName layer, int bscanNumber = -1);
     bool hasAnnotations(bool isManual);
 
     // layers settings

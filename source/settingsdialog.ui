@@ -333,6 +333,11 @@
            </item>
            <item>
             <property name="text">
+             <string>json</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
              <string>txt</string>
             </property>
            </item>

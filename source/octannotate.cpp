@@ -111,7 +111,7 @@ void OCTAnnotate::loadConfigurations(SettingsDialog *sDialog){
     octDir = QDir(sDialog->getPathOctData());
     examDir = QDir(sDialog->getPathExamData());
 
-    dataSaveStructure = sDialog->getDataSaveStructure();
+    dataSaveFormat = sDialog->getDataSaveStructure();
 }
 
 void OCTAnnotate::enableNavigationButtons()
@@ -249,7 +249,7 @@ void OCTAnnotate::loadOCT(bool isBinary)
                 rwData->setOctFile(&octFile);
             else
                 rwData->setDirectoryOct(&octDir);
-            rwData->setDataSaveStrucure(dataSaveStructure);
+            rwData->setDataSaveStrucure(dataSaveFormat);
             rwData->setFilePath(MANUAL, examDir.absolutePath().append("/mvri/" + scanName + ".mvri"));
             rwData->addDirective("readPatientData");
             if (isBinary)
@@ -983,6 +983,112 @@ void OCTAnnotate::changeImageRange(int dir)
     }
 }
 
+void OCTAnnotate::adjustScrollBar(QScrollBar *scrollBar, double factor)
+{
+    scrollBar->setValue(int(factor * scrollBar->value() + ((factor - 1) * scrollBar->pageStep()/2)));
+}
+
+// general data edit ------------------------------------------------------------------------------
+
+// layers plot --------------------------------------------------------------------
+void OCTAnnotate::setupBScanPlots(){
+    ui->bScanHCPlot->clearGraphs();
+
+    // configure axis
+    ui->bScanHCPlot->xAxis->setLabel("B-scan pixel (horizontal direction)");    // bottom
+    ui->bScanHCPlot->yAxis->setLabel("B-scan pixel (vertical direction)");      // left
+    ui->bScanHCPlot->xAxis->setRange(0,scan->getBscanWidth());
+    ui->bScanHCPlot->yAxis->setRange(0,scan->getBscanHeight());
+    ui->bScanHCPlot->xAxis->grid()->setVisible(false);
+    ui->bScanHCPlot->yAxis->grid()->setVisible(false);
+
+    ui->bScanHCPlot->xAxis2->setLabel("Scan width [mm]");
+    ui->bScanHCPlot->yAxis2->setLabel("Scan depth [um]");
+    ui->bScanHCPlot->xAxis2->setRange(0,scan->getScanWidth());      // top
+    ui->bScanHCPlot->yAxis2->setRange(0,scan->getScanDepth()*1000); // right
+    QSharedPointer<QCPAxisTicker> ticker(new QCPAxisTicker);
+    ticker->setTickCount(static_cast<int>(scan->getScanDepth()*1000/100));
+    ui->bScanHCPlot->yAxis2->setTicker(ticker);
+    ui->bScanHCPlot->xAxis2->setVisible(true);
+    ui->bScanHCPlot->yAxis2->setVisible(true);
+
+    // add graphs
+    QList<LayerName> allLayers = getAllLayers();
+    int graphID = 0;
+    foreach (LayerName layer, allLayers) {
+        ui->bScanHCPlot->addGraph();
+        ui->bScanHCPlot->graph(graphID)->setPen(QPen(scan->getLayerColor(layer)));
+        ui->bScanHCPlot->graph(graphID)->setLineStyle(QCPGraph::lsLine);
+        ui->bScanHCPlot->graph(graphID)->setScatterStyle(QCPScatterStyle(QCPScatterStyle::ssCircle,1.5)); // 3.5 do publikacji
+        graphID++;
+    }
+
+    // normal image
+    ui->bScanVCPlot->clearGraphs();
+
+    ui->bScanVCPlot->xAxis->setLabel("B-scan cross-section");
+    ui->bScanVCPlot->yAxis->setLabel("B-scan pixel (vertical direction)");
+    ui->bScanVCPlot->xAxis->setRange(0,scan->getBscansNumber());
+    ui->bScanVCPlot->yAxis->setRange(0,scan->getBscanHeight());
+    ui->bScanVCPlot->xAxis->grid()->setVisible(false);
+    ui->bScanVCPlot->yAxis->grid()->setVisible(false);
+
+    ui->bScanVCPlot->xAxis2->setLabel("Scan width [mm]");
+    ui->bScanVCPlot->yAxis2->setLabel("Scan depth [um]");
+    ui->bScanVCPlot->xAxis2->setRange(0,scan->getScanWidth());      // top
+    ui->bScanVCPlot->yAxis2->setRange(0,scan->getScanDepth()*1000); // right
+    ui->bScanVCPlot->yAxis2->setTicker(ticker);
+    ui->bScanVCPlot->xAxis2->setVisible(true);
+    ui->bScanVCPlot->yAxis2->setVisible(true);
+
+    graphID = 0;
+    foreach (LayerName layer, allLayers) {
+        ui->bScanVCPlot->addGraph();
+        ui->bScanVCPlot->graph(graphID)->setPen(QPen(scan->getLayerColor(layer)));
+        ui->bScanVCPlot->graph(graphID)->setLineStyle(QCPGraph::lsLine);
+        ui->bScanVCPlot->graph(graphID)->setScatterStyle(QCPScatterStyle(QCPScatterStyle::ssCircle,1.0));
+        graphID++;
+    }
+
+    // layers plots (reference)
+    ui->layersManualCPlot->clearGraphs();
+
+    ui->layersManualCPlot->xAxis->setLabel("B-scan cross-section");
+    ui->layersManualCPlot->yAxis->setLabel("B-scan pixel (vertical direction)");
+    ui->layersManualCPlot->xAxis->setRange(0,scan->getBscanWidth());
+    ui->layersManualCPlot->yAxis->setRange(0,scan->getBscanHeight());
+    ui->layersManualCPlot->xAxis->grid()->setVisible(false);
+    ui->layersManualCPlot->yAxis->grid()->setVisible(false);
+
+    graphID = 0;
+    foreach (LayerName layer, allLayers) {
+        ui->layersManualCPlot->addGraph();
+        ui->layersManualCPlot->graph(graphID)->setPen(QPen(scan->getLayerColor(layer)));
+        ui->layersManualCPlot->graph(graphID)->setLineStyle(QCPGraph::lsLine);
+        ui->layersManualCPlot->graph(graphID)->setScatterStyle(QCPScatterStyle(QCPScatterStyle::ssCircle,0.5));
+        graphID++;
+    }
+
+    // layers plots (automatic)
+    ui->layersAutoCPlot->clearGraphs();
+
+    ui->layersAutoCPlot->xAxis->setLabel("B-scan cross-section");
+    ui->layersAutoCPlot->yAxis->setLabel("B-scan pixel (vertical direction)");
+    ui->layersAutoCPlot->xAxis->setRange(0,scan->getBscanWidth());
+    ui->layersAutoCPlot->yAxis->setRange(0,scan->getBscanHeight());
+    ui->layersAutoCPlot->xAxis->grid()->setVisible(false);
+    ui->layersAutoCPlot->yAxis->grid()->setVisible(false);
+
+    graphID = 0;
+    foreach (LayerName layer, allLayers) {
+        ui->layersAutoCPlot->addGraph();
+        ui->layersAutoCPlot->graph(graphID)->setPen(QPen(scan->getLayerColor(layer)));
+        ui->layersAutoCPlot->graph(graphID)->setLineStyle(QCPGraph::lsLine);
+        ui->layersAutoCPlot->graph(graphID)->setScatterStyle(QCPScatterStyle(QCPScatterStyle::ssCircle,0.5));
+        graphID++;
+    }
+}
+
 QList<LayerName> OCTAnnotate::getLayersToDisplay()
 {
     QList<LayerName> layers;
@@ -1103,121 +1209,22 @@ void OCTAnnotate::displayLayers(QCustomPlot *plot, bool isAuto)
     }
 }
 
-void OCTAnnotate::adjustScrollBar(QScrollBar *scrollBar, double factor)
-{
-    scrollBar->setValue(int(factor * scrollBar->value() + ((factor - 1) * scrollBar->pageStep()/2)));
-}
-
-
-// general data edit ------------------------------------------------------------------------------
-
-// m-charts edit ----------------------------------------------------------------------------------
-
-// virtual map and layers plot --------------------------------------------------------------------
-void OCTAnnotate::setupBScanPlots(){
-    ui->bScanHCPlot->clearGraphs();
-
-    // configure axis
-    ui->bScanHCPlot->xAxis->setLabel("B-scan pixel (horizontal direction)");    // bottom
-    ui->bScanHCPlot->yAxis->setLabel("B-scan pixel (vertical direction)");      // left
-    ui->bScanHCPlot->xAxis->setRange(0,scan->getBscanWidth());
-    ui->bScanHCPlot->yAxis->setRange(0,scan->getBscanHeight());
-    ui->bScanHCPlot->xAxis->grid()->setVisible(false);
-    ui->bScanHCPlot->yAxis->grid()->setVisible(false);
-
-    ui->bScanHCPlot->xAxis2->setLabel("Scan width [mm]");
-    ui->bScanHCPlot->yAxis2->setLabel("Scan depth [um]");
-    ui->bScanHCPlot->xAxis2->setRange(0,scan->getScanWidth());      // top
-    ui->bScanHCPlot->yAxis2->setRange(0,scan->getScanDepth()*1000); // right
-    QSharedPointer<QCPAxisTicker> ticker(new QCPAxisTicker);
-    ticker->setTickCount(static_cast<int>(scan->getScanDepth()*1000/100));
-    ui->bScanHCPlot->yAxis2->setTicker(ticker);
-    ui->bScanHCPlot->xAxis2->setVisible(true);
-    ui->bScanHCPlot->yAxis2->setVisible(true);
-
-    // add graphs
-    QList<LayerName> allLayers = getAllLayers();
-    int graphID = 0;
-    foreach (LayerName layer, allLayers) {
-        ui->bScanHCPlot->addGraph();
-        ui->bScanHCPlot->graph(graphID)->setPen(QPen(scan->getLayerColor(layer)));
-        ui->bScanHCPlot->graph(graphID)->setLineStyle(QCPGraph::lsLine);
-        ui->bScanHCPlot->graph(graphID)->setScatterStyle(QCPScatterStyle(QCPScatterStyle::ssCircle,1.5)); // 3.5 do publikacji
-        graphID++;
-    }
-
-    // normal image
-    ui->bScanVCPlot->clearGraphs();
-
-    ui->bScanVCPlot->xAxis->setLabel("B-scan cross-section");
-    ui->bScanVCPlot->yAxis->setLabel("B-scan pixel (vertical direction)");
-    ui->bScanVCPlot->xAxis->setRange(0,scan->getBscansNumber());
-    ui->bScanVCPlot->yAxis->setRange(0,scan->getBscanHeight());
-    ui->bScanVCPlot->xAxis->grid()->setVisible(false);
-    ui->bScanVCPlot->yAxis->grid()->setVisible(false);
-
-    ui->bScanVCPlot->xAxis2->setLabel("Scan width [mm]");
-    ui->bScanVCPlot->yAxis2->setLabel("Scan depth [um]");
-    ui->bScanVCPlot->xAxis2->setRange(0,scan->getScanWidth());      // top
-    ui->bScanVCPlot->yAxis2->setRange(0,scan->getScanDepth()*1000); // right
-    ui->bScanVCPlot->yAxis2->setTicker(ticker);
-    ui->bScanVCPlot->xAxis2->setVisible(true);
-    ui->bScanVCPlot->yAxis2->setVisible(true);
-
-    graphID = 0;
-    foreach (LayerName layer, allLayers) {
-        ui->bScanVCPlot->addGraph();
-        ui->bScanVCPlot->graph(graphID)->setPen(QPen(scan->getLayerColor(layer)));
-        ui->bScanVCPlot->graph(graphID)->setLineStyle(QCPGraph::lsLine);
-        ui->bScanVCPlot->graph(graphID)->setScatterStyle(QCPScatterStyle(QCPScatterStyle::ssCircle,1.0));
-        graphID++;
-    }
-
-    // layers plots (reference)
-    ui->layersManualCPlot->clearGraphs();
-
-    ui->layersManualCPlot->xAxis->setLabel("B-scan cross-section");
-    ui->layersManualCPlot->yAxis->setLabel("B-scan pixel (vertical direction)");
-    ui->layersManualCPlot->xAxis->setRange(0,scan->getBscanWidth());
-    ui->layersManualCPlot->yAxis->setRange(0,scan->getBscanHeight());
-    ui->layersManualCPlot->xAxis->grid()->setVisible(false);
-    ui->layersManualCPlot->yAxis->grid()->setVisible(false);
-
-    graphID = 0;
-    foreach (LayerName layer, allLayers) {
-        ui->layersManualCPlot->addGraph();
-        ui->layersManualCPlot->graph(graphID)->setPen(QPen(scan->getLayerColor(layer)));
-        ui->layersManualCPlot->graph(graphID)->setLineStyle(QCPGraph::lsLine);
-        ui->layersManualCPlot->graph(graphID)->setScatterStyle(QCPScatterStyle(QCPScatterStyle::ssCircle,0.5));
-        graphID++;
-    }
-
-    // layers plots (automatic)
-    ui->layersAutoCPlot->clearGraphs();
-
-    ui->layersAutoCPlot->xAxis->setLabel("B-scan cross-section");
-    ui->layersAutoCPlot->yAxis->setLabel("B-scan pixel (vertical direction)");
-    ui->layersAutoCPlot->xAxis->setRange(0,scan->getBscanWidth());
-    ui->layersAutoCPlot->yAxis->setRange(0,scan->getBscanHeight());
-    ui->layersAutoCPlot->xAxis->grid()->setVisible(false);
-    ui->layersAutoCPlot->yAxis->grid()->setVisible(false);
-
-    graphID = 0;
-    foreach (LayerName layer, allLayers) {
-        ui->layersAutoCPlot->addGraph();
-        ui->layersAutoCPlot->graph(graphID)->setPen(QPen(scan->getLayerColor(layer)));
-        ui->layersAutoCPlot->graph(graphID)->setLineStyle(QCPGraph::lsLine);
-        ui->layersAutoCPlot->graph(graphID)->setScatterStyle(QCPScatterStyle(QCPScatterStyle::ssCircle,0.5));
-        graphID++;
-    }
-}
-
 // display statistics -----------------------------------------------------------------------------
 
 // recalculate virtual map for selected values ----------------------------------------------------
 
 // annotations -------------------------------------------------------------------------------
 void OCTAnnotate::on_actionReadManualAnnotations_triggered()
+{
+    readAnnotations(MANUAL);
+}
+
+void OCTAnnotate::on_actionReadAutoAnnotations_triggered()
+{
+    readAnnotations(AUTO);
+}
+
+void OCTAnnotate::readAnnotations(bool isManual)
 {
     if (scan->getIsLoaded()){
 //        QMessageBox msgBox;
@@ -1238,19 +1245,43 @@ void OCTAnnotate::on_actionReadManualAnnotations_triggered()
 
         if (selectNew){
             // read data from file
-            QString manualSegmentFilePath = QFileDialog::getOpenFileName(this, tr("Open file with manual segmentations"), examDir.path(), tr("OCTAnnotate file (*.mvri);;All files (*.*)"));
-            if (!manualSegmentFilePath.isEmpty()){
+            QString segmentFilePath;
+            if (isManual)
+                segmentFilePath = QFileDialog::getOpenFileName(this, tr("Open file with manual segmentations"), examDir.path(), tr("OCTAnnotate file (*.mvri);;All files (*.*)"));
+            else
+                segmentFilePath = QFileDialog::getOpenFileName(this, tr("Open file with auto segmentations"), examDir.path(), tr("Json file (*.json);;OCTExplorer file (*.xml);;Text file (*.txt)"));
 
-                ui->statusBar->showMessage("Trwa odczyt referencyjnych segmentacji...");
+            if (segmentFilePath.isEmpty()){
+                if (scan->hasAnnotations(isManual)){
+                    QMessageBox msgBox;
+                    msgBox.addButton(" Leave data ", QMessageBox::RejectRole);
+                    msgBox.addButton(" Save ", QMessageBox::AcceptRole);
+
+                    msgBox.setText("Do you want to clear segmentation data?");
+                    if (msgBox.exec() == QMessageBox::Accepted){
+                        scan->resetAnnotations(isManual);
+                        ui->layersAutoCPlot->clearGraphs();
+                        ui->layersAutoCPlot->replot();
+                    }
+                }
+                return;
+            } else {
+                if (isManual)
+                    ui->statusBar->showMessage("Trwa odczyt referencyjnych segmentacji...");
+                else
+                    ui->statusBar->showMessage("Trwa odczyt automatycznych segmentacji...");
                 progressBar->setMaximum(100);
                 progressBar->setVisible(true);
                 progressBar->setValue(0);
 
                 ReadWriteData *rwData = new ReadWriteData();
                 rwData->setDataObject(&patientData, scan);
-                rwData->setDataSaveStrucure(dataSaveStructure);
-                rwData->setFilePath(MANUAL, manualSegmentFilePath);
-                rwData->addDirective("readManualSegmentationData");
+                rwData->setDataSaveStrucure(dataSaveFormat);
+                rwData->setFilePath(isManual, segmentFilePath);
+                if (isManual)
+                    rwData->addDirective("readManualSegmentationData");
+                else
+                    rwData->addDirective("readAutoSegmentationData");
 
                 QThread *thread = new QThread;
                 rwData->moveToThread(thread);
@@ -1269,10 +1300,27 @@ void OCTAnnotate::on_actionReadManualAnnotations_triggered()
 
 void OCTAnnotate::on_actionSaveManualAnnotations_triggered()
 {
-    if (scan->getIsLoaded() && scan->hasAnnotations(MANUAL)){
-        QString manualFilePath = QFileDialog::getSaveFileName(this, tr("Save reference segmentations as..."), examDir.path() + "/mvri/" + scanName, tr("OCTAnnotate file (*.mvri)"));
-        if (!manualFilePath.isEmpty()){
-            ui->statusBar->showMessage("Trwa zapis automatycznych segmentacji...");
+    saveAnnotations(MANUAL);
+}
+
+void OCTAnnotate::on_actionSaveAutoAnnotations_triggered()
+{
+    saveAnnotations(AUTO);
+}
+
+void OCTAnnotate::saveAnnotations(bool isManual)
+{
+    if (scan->getIsLoaded() && scan->hasAnnotations(isManual)){
+        QString filePath;
+        if (isManual)
+            filePath = QFileDialog::getSaveFileName(this, tr("Save reference segmentations as..."), examDir.path() + "/mvri/" + scanName, tr("OCTAnnotate file (*.mvri)"));
+        else
+            filePath = QFileDialog::getSaveFileName(this, tr("Save auto segmentations as..."), examDir.path() + "/avri/" + scanName, tr("Json file (*.json);;OCTExplorer file (*.xml);;Text file (*.txt)"));;
+        if (!filePath.isEmpty()){
+            if (isManual)
+                ui->statusBar->showMessage("Trwa zapis referencyjnych segmentacji...");
+            else
+                ui->statusBar->showMessage("Trwa zapis automatycznych segmentacji...");
             progressBar->setMaximum(100);
             progressBar->setVisible(true);
             progressBar->setValue(0);
@@ -1280,87 +1328,12 @@ void OCTAnnotate::on_actionSaveManualAnnotations_triggered()
             ReadWriteData *rwData = new ReadWriteData();
             rwData->setDataObject(&patientData, scan);
             rwData->setAppVersion(appVersion);
-            rwData->setFilePath(MANUAL, manualFilePath);
-            rwData->addDirective("saveManualSegmentationData");
-            rwData->setDataSaveStrucure(dataSaveStructure);
-
-            QThread *thread = new QThread;
-            rwData->moveToThread(thread);
-            connect(thread, SIGNAL(started()), rwData, SLOT(process()));
-            connect(rwData, SIGNAL(errorOccured(QString)), this, SLOT(on_errorOccured(QString)));
-            connect(rwData, SIGNAL(processingData(double,QString)), this, SLOT(on_processingData(double,QString)));
-            connect(rwData, SIGNAL(savingDataFinished(QString)), this, SLOT(on_savingDataFinished(QString)));
-            connect(rwData, SIGNAL(finished()), thread, SLOT(quit()));
-            connect(rwData, SIGNAL(finished()), rwData, SLOT(deleteLater()));
-            connect(thread, SIGNAL(finished()), thread, SLOT(deleteLater()));
-            thread->start();
-        }
-    }
-}
-
-void OCTAnnotate::on_actionReadAutoAnnotations_triggered()
-{
-    if (scan->getIsLoaded()){
-
-        // read data from file
-        QString autoSegmentFilePath;
-        autoSegmentFilePath = QFileDialog::getOpenFileName(this, tr("Open file with auto segmentations"), examDir.path(), tr("Json file (*.json);;OCTExplorer file (*.xml);;Text file (*.txt)"));
-
-        if (autoSegmentFilePath.isEmpty()){
-            if (scan->hasAnnotations(AUTO)){
-                QMessageBox msgBox;
-                msgBox.addButton(" Leave data ", QMessageBox::RejectRole);
-                msgBox.addButton(" Save ", QMessageBox::AcceptRole);
-
-                msgBox.setText("Do you want to clear auto segmentation data?");
-                if (msgBox.exec() == QMessageBox::Accepted){
-                    scan->resetAnnotations(AUTO);
-                    ui->layersAutoCPlot->clearGraphs();
-                    ui->layersAutoCPlot->replot();
-                }
-            }
-            return;
-        } else {
-            ui->statusBar->showMessage("Trwa odczyt automatycznych segmentacji...");
-            progressBar->setMaximum(100);
-            progressBar->setVisible(true);
-            progressBar->setValue(0);
-
-            ReadWriteData *rwData = new ReadWriteData();
-            rwData->setDataObject(&patientData, scan);
-            rwData->setDataSaveStrucure(dataSaveStructure);
-            rwData->setFilePath(AUTO, autoSegmentFilePath);
-            rwData->addDirective("readAutoSegmentationData");
-
-            QThread *thread = new QThread;
-            rwData->moveToThread(thread);
-            connect(thread, SIGNAL(started()), rwData, SLOT(process()));
-            connect(rwData, SIGNAL(errorOccured(QString)), this, SLOT(on_errorOccured(QString)));
-            connect(rwData, SIGNAL(processingData(double,QString)), this, SLOT(on_processingData(double,QString)));
-            connect(rwData, SIGNAL(readingDataFinished(QString)), this, SLOT(on_readingDataFinished(QString)));
-            connect(rwData, SIGNAL(finished()), thread, SLOT(quit()));
-            connect(rwData, SIGNAL(finished()), rwData, SLOT(deleteLater()));
-            connect(thread, SIGNAL(finished()), thread, SLOT(deleteLater()));
-            thread->start();
-        }
-    }
-}
-
-void OCTAnnotate::on_actionSaveAutoAnnotations_triggered()
-{
-    if (scan->getIsLoaded() && scan->hasAnnotations(AUTO)){
-        QString autoSegmentFilePath = QFileDialog::getSaveFileName(this, tr("Save auto segmentations as..."), examDir.path() + "/" + scanName, tr("Json file (*.json);;OCTExplorer file (*.xml);;Text file (*.txt)"));
-        if (!autoSegmentFilePath.isEmpty()){
-            ui->statusBar->showMessage("Trwa zapis automatycznych segmentacji...");
-            progressBar->setMaximum(100);
-            progressBar->setVisible(true);
-            progressBar->setValue(0);
-
-            ReadWriteData *rwData = new ReadWriteData();
-            rwData->setDataObject(&patientData, scan);
-            rwData->setFilePath(AUTO, autoSegmentFilePath);
-            rwData->addDirective("saveAutoSegmentationData");
-//            rwData->setDataSaveStrucure(dataSaveStructure);
+            rwData->setFilePath(isManual, filePath);
+            rwData->setDataSaveStrucure(dataSaveFormat);
+            if (isManual)
+                rwData->addDirective("saveManualSegmentationData");
+            else
+                rwData->addDirective("saveAutoSegmentationData");
 
             QThread *thread = new QThread;
             rwData->moveToThread(thread);
@@ -1376,6 +1349,31 @@ void OCTAnnotate::on_actionSaveAutoAnnotations_triggered()
     } else {
         QMessageBox::critical(this, tr("Error"), tr("To save the data, it must be first loaded!"));
     }
+}
+
+void OCTAnnotate::on_actionCopyAutoSegmentationsAsManual_triggered()
+{
+//    AutoAsManualDialog autoAsManualdialog(this);
+
+//    if (autoAsManualdialog.exec()){
+        QList<LayerName> selectedLayers = getAllLayers(); // autoAsManualdialog.getSelectedLayers();
+        int selectedScans = 0; // autoAsManualdialog.getSelectedScans();
+
+        foreach (LayerName layer, selectedLayers) {
+            if (selectedScans == 0){    // all scans
+                scan->copyAuto2ManualLayerPoints(layer);
+            } else if (selectedScans == 1){ // empty scans
+                // TODO: check for B-scans without segmentations
+                // ...
+            } else if (selectedScans == 2){ // current scan
+                scan->copyAuto2ManualLayerPoints(layer, currentImageNumber);
+            }
+        }
+        on_tabWidget_currentChanged();
+//        octDataModified = true;
+
+        QMessageBox::information(this, "OCTAnnotate", "Auto layers segmentations were copied as manual. \n Remember to save them to file before exiting!");
+//    }
 }
 
 // other ------------------------------------------------------------------------------------------

@@ -97,6 +97,7 @@ private slots:
     void on_actionSaveManualAnnotations_triggered();
     void on_actionReadAutoAnnotations_triggered();
     void on_actionSaveAutoAnnotations_triggered();
+    void on_actionCopyAutoSegmentationsAsManual_triggered();
 
 // Database
 
@@ -118,12 +119,6 @@ private:
     void loadConfigurations(SettingsDialog *sDialog);
     void enableNavigationButtons();
 
-// Data
-    bool readPatientData(QDir *dir);
-    void readOctExamData();
-
-// Read Xml Auto Annotations
-
 // display OCT exam
     void loadImage(int imageNumber);
     void loadNormalImage(int normalImageNumber);
@@ -131,6 +126,12 @@ private:
     void adjustScrollBar(QScrollBar *scrollBar, double factor);
     void rescaleImage();
     void changeImageRange(int dir);
+
+// Data
+//    bool readPatientData(QDir *dir);
+//    void readOctExamData();
+    void readAnnotations(bool isManual);
+    void saveAnnotations(bool isManual);
 
 // paint on OCT exam
     QList<LayerName> getLayersToDisplay();
@@ -158,7 +159,7 @@ private:
     int currentImageNumber;
     int currentNormalImageNumber;
     bool showCenterOnBscan;
-    QString dataSaveStructure;
+    QString dataSaveFormat;
 
     QScrollArea *scrollArea;
     QScrollArea *scrollArea2;

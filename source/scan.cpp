@@ -266,6 +266,11 @@ QVector<double> Scan::getLayerPointsVector(bool isManual, LayerName layer, int b
     return this->layers[static_cast<int>(layer)]->getPointsVector(isManual, bscanNumber, isNormal, this->bscanHeight);
 }
 
+void Scan::copyAuto2ManualLayerPoints(LayerName layer, int bscanNumber)
+{
+    this->layers[static_cast<int>(layer)]->copyAuto2ManualPoints(bscanNumber);
+}
+
 bool Scan::hasAnnotations(bool isManual)
 {
     if (isManual)

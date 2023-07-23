@@ -155,7 +155,6 @@ extern std::vector<float> loadImageTest(cv::Mat mat, int sizeX=384, int sizeY=64
     // resize
     cv::resize(image, image, cv::Size(sizeX, sizeY));
 
-//    qDebug() << "Glorius postep";
     // reshape to 1D
     image = image.reshape(1, 1);
     cv:: normalize(image, image, -5.41, 90.88, cv::NORM_MINMAX, CV_32F, cv::noArray());

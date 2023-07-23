@@ -13,9 +13,6 @@
 #include <QtSql>
 #include "scan.h"
 #include "settingsdialog.h"
-#include <onnxruntime_cxx_api.h>
-#include <opencv2/imgproc/imgproc.hpp>
-#include <opencv2/highgui.hpp>
 
 namespace Ui {
 class OCTAnnotate;
@@ -111,6 +108,7 @@ public slots:
 
     void on_readingDataFinished(QString data);
     void on_savingDataFinished(QString data);
+    void on_segmentationFinished();
 
 protected:
     bool eventFilter(QObject *target, QEvent *event);
@@ -132,9 +130,9 @@ private:
     void changeImageRange(int dir);
 
 // perform automatic segmentation
-    void layersSegmentation();
-    cv::Mat composeImage(std::vector<float>& results, int64_t numInputElements);
-    void findPoints(cv::Mat edges, QVector<double>& z_data, QVector<double>& x_data, LayerName layer, int imageNumber);
+//    void layersSegmentation();
+//    cv::Mat composeImage(std::vector<float>& results, int64_t numInputElements);
+//    void findPoints(cv::Mat edges, QVector<double>& z_data, QVector<double>& x_data, LayerName layer, int imageNumber);
 
 // Data
 //    bool readPatientData(QDir *dir);

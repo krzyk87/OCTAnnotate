@@ -1,10 +1,13 @@
 #ifndef CALCULATE_H
 #define CALCULATE_H
 
+#include "scan.h"
 #include <QtCore>
 #include <QObject>
-#include "patientdata.h"
-#include "scan.h"
+#include <QImage>
+#include <onnxruntime_cxx_api.h>
+#include <opencv2/imgproc/imgproc.hpp>
+#include <opencv2/highgui.hpp>
 
 class Calculate : public QObject
 {
@@ -12,40 +15,24 @@ class Calculate : public QObject
 public:
     explicit Calculate(QObject *parent = 0);
 
-    QString examDataDir;
-    QString octDirPath;
-    QString alg;
-    QString autoFilePath;
-
 signals:
-    void finished();
+    void segmentationFinished();
     void errorOccured(QString err);
     void processingData(double, QString);
 
 public slots:
+    void setObjectData(Scan *sData);
+
+    void layersSegmentation();
+    cv::Mat composeImage(std::vector<float>& results, int64_t numInputElements);
+    void findPoints(cv::Mat edges, QVector<double>& z_data, QVector<double>& x_data, LayerName layer, int imageNumber);
+
     void imageEnhancement(QImage *img, float contrast, int brightness);
-    void setFolderList(QList<QString> list);
-    void setupMatrixes(OCTDevice device);
     QImage calculateFundus(QList< QList< QList<int> > > octData);
 
 private:
-    QList<QString> folderList;
-    int folderNumber;
-    int folderCount;
+    Scan *scan;
 
-    int voxelDepth;
-    int bscanWidth;
-    int bscanHeight;
-    int bscansCount;
-
-    PatientData patientData;
-
-    struct Scan{
-        QList<double> bscan;
-    };
-
-    QList<QString> initials;
-    QList<int> age;
 };
 
 #endif // CALCULATE_H

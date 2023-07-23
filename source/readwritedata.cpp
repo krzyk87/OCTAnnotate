@@ -1027,14 +1027,6 @@ void ReadWriteData::saveSegmentationData(bool isManual)
 //    }
 
     QString filepath = isManual ? manualFilePath : autoFilePath;
-//    if (isManual)
-//    {
-//        filepath = manualFilePath;
-//    }
-//    else
-//    {
-//        filepath = autoFilePath;
-//    }
     QFile segmentFile = QFile(filepath);
     scanName = QFileInfo(segmentFile).completeBaseName();
 

@@ -1318,7 +1318,7 @@
    </property>
    <widget class="QMenu" name="menuScan">
     <property name="title">
-     <string>Skan</string>
+     <string>Scan</string>
     </property>
     <addaction name="actionLoadOCTFile"/>
     <addaction name="actionLoadOCTSequence"/>
@@ -1326,7 +1326,7 @@
    </widget>
    <widget class="QMenu" name="menuProgram">
     <property name="title">
-     <string>Program</string>
+     <string>Application</string>
     </property>
     <addaction name="separator"/>
     <addaction name="actionSettings"/>
@@ -1335,7 +1335,7 @@
    </widget>
    <widget class="QMenu" name="menuSegmentations">
     <property name="title">
-     <string>Segmentacje</string>
+     <string>Segmentations</string>
     </property>
     <addaction name="actionReadManualAnnotations"/>
     <addaction name="actionSaveManualAnnotations"/>
@@ -1344,6 +1344,8 @@
     <addaction name="actionSaveAutoAnnotations"/>
     <addaction name="separator"/>
     <addaction name="actionCopyAutoSegmentationsAsManual"/>
+    <addaction name="separator"/>
+    <addaction name="actionPerformAutomaticSegmentation"/>
    </widget>
    <addaction name="menuProgram"/>
    <addaction name="menuScan"/>
@@ -1363,17 +1365,17 @@
   </widget>
   <action name="actionLoadOCTSequence">
    <property name="text">
-    <string>Załaduj skan OCT (katalog obrazów)</string>
+    <string>Load OCT scan (image folder)</string>
    </property>
   </action>
   <action name="actionClose">
    <property name="text">
-    <string>Zamknij</string>
+    <string>Close</string>
    </property>
   </action>
   <action name="actionSettings">
    <property name="text">
-    <string>Ustawienia</string>
+    <string>Settings</string>
    </property>
   </action>
   <action name="actionImageFlattening">
@@ -1389,32 +1391,37 @@
   </action>
   <action name="actionLoadOCTFile">
    <property name="text">
-    <string>Załaduj skan OCT (plik .oct)</string>
+    <string>Load OCT scan (.oct file)</string>
    </property>
   </action>
   <action name="actionReadManualAnnotations">
    <property name="text">
-    <string>Wczytaj referencyjne segmentacje</string>
+    <string>Load reference segmentations</string>
    </property>
   </action>
   <action name="actionReadAutoAnnotations">
    <property name="text">
-    <string>Wczytaj automatyczne segmentacje</string>
+    <string>Load automatic segmentations</string>
    </property>
   </action>
   <action name="actionSaveAutoAnnotations">
    <property name="text">
-    <string>Zapisz automatyczne segmentacje</string>
+    <string>Save automatic segmentations</string>
    </property>
   </action>
   <action name="actionSaveManualAnnotations">
    <property name="text">
-    <string>Zapisz referencyjne segmentacje</string>
+    <string>Save reference segmentations</string>
    </property>
   </action>
   <action name="actionCopyAutoSegmentationsAsManual">
    <property name="text">
-    <string>Kopiuj automatyczne segmentacje jako referencyjne</string>
+    <string>Copy automatic segmentations as reference</string>
+   </property>
+  </action>
+  <action name="actionPerformAutomaticSegmentation">
+   <property name="text">
+    <string>Perform automatic segmentation</string>
    </property>
   </action>
  </widget>

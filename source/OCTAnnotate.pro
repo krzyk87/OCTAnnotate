@@ -14,9 +14,10 @@ TEMPLATE = app
 
 
 SOURCES += main.cpp\
+    autoasmanualdialog.cpp \
     functions.cpp \
     layer.cpp \
-        octannotate.cpp \
+    octannotate.cpp \
     octdata.cpp \
     patientdata.cpp \
     qcustomplot.cpp \
@@ -26,6 +27,7 @@ SOURCES += main.cpp\
     settingsdialog.cpp
 
 HEADERS  += octannotate.h \
+    autoasmanualdialog.h \
     enums.h \
     functions.h \
     layer.h \
@@ -39,6 +41,12 @@ HEADERS  += octannotate.h \
 
 FORMS    += octannotate.ui \
     settingsdialog.ui
+
+INCLUDEPATH += C:\QtProjects\OCTAnnotate-GitHub\source\packages\Microsoft.ML.OnnxRuntime.1.15.0\build\native\include \
+    C:\QtProjects\OCTAnnotate-GitHub\source\packages\opencv4.2.2020.5.26\build\native\include
+
+LIBS += C:\QtProjects\OCTAnnotate-GitHub\source\packages\Microsoft.ML.OnnxRuntime.1.15.0\runtimes\win-x64\native\*.lib \
+    C:\QtProjects\OCTAnnotate-GitHub\source\packages\opencv4.2.2020.5.26\build\native\x64\vc15\lib\*.lib
 
 #INCLUDEPATH += C:\\opencv\\mybuild\\install\\include
 

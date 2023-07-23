@@ -1,5 +1,6 @@
 #include "functions.h"
 #include "qmath.h"
+#include <vector>
 
 LayerName decodeLayer(QString layer){
     LayerName l = NONE;
@@ -123,4 +124,46 @@ double calculateDistance(QPoint p1, QPoint p2, double dx, double dy){
     }
     double dist = qSqrt(qPow(deltaX,2) + qPow(deltaY,2));
     return dist;
+}
+
+std::vector<float> slicing(std::vector<float>& arr,
+    int X, int Y)
+{
+
+    // Starting and Ending iterators
+    auto start = arr.begin() + X;
+    auto end = arr.begin() + Y + 1;
+
+    // To store the sliced vector
+    std::vector<float> result(Y - X + 1);
+
+    // Copy vector using copy function()
+    copy(start, end, result.begin());
+
+    // Return the final sliced vector
+    return result;
+}
+
+extern std::vector<float> loadImageTest(cv::Mat mat, int sizeX=384, int sizeY=640)
+{
+    cv::Mat image = mat;
+    if (image.empty()) {
+        qDebug() << "Error";
+    }
+    // convert from BGR to GREY
+
+    // resize
+    cv::resize(image, image, cv::Size(sizeX, sizeY));
+
+//    qDebug() << "Glorius postep";
+    // reshape to 1D
+    image = image.reshape(1, 1);
+    cv:: normalize(image, image, -5.41, 90.88, cv::NORM_MINMAX, CV_32F, cv::noArray());
+    // uint_8, [0, 255] -> float, [0, 1]
+    // Normalize number to between 0 and 1
+    // Convert to vector<float> from cv::Mat.
+    std::vector<float> vec;
+    image.convertTo(vec, CV_32F);
+
+    return vec;
 }

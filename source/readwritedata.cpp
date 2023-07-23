@@ -765,7 +765,7 @@ void ReadWriteData::parseXmlSurfaceLines(QXmlStreamReader &xml, QString versionN
     int scanNumber = 0; // y
     LayerName layer = NONE;
     if (versionName.isEmpty())
-        versionName = "OCTAnnotate_200";
+        versionName = "OCTAnnotate_170";
     QStringList versionList = versionName.split("_");
     QString versionApp = versionList.at(0);
     int versionNr = versionList.at(1).toInt();
@@ -1026,7 +1026,16 @@ void ReadWriteData::saveSegmentationData(bool isManual)
 //        emit processingData((++count)/tasks*100,"");
 //    }
 
-    QFile segmentFile = isManual ? QFile(manualFilePath) : QFile(autoFilePath);
+    QString filepath = isManual ? manualFilePath : autoFilePath;
+//    if (isManual)
+//    {
+//        filepath = manualFilePath;
+//    }
+//    else
+//    {
+//        filepath = autoFilePath;
+//    }
+    QFile segmentFile = QFile(filepath);
     scanName = QFileInfo(segmentFile).completeBaseName();
 
     if (!segmentFile.open(QIODevice::WriteOnly | QIODevice::Text | QIODevice::Truncate)){

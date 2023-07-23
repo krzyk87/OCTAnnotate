@@ -13,6 +13,9 @@
 #include <QtSql>
 #include "scan.h"
 #include "settingsdialog.h"
+#include <onnxruntime_cxx_api.h>
+#include <opencv2/imgproc/imgproc.hpp>
+#include <opencv2/highgui.hpp>
 
 namespace Ui {
 class OCTAnnotate;
@@ -98,6 +101,7 @@ private slots:
     void on_actionReadAutoAnnotations_triggered();
     void on_actionSaveAutoAnnotations_triggered();
     void on_actionCopyAutoSegmentationsAsManual_triggered();
+    void on_actionPerformAutomaticSegmentation_triggered();
 
 // Database
 
@@ -126,6 +130,11 @@ private:
     void adjustScrollBar(QScrollBar *scrollBar, double factor);
     void rescaleImage();
     void changeImageRange(int dir);
+
+// perform automatic segmentation
+    void layersSegmentation();
+    cv::Mat composeImage(std::vector<float>& results, int64_t numInputElements);
+    void findPoints(cv::Mat edges, QVector<double>& z_data, QVector<double>& x_data, LayerName layer, int imageNumber);
 
 // Data
 //    bool readPatientData(QDir *dir);

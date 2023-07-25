@@ -32,6 +32,14 @@ void Calculate::layersSegmentation()
     constexpr int64_t numInputElements = numChannels * height * width;
     auto modelPath = L"..\\models\\model.onnx";
 
+    // Use CUDA GPU and create session on GPU
+//    Ort::SessionOptions ort_session_options;
+//    OrtCUDAProviderOptions options;
+//    options.device_id = 0;
+//    OrtSessionOptionsAppendExecutionProvider_CUDA(ort_session_options, options.device_id);
+//    session = Ort::Session(env, modelPath ,ort_session_options);
+
+    // Use CPU
     session = Ort::Session(env, modelPath, Ort::SessionOptions{ nullptr });
 
     const std::vector<int64_t> inputShape = { 1, numChannels, height, width };

@@ -1003,7 +1003,7 @@
             <item row="0" column="0">
              <widget class="QPushButton" name="contrastResetButton">
               <property name="enabled">
-               <bool>false</bool>
+               <bool>true</bool>
               </property>
               <property name="maximumSize">
                <size>
@@ -1019,7 +1019,7 @@
             <item row="0" column="1">
              <widget class="QSlider" name="contrastSlider">
               <property name="enabled">
-               <bool>false</bool>
+               <bool>true</bool>
               </property>
               <property name="sizePolicy">
                <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
@@ -1056,7 +1056,7 @@
             <item row="1" column="0">
              <widget class="QPushButton" name="brightnessResetButton">
               <property name="enabled">
-               <bool>false</bool>
+               <bool>true</bool>
               </property>
               <property name="maximumSize">
                <size>
@@ -1072,7 +1072,7 @@
             <item row="1" column="1">
              <widget class="QSlider" name="brightnessSlider">
               <property name="enabled">
-               <bool>false</bool>
+               <bool>true</bool>
               </property>
               <property name="sizePolicy">
                <sizepolicy hsizetype="Fixed" vsizetype="Fixed">

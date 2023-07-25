@@ -287,8 +287,8 @@ void OCTAnnotate::loadImage(int imageNumber){
         enableNavigationButtons();
 
         // contrast enhancement and flattening
-//        Calculate *calc = new Calculate();
-//        calc->imageEnhancement(&image, contrast, brightness);
+        Calculate *calc = new Calculate();
+        calc->imageEnhancement(&image, contrast, brightness);
 
         // rescale image
         scaleFactor = qBound(0,scaleFactor,scales.count()-1);
@@ -324,8 +324,8 @@ void OCTAnnotate::loadNormalImage(int normalImageNumber){
         ui->prevNormalImageButton->setEnabled(true);
 
     // contrast enhancement
-//    Calculate *calc = new Calculate();
-//    calc->imageEnhancement(&normalImage, contrast, brightness);
+    Calculate *calc = new Calculate();
+    calc->imageEnhancement(&normalImage, contrast, brightness);
 
     // scale
     scaleFactor = qBound(0,scaleFactor,scales.count()-1);
